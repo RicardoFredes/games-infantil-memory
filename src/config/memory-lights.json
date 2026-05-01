@@ -1,0 +1,74 @@
+{
+  "meta": {
+    "id": "memory-lights",
+    "name": "Jogo das Luzes",
+    "description": "Memorize a sequência de luzes",
+    "version": "1.0.0",
+    "ageRange": [2, 7]
+  },
+  "lights": [
+    { "id": "red",    "color": "#FF4444", "glow": "#FF8888", "note": "C5", "emoji": "⭐", "label": "Vermelho (Dó)" },
+    { "id": "blue",   "color": "#4488FF", "glow": "#88BBFF", "note": "D5", "emoji": "🌙", "label": "Azul (Ré)" },
+    { "id": "yellow", "color": "#FFCC00", "glow": "#FFEE88", "note": "E5", "emoji": "☀️", "label": "Amarelo (Mi)" },
+    { "id": "green",  "color": "#44CC44", "glow": "#88EE88", "note": "G5", "emoji": "🌈", "label": "Verde (Sol)" }
+  ],
+  "audio": {
+    "instrument": "synth",
+    "volume": -12,
+    "victoryArpeggio": [
+      { "note": "C5", "duration": "8n" },
+      { "note": "E5", "duration": "8n" },
+      { "note": "G5", "duration": "8n" },
+      { "note": "C6", "duration": "4n" }
+    ],
+    "countdownPattern": [
+      { "note": "C5", "duration": "4n" },
+      { "note": "E5", "duration": "4n" },
+      { "note": "G5", "duration": "4n" },
+      { "note": "C6", "duration": "2n" }
+    ],
+    "errorPattern": [
+      { "note": "G4", "duration": "8n" },
+      { "note": "E4", "duration": "8n" },
+      { "note": "C4", "duration": "4n" }
+    ]
+  },
+  "difficulty": [
+    { "rounds": [1, 3],   "steps": 3,  "lightDuration": 800,  "gapDuration": 400 },
+    { "rounds": [4, 6],   "steps": 4,  "lightDuration": 700,  "gapDuration": 350 },
+    { "rounds": [7, 9],   "steps": 5,  "lightDuration": 600,  "gapDuration": 300 },
+    { "rounds": [10, 12], "steps": 6,  "lightDuration": 500,  "gapDuration": 250 },
+    { "rounds": [13, 15], "steps": 7,  "lightDuration": 450,  "gapDuration": 220 },
+    { "rounds": [16, 99], "steps": 8,  "lightDuration": 400,  "gapDuration": 200 }
+  ],
+  "scoring": {
+    "basePoints": 10,
+    "bonusAboveSteps": 3,
+    "bonusAbovePoints": 5,
+    "streakThreshold": 3,
+    "streakBonus": 15,
+    "maxScore": 999
+  },
+  "stars": [
+    { "threshold": 0,   "count": 1 },
+    { "threshold": 50,  "count": 2 },
+    { "threshold": 100, "count": 3 },
+    { "threshold": 200, "count": 4 },
+    { "threshold": 400, "count": 5 }
+  ],
+  "timing": {
+    "countdownDuration": 3000,
+    "celebrationDuration": 2000,
+    "wrongFlashDuration": 400,
+    "wrongFlashCount": 2
+  },
+  "behavior": {
+    "maxWrongAttempts": 3,
+    "reduceStepsOnFail": true,
+    "vibrateOnTouch": true
+  },
+  "theme": {
+    "backgroundGradient": "from-purple-200 via-pink-200 to-yellow-200",
+    "fontFamily": "Nunito, sans-serif"
+  }
+}

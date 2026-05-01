@@ -1,0 +1,50 @@
+<div
+  x-data="{ show: false, display: '3', animClass: '' }"
+  @ml:state-change.window="show = $event.detail.gameState === 'COUNTDOWN'"
+  @ml:countdown.window="display = $event.detail.display; animClass = ''; requestAnimationFrame(() => requestAnimationFrame(() => animClass = 'animate-zoomout'))"
+  class="fixed inset-0 z-40 flex items-center justify-center pointer-events-none"
+>
+  <!-- Blur backdrop -->
+  <div
+    x-show="show"
+    x-transition:enter="transition duration-500 ease-out"
+    x-transition:enter-start="opacity-0"
+    x-transition:enter-end="opacity-100"
+    x-transition:leave="transition duration-300 ease-in"
+    x-transition:leave-start="opacity-100"
+    x-transition:leave-end="opacity-0"
+    class="absolute inset-0 bg-black/25 backdrop-blur-sm"
+  ></div>
+
+  <!-- Countdown number -->
+  <div
+    x-show="show"
+    x-transition:enter="transition duration-300 ease-out"
+    x-transition:enter-start="opacity-0 scale-50"
+    x-transition:enter-end="opacity-100 scale-100"
+    class="relative rounded-full w-36 h-36 flex items-center justify-center shadow-2xl border-[6px] z-10 transition-all duration-500"
+    :class="display === 'Vai!'
+      ? 'bg-green-200/95 border-green-400 w-52 h-52'
+      : 'bg-white/90 border-purple-300'"
+  >
+    <span
+      class="font-black transition-all duration-500"
+      :class="[
+        display === 'Vai!' ? 'text-[4.5rem] text-green-600' : 'text-7xl text-purple-600',
+        animClass,
+      ]"
+      x-text="display"
+    ></span>
+  </div>
+</div>
+
+<style is:global>
+  .animate-zoomout {
+    animation: zoomOut 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  @keyframes zoomOut {
+    0%   { transform: scale(1.8); opacity: 0; }
+    60%  { opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+</style>

@@ -1,0 +1,23 @@
+{
+  "name": "game-memory-light",
+  "type": "module",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/check": "^0.9.4",
+    "alpinejs": "^3.14.9",
+    "astro": "^5.7.12",
+    "tone": "^15.0.4",
+    "typescript": "^5.8.3"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.1.6",
+    "daisyui": "^5.0.24",
+    "tailwindcss": "^4.1.6"
+  }
+}

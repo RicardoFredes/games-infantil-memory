@@ -1,0 +1,16 @@
+{
+  "games": [
+    {
+      "id": "memory-lights",
+      "name": "Jogo das Luzes",
+      "description": "Memorize a sequência de luzes coloridas e repita!",
+      "icon": "💡",
+      "route": "/jogos/luzes",
+      "ageRange": [2, 7],
+      "category": "sequencia",
+      "difficulty": "progressivo",
+      "color": "#7C3AED",
+      "enabled": true
+    }
+  ]
+}

@@ -1,0 +1,54 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import gamesConfig from '@/config/games.json';
+---
+
+<BaseLayout>
+  <div class="min-h-dvh flex flex-col items-center justify-center p-6">
+    <div class="text-center mb-8">
+      <h1 class="text-5xl font-black text-purple-700 mb-2 drop-shadow-sm">
+        🧠 Luzes da Memória
+      </h1>
+      <p class="text-lg text-purple-500 font-semibold">
+        Jogos divertidos para treinar sua memória!
+      </p>
+    </div>
+
+    <div class="grid gap-4 w-full max-w-sm">
+      {
+        gamesConfig.games.filter(g => g.enabled).map(game => (
+          <a
+            href={game.route}
+            class="group relative overflow-hidden bg-white/80 backdrop-blur rounded-3xl p-6 shadow-lg border-2 border-white/60
+                   hover:scale-[1.03] hover:shadow-xl transition-all duration-300 cursor-pointer"
+          >
+            <div class="flex items-center gap-4">
+              <div
+                class="w-20 h-20 rounded-2xl flex items-center justify-center text-4xl shadow-md"
+                style={`background: linear-gradient(135deg, ${game.color}22, ${game.color}44)`}
+              >
+                {game.icon}
+              </div>
+              <div class="flex-1">
+                <h2 class="text-xl font-extrabold text-purple-800">{game.name}</h2>
+                <p class="text-sm text-purple-500/80 mt-1">{game.description}</p>
+                <div class="mt-2">
+                  <span class="badge badge-sm badge-ghost text-xs">
+                    {game.ageRange[0]}-{game.ageRange[1]} anos
+                  </span>
+                </div>
+              </div>
+              <div class="text-3xl text-purple-300 group-hover:text-purple-500 group-hover:translate-x-1 transition-all">
+                ▶
+              </div>
+            </div>
+          </a>
+        ))
+      }
+    </div>
+
+    <div class="mt-8 text-center text-purple-400/60 text-sm">
+      <p>Mais jogos em breve!</p>
+    </div>
+  </div>
+</BaseLayout>

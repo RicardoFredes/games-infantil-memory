@@ -1,0 +1,28 @@
+<div x-data="scoreBoard" class="flex items-center justify-between px-4 py-3 w-full z-30">
+  <div class="flex items-center gap-2">
+    <a href="/" class="btn btn-ghost btn-sm btn-circle text-xl" aria-label="Voltar">
+      ←
+    </a>
+  </div>
+  <div class="flex items-center gap-3">
+    <div class="flex items-center gap-0.5">
+      <template x-for="i in 5" :key="i">
+        <span
+          class="text-xl transition-all duration-500"
+          :class="i <= localStars ? 'scale-110' : 'opacity-25 scale-75'"
+          :style="i <= localStars ? 'animation: star-spin 0.5s ease-out' : ''"
+        >⭐</span>
+      </template>
+    </div>
+    <div
+      id="score-box"
+      class="relative rounded-full px-5 py-2 border-2 min-w-[80px] flex items-center justify-end transition-all duration-500"
+      :class="scorePulse
+        ? 'scale-125 bg-yellow-100/90 border-yellow-400 shadow-[0_0_25px_rgba(251,191,36,0.6)]'
+        : 'bg-white/80 border-purple-200'"
+    >
+      <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-gradient-to-br from-yellow-300 to-yellow-500 border-2 border-yellow-600 shadow-inner text-yellow-900 text-xs font-black mr-1">$</span>
+      <span class="font-extrabold text-xl text-purple-700 tabular-nums transition-all duration-200" x-text="displayScore"></span>
+    </div>
+  </div>
+</div>

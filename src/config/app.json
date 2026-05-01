@@ -1,0 +1,22 @@
+{
+  "app": {
+    "name": "Luzes da Memória",
+    "shortName": "LuzesMemo",
+    "description": "Jogos de memória para crianças de 2 a 7 anos",
+    "version": "1.0.0",
+    "theme": "cupcake"
+  },
+  "theme": {
+    "backgroundGradient": "from-purple-200 via-pink-200 to-yellow-200",
+    "fontFamily": "'Nunito', sans-serif",
+    "primaryColor": "#7C3AED",
+    "secondaryColor": "#EC4899",
+    "accentColor": "#FBBF24"
+  },
+  "pwa": {
+    "backgroundColor": "#FCE7F3",
+    "themeColor": "#7C3AED",
+    "display": "standalone",
+    "orientation": "portrait"
+  }
+}

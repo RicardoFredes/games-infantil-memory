@@ -1,0 +1,21 @@
+---
+import '@/styles/global.css';
+import BaseHead from '@/components/ui/BaseHead.astro';
+import appConfig from '@/config/app.json';
+---
+
+<!doctype html>
+<html lang="pt-BR" data-theme={appConfig.app.theme}>
+  <head>
+    <BaseHead />
+  </head>
+  <body class={`bg-gradient-to-br ${appConfig.theme.backgroundGradient} min-h-dvh overscroll-none antialiased`}
+        style={`font-family: ${appConfig.theme.fontFamily}`}>
+    <main class="min-h-dvh">
+      <slot />
+    </main>
+    <footer class="text-center py-2 text-xs text-base-content/40">
+      Animated icons by <a href="https://lordicon.com" class="underline">Lordicon.com</a>
+    </footer>
+  </body>
+</html>
