@@ -21,6 +21,9 @@ export class MemoryLightsEngine {
   private round = 1;
   private wrongCount = 0;
   private activeLight: number | null = null;
+  private timerTotalMs = 0;
+  private timerInterval: ReturnType<typeof setInterval> | null = null;
+  private timerStart = 0;
 
   readonly appState: AppState;
 
@@ -81,6 +84,7 @@ export class MemoryLightsEngine {
       this.activeLight = lightIndex;
       this.updateAppState();
       emit('lightOn', { index: lightIndex, step: i + 1, total: this.sequence.length });
+      emit('btnColor', { color: light.glow });
 
       playNote(light.note, `${lightDuration / 1000}n`, this.config.audio.volume);
       await this.delay(lightDuration);
@@ -94,6 +98,7 @@ export class MemoryLightsEngine {
     this.gameState = 'WAITING_INPUT';
     this.updateAppState();
     this.emitState();
+    this.startTimer();
   }
 
   handleTap(lightIndex: number): void {
@@ -105,6 +110,15 @@ export class MemoryLightsEngine {
     playTap();
     if (this.config.behavior.vibrateOnTouch && navigator.vibrate) {
       navigator.vibrate(20);
+    }
+
+    emit('btnColor', { color: light.glow });
+
+    if (this.config.behavior.instantFail) {
+      if (lightIndex !== this.sequence[this.currentStep]) {
+        this.handleWrong();
+        return;
+      }
     }
 
     this.playerInput.push(lightIndex);
@@ -136,6 +150,7 @@ export class MemoryLightsEngine {
   }
 
   private handleCorrect(): void {
+    this.stopTimer();
     const steps = this.sequence.length;
     const result = calculateScore(this.scoreState, steps, this.config.scoring);
     this.scoreState = result.state;
@@ -181,6 +196,7 @@ export class MemoryLightsEngine {
   }
 
   private handleWrong(): void {
+    this.stopTimer();
     this.wrongCount++;
     this.scoreState = resetStreak(this.scoreState);
 
@@ -244,6 +260,52 @@ export class MemoryLightsEngine {
     };
 
     tick();
+  }
+
+  private startTimer(): void {
+    if (!this.config.behavior.enableTimer) return;
+    this.stopTimer();
+    const stepMs = this.config.timing.timerStepBaseMs - (this.round * 100);
+    const perStep = Math.max(this.config.timing.timerStepMinMs, stepMs);
+    this.timerTotalMs = this.sequence.length * perStep;
+    this.timerStart = Date.now();
+
+    emit('timerStart', { totalMs: this.timerTotalMs });
+
+    this.timerInterval = setInterval(() => {
+      const elapsed = Date.now() - this.timerStart;
+      const remaining = Math.max(0, this.timerTotalMs - elapsed);
+      // Logarithmic display: shrinks fast early, slows near end
+      const linear = remaining / this.timerTotalMs;
+      const curved = linear < 0.3
+        ? linear * (1 + Math.pow(1 - linear / 0.3, 2) * 0.5)
+        : linear;
+      const percent = curved * 100;
+
+      emit('timerTick', { percent, remaining });
+
+      if (remaining <= 0) {
+        this.stopTimer();
+        this.gameState = 'IDLE';
+        emit('timerExpired', {});
+        emit('stateChange', {
+          gameState: 'TIMEOUT',
+          score: this.scoreState.points,
+          stars: getStars(this.scoreState.points, this.config.stars),
+          round: this.round,
+          sequenceLength: this.sequence.length,
+          playerInputLength: this.playerInput.length,
+        });
+      }
+    }, 100);
+  }
+
+  private stopTimer(): void {
+    if (this.timerInterval) {
+      clearInterval(this.timerInterval);
+      this.timerInterval = null;
+    }
+    emit('timerStop', {});
   }
 
   private updateAppState(): void {

@@ -4,6 +4,7 @@ import Confetti from '@/components/ui/Confetti.astro';
 import ScoreBoard from '@/components/ui/ScoreBoard.astro';
 import Countdown from '@/components/ui/Countdown.astro';
 import CelebrationOverlay from '@/components/ui/CelebrationOverlay.astro';
+import TimerBar from '@/components/ui/TimerBar.astro';
 import LightButton from '@/components/games/LightButton.astro';
 import config from '@/config/memory-lights.json';
 import type { MemoryLightsConfig } from '@/games/memory-lights/types';
@@ -31,8 +32,16 @@ const lights = gameConfig.lights;
     @ml:wrong.window="message = 'Tente de novo! 💪'; messageType = 'error'; bgFlash = 'bg-red-400/20'; setTimeout(() => { message = ''; messageType = ''; bgFlash = ''; }, 1500)"
     @ml:countdown.window="countdownNumber = $event.detail.number"
     @ml:light-tap.window="engine.handleTap($event.detail.index)"
+    @ml:btn-color.window="bgAmbient = $event.detail.color; setTimeout(() => bgAmbient = '', 400)"
   >
     <Confetti />
+
+    <!-- Ambient background glow -->
+    <div
+      class="fixed inset-0 z-0 pointer-events-none transition-colors duration-500 ease-out"
+      :style="'background: ' + (bgAmbient || 'transparent')"
+      style="opacity: 0.15;"
+    ></div>
 
     <!-- Background tint flash -->
     <div
@@ -101,6 +110,31 @@ const lights = gameConfig.lights;
 
     <Countdown />
     <CelebrationOverlay />
+    <TimerBar />
+
+    <!-- Timeout restart overlay -->
+    <div
+      x-show="showTimeout"
+      x-transition
+      class="absolute inset-0 z-50 flex items-center justify-center"
+    >
+      <div
+        x-show="showTimeout"
+        x-transition:enter="transition duration-500"
+        x-transition:enter-start="opacity-0"
+        x-transition:enter-end="opacity-100"
+        class="absolute inset-0 bg-red-500/20 backdrop-blur-sm"
+      ></div>
+      <div class="relative z-10 text-center">
+        <p class="text-7xl mb-4 drop-shadow-lg" style="animation: shake 0.5s ease-in-out">⏰</p>
+        <button
+          @click="restartGame()"
+          class="btn btn-lg btn-primary rounded-full px-10 py-6 text-2xl font-black shadow-2xl animate-bounce border-4 border-red-400"
+        >
+          🔄 Tentar de novo!
+        </button>
+      </div>
+    </div>
 
     <div
       x-show="showStartButton"
@@ -183,6 +217,33 @@ const lights = gameConfig.lights;
     },
   }));
 
+  Alpine.data('timerBar', () => ({
+    enabled: true,
+    show: false,
+    percent: 100,
+    barColor: '#22c55e',
+
+    init() {
+      window.addEventListener('ml:timer-start', ((e: CustomEvent) => {
+        this.show = true;
+        this.percent = 100;
+        this.barColor = '#22c55e';
+      }) as EventListener);
+
+      window.addEventListener('ml:timer-stop', (() => {
+        this.show = false;
+      }) as EventListener);
+
+      window.addEventListener('ml:timer-tick', ((e: CustomEvent) => {
+        this.percent = e.detail.percent;
+        const p = e.detail.percent;
+        if (p > 60) this.barColor = '#22c55e';
+        else if (p > 30) this.barColor = '#eab308';
+        else this.barColor = '#ef4444';
+      }) as EventListener);
+    },
+  }));
+
   Alpine.data('memoryLights', () => ({
     engine: null as MemoryLightsEngine | null,
     score: 0,
@@ -191,6 +252,7 @@ const lights = gameConfig.lights;
     message: '',
     messageType: '',
     bgFlash: '',
+    bgAmbient: '',
     showFlyPoints: false,
     centerPoints: 0,
     flyStyle: '',
@@ -198,6 +260,7 @@ const lights = gameConfig.lights;
     activeLightIndex: null as number | null,
     showCountdown: false,
     showStartButton: true,
+    showTimeout: false,
 
     init() {
       const canvas = document.getElementById('confetti-canvas') as HTMLCanvasElement;
@@ -206,13 +269,26 @@ const lights = gameConfig.lights;
       window.addEventListener('ml:play-score-tick', () => {
         playScoreTick();
       });
+
+      window.addEventListener('ml:timer-expired', () => {
+        this.showTimeout = true;
+      });
     },
 
     startGame() {
       this.showStartButton = false;
+      this.showTimeout = false;
       if (this.engine) {
         this.engine.start();
       }
+    },
+
+    restartGame() {
+      this.showTimeout = false;
+      this.engine?.destroy();
+      const canvas = document.getElementById('confetti-canvas') as HTMLCanvasElement;
+      this.engine = new MemoryLightsEngine(gameConfig as MemoryLightsConfig, canvas);
+      this.engine.start();
     },
 
     startFlyAnimation() {

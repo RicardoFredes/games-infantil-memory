@@ -1,0 +1,15 @@
+<div
+  x-data="timerBar"
+  x-show="enabled && show"
+  class="fixed bottom-0 inset-x-0 z-20 px-4 pb-4 pointer-events-none"
+>
+  <div class="flex items-center gap-2 w-full">
+    <span class="text-xl opacity-60">⏰</span>
+    <div class="flex-1 h-3 rounded-full bg-white/40 backdrop-blur overflow-hidden shadow-inner">
+      <div
+        class="h-full rounded-full transition-all duration-300 ease-linear"
+        :style="'width: ' + percent + '%; background: ' + barColor"
+      ></div>
+    </div>
+  </div>
+</div>

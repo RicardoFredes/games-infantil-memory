@@ -60,12 +60,16 @@
     "countdownDuration": 3000,
     "celebrationDuration": 2000,
     "wrongFlashDuration": 400,
-    "wrongFlashCount": 2
+    "wrongFlashCount": 2,
+    "timerStepBaseMs": 3000,
+    "timerStepMinMs": 2000
   },
   "behavior": {
     "maxWrongAttempts": 3,
     "reduceStepsOnFail": true,
-    "vibrateOnTouch": true
+    "vibrateOnTouch": true,
+    "instantFail": false,
+    "enableTimer": true
   },
   "theme": {
     "backgroundGradient": "from-purple-200 via-pink-200 to-yellow-200",

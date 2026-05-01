@@ -52,6 +52,17 @@ export interface BehaviorConfig {
   maxWrongAttempts: number;
   reduceStepsOnFail: boolean;
   vibrateOnTouch: boolean;
+  instantFail: boolean;
+  enableTimer: boolean;
+}
+
+export interface TimingConfig {
+  countdownDuration: number;
+  celebrationDuration: number;
+  wrongFlashDuration: number;
+  wrongFlashCount: number;
+  timerStepBaseMs: number;
+  timerStepMinMs: number;
 }
 
 export interface ThemeConfig {
