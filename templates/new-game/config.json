@@ -1,0 +1,24 @@
+{
+  "meta": {
+    "id": "__GAME_ID__",
+    "name": "__TÍTULO__",
+    "description": "__DESCRIÇÃO LONGA__",
+    "version": "1.0.0",
+    "ageRange": [2, 7]
+  },
+  "scoring": {
+    "basePoints": 10,
+    "bonusAboveSteps": 3,
+    "bonusAbovePoints": 5,
+    "streakThreshold": 3,
+    "streakBonus": 15,
+    "maxScore": 999
+  },
+  "stars": [
+    { "threshold": 0,   "count": 1 },
+    { "threshold": 50,  "count": 2 },
+    { "threshold": 100, "count": 3 },
+    { "threshold": 200, "count": 4 },
+    { "threshold": 400, "count": 5 }
+  ]
+}

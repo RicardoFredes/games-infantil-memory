@@ -1,0 +1,70 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Confetti from '@/components/ui/Confetti.astro';
+import GameCharacter from '@/components/games/GameCharacter.astro';
+---
+
+<BaseLayout fullscreen={true}>
+  <div
+    x-data="__GAME_ID__"
+    x-init="init()"
+    class="relative h-full w-full overflow-hidden flex flex-col"
+  >
+    <Confetti />
+
+    <div class="relative z-20 flex items-center justify-between px-4 py-3 w-full">
+      <button
+        @click="togglePause()"
+        class="btn btn-ghost btn-sm btn-circle text-2xl"
+        aria-label="Menu"
+      >☰</button>
+      <div class="rounded-full px-4 py-2 bg-white/85 border-2 border-purple-200 shadow">
+        <span class="font-extrabold text-lg text-purple-700 tabular-nums" x-text="score"></span>
+      </div>
+    </div>
+
+    <div class="flex-1 flex items-center justify-center">
+      <p class="text-2xl font-extrabold text-purple-700">__GAME_ID__</p>
+    </div>
+
+    <div
+      class="character-stage fixed z-[60] pointer-events-none select-none"
+      x-show="!isPaused"
+      x-cloak
+    >
+      <GameCharacter />
+    </div>
+  </div>
+</BaseLayout>
+
+<script>
+  import Alpine from 'alpinejs';
+  import { initAudio, startBackgroundMusic } from '@/lib/audio';
+  import { createPresentation } from '@/games/__GAME_ID__/presentation';
+
+  (async () => {
+    try {
+      const pending = sessionStorage.getItem('pendingBgMusic');
+      if (!pending) return;
+      sessionStorage.removeItem('pendingBgMusic');
+      const { url, volume } = JSON.parse(pending) as { url: string; volume: number };
+      await initAudio();
+      await startBackgroundMusic(url, volume);
+    } catch {}
+  })();
+
+  Alpine.data('__GAME_ID__', createPresentation);
+  Alpine.start();
+</script>
+
+<style is:global>
+  [x-cloak] { display: none !important; }
+
+  .character-stage {
+    width: clamp(110px, 28vw, 170px);
+    right: clamp(8px, 3vw, 24px);
+    bottom: calc(env(safe-area-inset-bottom, 0px) + clamp(40px, 10vw, 72px));
+  }
+  .character-stage > div { display: block; width: 100%; }
+  .character-stage svg { width: 100%; height: auto; display: block; }
+</style>
