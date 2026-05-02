@@ -80,44 +80,50 @@ const showLabels = gameConfig.behavior.showLabels;
         class="grid gap-2 sm:gap-3"
         :style="`width: 100%; max-width: min(100%, 480px); max-height: 100%; aspect-ratio: ${columns} / ${Math.max(1, Math.ceil(cards.length / columns))}; grid-template-columns: repeat(${columns}, minmax(0, 1fr)); grid-auto-rows: 1fr;`"
       >
-        <template x-for="card in cards" :key="card.uid">
-          <button
-            @click="onCardTap(card)"
-            class="memory-card-3d relative w-full h-full outline-none transition-transform duration-200"
-            :class="card.matched ? 'cursor-default' : 'cursor-pointer hover:scale-[1.03]'"
-            :disabled="card.matched"
-            :aria-label="card.image.label"
+        <template x-for="(card, index) in cards" :key="card.uid">
+          <div
+            class="card-fly-wrap w-full h-full"
+            :class="collecting ? 'is-collecting' : (dealing ? 'is-dealing' : '')"
+            :style="`--anim-delay: ${(collecting ? cards.length - 1 - index : index) * 35}ms;`"
           >
-            <div
-              class="memory-card-inner"
-              :class="{ 'is-flipped': card.open || card.matched }"
+            <button
+              @click="onCardTap(card)"
+              class="memory-card-3d relative w-full h-full outline-none transition-transform duration-200"
+              :class="card.matched ? 'cursor-default' : 'cursor-pointer hover:scale-[1.03]'"
+              :disabled="card.matched"
+              :aria-label="card.image.label"
             >
               <div
-                class="memory-card-face memory-card-back rounded-2xl border-[3px] border-white/80 shadow-lg overflow-hidden"
-                :style="`background-image: url('${cardBack}'); background-size: cover; background-position: center;`"
-              ></div>
-              <div
-                class="memory-card-face memory-card-front rounded-2xl overflow-hidden border-[3px]"
-                :class="card.matched
-                  ? 'border-yellow-300 shadow-[0_0_20px_rgba(252,211,77,0.7)]'
-                  : 'border-white/80 shadow-lg'"
+                class="memory-card-inner"
+                :class="{ 'is-flipped': card.open || card.matched }"
               >
-                <img
-                  :src="card.image.src"
-                  :alt="card.image.label"
-                  class="w-full h-full object-cover bg-white"
-                  loading="eager"
-                  decoding="async"
-                />
-                {showLabels && (
-                  <span
-                    class="absolute bottom-1 left-1 right-1 text-center text-xs font-extrabold text-purple-800 bg-white/80 rounded px-1 py-0.5 truncate"
-                    x-text="card.image.label"
-                  ></span>
-                )}
+                <div
+                  class="memory-card-face memory-card-back rounded-2xl border-[3px] border-white/80 shadow-lg overflow-hidden"
+                  :style="`background-image: url('${cardBack}'); background-size: cover; background-position: center;`"
+                ></div>
+                <div
+                  class="memory-card-face memory-card-front rounded-2xl overflow-hidden border-[3px]"
+                  :class="card.matched
+                    ? 'border-yellow-300 shadow-[0_0_20px_rgba(252,211,77,0.7)]'
+                    : 'border-white/80 shadow-lg'"
+                >
+                  <img
+                    :src="card.image.src"
+                    :alt="card.image.label"
+                    class="w-full h-full object-cover bg-white"
+                    loading="eager"
+                    decoding="async"
+                  />
+                  {showLabels && (
+                    <span
+                      class="absolute bottom-1 left-1 right-1 text-center text-xs font-extrabold text-purple-800 bg-white/80 rounded px-1 py-0.5 truncate"
+                      x-text="card.image.label"
+                    ></span>
+                  )}
+                </div>
               </div>
-            </div>
-          </button>
+            </button>
+          </div>
         </template>
       </div>
     </div>
@@ -227,17 +233,22 @@ const showLabels = gameConfig.behavior.showLabels;
     bgFlash: '',
     showWin: false,
     isPaused: false,
+    dealing: false,
+    collecting: false,
     cardBack: config.theme.cardBack,
 
     init() {
       const canvas = document.getElementById('confetti-canvas') as HTMLCanvasElement;
       this.engine = new MemoryCardsEngine(config, canvas);
-      this.engine.start();
 
       window.addEventListener('mc:round-start', ((e: CustomEvent) => {
         this.columns = e.detail.columns;
+        this.collecting = false;
+        this.dealing = true;
         this.cards = (e.detail.cards as CardData[]).map((c) => ({ ...c }));
         this.message = '';
+        const settle = 700 + e.detail.cards.length * 35;
+        setTimeout(() => { this.dealing = false; }, settle);
       }) as EventListener);
 
       window.addEventListener('mc:card-open', ((e: CustomEvent) => {
@@ -274,6 +285,7 @@ const showLabels = gameConfig.behavior.showLabels;
 
       window.addEventListener('mc:win', () => {
         this.showWin = true;
+        setTimeout(() => { this.collecting = true; }, 2800);
         setTimeout(() => { this.showWin = false; }, 4200);
       });
 
@@ -283,6 +295,9 @@ const showLabels = gameConfig.behavior.showLabels;
       window.addEventListener('mc:card-match', () => setMood('happy', 1500));
       window.addEventListener('mc:card-mismatch', () => setMood('sad', 1200));
       window.addEventListener('mc:win', () => setMood('celebrating', 3500));
+      window.addEventListener('mc:round-start', () => setMood('excited', 1200));
+
+      this.engine.start();
     },
 
     onCardTap(card: CardData) {
@@ -357,5 +372,40 @@ const showLabels = gameConfig.behavior.showLabels;
   }
   .memory-card-front {
     transform: rotateY(180deg);
+  }
+
+  /* ─── Card deal / collect animations ─────────────── */
+  .card-fly-wrap {
+    transform-origin: center;
+    will-change: transform, opacity;
+  }
+  .card-fly-wrap.is-dealing {
+    animation: card-deal 0.6s cubic-bezier(0.2, 0.85, 0.3, 1.05) backwards;
+    animation-delay: var(--anim-delay, 0ms);
+  }
+  .card-fly-wrap.is-collecting {
+    animation: card-collect 0.45s cubic-bezier(0.55, 0.05, 0.7, 0.25) forwards;
+    animation-delay: var(--anim-delay, 0ms);
+  }
+  @keyframes card-deal {
+    0% {
+      transform: translate(55vw, 60vh) rotate(-22deg) scale(0.22);
+      opacity: 0;
+    }
+    55% { opacity: 1; }
+    100% {
+      transform: translate(0, 0) rotate(0deg) scale(1);
+      opacity: 1;
+    }
+  }
+  @keyframes card-collect {
+    0% {
+      transform: translate(0, 0) rotate(0deg) scale(1);
+      opacity: 1;
+    }
+    100% {
+      transform: translate(55vw, 60vh) rotate(15deg) scale(0.22);
+      opacity: 0;
+    }
   }
 </style>

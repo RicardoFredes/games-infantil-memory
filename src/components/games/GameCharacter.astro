@@ -9,7 +9,12 @@
   x-data="gameCharacter"
   x-init="init()"
   @character:set-mood.window="setMood($event.detail.mood)"
-  class="character-container inline-block"
+  @click="spin()"
+  @touchstart.passive="spin()"
+  class="character-container inline-block pointer-events-auto cursor-pointer select-none"
+  role="button"
+  tabindex="0"
+  aria-label="Personagem"
 >
   <svg
     width="360" height="320"
@@ -17,7 +22,7 @@
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
     class="character-svg transition-all duration-300"
-    :class="bodyClass"
+    :class="[bodyClass, spinning ? 'animate-spin-once' : '']"
   >
     <defs>
       <radialGradient id="skinGrad" cx="40%" cy="35%" r="60%">
@@ -167,7 +172,9 @@
   document.addEventListener('alpine:init', () => {
     Alpine.data('gameCharacter', () => ({
     mood: 'idle',
+    spinning: false,
     _moodTimer: null as ReturnType<typeof setTimeout> | null,
+    _spinTimer: null as ReturnType<typeof setTimeout> | null,
 
     init() {
       window.addEventListener('character:set-mood', ((e: CustomEvent) => {
@@ -181,6 +188,18 @@
       if (duration > 0) {
         this._moodTimer = setTimeout(() => { this.mood = 'idle' }, duration)
       }
+    },
+
+    spin() {
+      if (this.spinning) return
+      this.spinning = true
+      this.setMood('excited', 900)
+      try {
+        if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(15)
+      } catch {}
+      window.dispatchEvent(new CustomEvent('character:spin'))
+      if (this._spinTimer) clearTimeout(this._spinTimer)
+      this._spinTimer = setTimeout(() => { this.spinning = false }, 800)
     },
 
     // ─── ANIMATION CLASSES ───────────────────────
@@ -597,6 +616,17 @@
       arm-think-in-right 0.7s ease-in-out both,
       arm-think-scratch-right 1.85s ease-in-out 0.7s infinite;
     transform-origin: 220px 115px;
+  }
+
+  /* ─── Spin (interactive tap) ──────────────────── */
+  @keyframes character-spin-once {
+    0%   { transform: rotate(0deg)   scale(1); }
+    50%  { transform: rotate(180deg) scale(1.1); }
+    100% { transform: rotate(360deg) scale(1); }
+  }
+  .animate-spin-once {
+    animation: character-spin-once 0.8s cubic-bezier(0.35, 0, 0.25, 1);
+    transform-origin: 50% 60%;
   }
 
   /* ─── Pupil sparkle (happy/excited) ───────────── */
