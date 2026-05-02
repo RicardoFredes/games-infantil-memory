@@ -40,7 +40,7 @@ mv src/games/<game-id>/page.astro src/pages/games/<route>.astro
 
 ## Convenções
 
-- Eventos do jogo usam prefixo `<gameId>:*` (ex: `memory-lights:state-change`).
+- Eventos do jogo usam prefixo `<gameId>:*` (ex: `memory-sequence:state-change`).
 - localStorage é gerenciado por `loadGameState`/`saveGameState`/`clearGameState` do `@/lib/storage`.
 - Pontuação e estrelas vêm de `@/lib/scoring`.
 - Imagens em `public/games/<id>/`. Se faltar, a home cai no `meta.icon`.

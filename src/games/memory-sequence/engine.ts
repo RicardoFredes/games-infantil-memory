@@ -1,4 +1,4 @@
-import type { MemoryLightsConfig, GameState, AppState } from './types';
+import type { MemorySequenceConfig, GameState, AppState } from './types';
 import type { GameEngine } from '@/lib/game-engine';
 import { generateSequence, getDifficultySteps, getDifficultyTiming } from './sequencer';
 import { calculateScore, resetStreak, getStars, createInitialState, type ScoreState } from '@/lib/scoring';
@@ -8,12 +8,12 @@ import { ConfettiSystem } from '@/lib/confetti';
 
 function emit(name: string, detail?: unknown) {
   const kebab = name.replace(/[A-Z]/g, (m) => '-' + m.toLowerCase());
-  window.dispatchEvent(new CustomEvent(`ml:${kebab}`, { detail }));
+  window.dispatchEvent(new CustomEvent(`memory-sequence:${kebab}`, { detail }));
 }
 
-export class MemoryLightsEngine implements GameEngine<MemoryLightsConfig, AppState> {
+export class MemorySequenceEngine implements GameEngine<MemorySequenceConfig, AppState> {
   readonly id: string;
-  private config: MemoryLightsConfig;
+  private config: MemorySequenceConfig;
   private confetti: ConfettiSystem | null = null;
   private scoreState: ScoreState;
   private gameState: GameState = 'IDLE';
@@ -31,7 +31,7 @@ export class MemoryLightsEngine implements GameEngine<MemoryLightsConfig, AppSta
 
   readonly appState: AppState;
 
-  constructor(config: MemoryLightsConfig, confettiCanvas?: HTMLCanvasElement) {
+  constructor(config: MemorySequenceConfig, confettiCanvas?: HTMLCanvasElement) {
     this.config = config;
     this.id = config.meta.id;
     this.scoreState = loadGameState<ScoreState>(config.meta.id) ?? createInitialState();
@@ -377,7 +377,7 @@ export class MemoryLightsEngine implements GameEngine<MemoryLightsConfig, AppSta
     return this.appState;
   }
 
-  getConfig(): Readonly<MemoryLightsConfig> {
+  getConfig(): Readonly<MemorySequenceConfig> {
     return this.config;
   }
 

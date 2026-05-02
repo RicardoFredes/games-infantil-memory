@@ -1,9 +1,9 @@
-import { MemoryLightsEngine } from './engine';
+import { MemorySequenceEngine } from './engine';
 import config from './config.json';
-import type { MemoryLightsConfig } from './types';
+import type { MemorySequenceConfig } from './types';
 import { playScoreTick } from '@/lib/audio';
 
-const gameConfig = config as MemoryLightsConfig;
+const gameConfig = config as MemorySequenceConfig;
 
 export function createScoreBoardData() {
   return {
@@ -15,13 +15,13 @@ export function createScoreBoardData() {
     scorePulse: false,
 
     init() {
-      window.addEventListener('ml:score-animate', ((e: CustomEvent) => {
+      window.addEventListener('memory-sequence:score-animate', ((e: CustomEvent) => {
         setTimeout(() => {
           this.animateScore(this.localScore, e.detail.total, e.detail.earned);
         }, 800);
       }) as EventListener);
 
-      window.addEventListener('ml:state-change', ((e: CustomEvent) => {
+      window.addEventListener('memory-sequence:state-change', ((e: CustomEvent) => {
         this.localStars = e.detail.stars;
         if (this.displayScore === 0 && e.detail.score > 0) {
           this.displayScore = e.detail.score;
@@ -74,17 +74,17 @@ export function createTimerBarData() {
     barColor: '#22c55e',
 
     init() {
-      window.addEventListener('ml:timer-start', (() => {
+      window.addEventListener('memory-sequence:timer-start', (() => {
         this.show = true;
         this.percent = 100;
         this.barColor = '#22c55e';
       }) as EventListener);
 
-      window.addEventListener('ml:timer-stop', (() => {
+      window.addEventListener('memory-sequence:timer-stop', (() => {
         this.show = false;
       }) as EventListener);
 
-      window.addEventListener('ml:timer-tick', ((e: CustomEvent) => {
+      window.addEventListener('memory-sequence:timer-tick', ((e: CustomEvent) => {
         this.percent = e.detail.percent;
         const p = e.detail.percent;
         if (p > 60) this.barColor = '#22c55e';
@@ -97,7 +97,7 @@ export function createTimerBarData() {
 
 export function createPresentation() {
   return {
-    engine: null as MemoryLightsEngine | null,
+    engine: null as MemorySequenceEngine | null,
     score: 0,
     stars: 1,
     round: 1,
@@ -117,13 +117,13 @@ export function createPresentation() {
 
     init() {
       const canvas = document.getElementById('confetti-canvas') as HTMLCanvasElement;
-      this.engine = new MemoryLightsEngine(gameConfig, canvas);
+      this.engine = new MemorySequenceEngine(gameConfig, canvas);
 
-      window.addEventListener('ml:play-score-tick', () => {
+      window.addEventListener('memory-sequence:play-score-tick', () => {
         playScoreTick();
       });
 
-      window.addEventListener('ml:timer-expired', () => {
+      window.addEventListener('memory-sequence:timer-expired', () => {
         this.showTimeout = true;
       });
 
@@ -131,10 +131,10 @@ export function createPresentation() {
         window.dispatchEvent(new CustomEvent('character:set-mood', { detail: { mood, duration } }));
       };
 
-      window.addEventListener('ml:correct', () => setMood('happy', 1800));
-      window.addEventListener('ml:wrong', () => setMood('sad', 1800));
-      window.addEventListener('ml:timer-expired', () => setMood('tired', 2500));
-      window.addEventListener('ml:state-change', ((e: CustomEvent) => {
+      window.addEventListener('memory-sequence:correct', () => setMood('happy', 1800));
+      window.addEventListener('memory-sequence:wrong', () => setMood('sad', 1800));
+      window.addEventListener('memory-sequence:timer-expired', () => setMood('tired', 2500));
+      window.addEventListener('memory-sequence:state-change', ((e: CustomEvent) => {
         const gs = e.detail?.gameState;
         if (gs === 'SHOWING_SEQUENCE') setMood('thinking');
         else if (gs === 'WAITING_INPUT') setMood('idle');
@@ -178,7 +178,7 @@ export function createPresentation() {
       this.isPaused = false;
       this.engine?.destroy();
       const canvas = document.getElementById('confetti-canvas') as HTMLCanvasElement;
-      this.engine = new MemoryLightsEngine(gameConfig, canvas);
+      this.engine = new MemorySequenceEngine(gameConfig, canvas);
       this.engine.start();
     },
 

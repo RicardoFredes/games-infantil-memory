@@ -15,7 +15,7 @@ import { loadGameState, saveGameState, clearGameState } from '@/lib/storage';
 
 function emit(name: string, detail?: unknown) {
   const kebab = name.replace(/[A-Z]/g, (m) => '-' + m.toLowerCase());
-  window.dispatchEvent(new CustomEvent(`mc:${kebab}`, { detail }));
+  window.dispatchEvent(new CustomEvent(`memory-cards:${kebab}`, { detail }));
 }
 
 function shuffle<T>(arr: T[]): T[] {

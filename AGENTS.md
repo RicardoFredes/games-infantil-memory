@@ -62,6 +62,7 @@ A home (`src/pages/index.astro`) lê automaticamente do `src/games/registry.ts` 
 | `src/pages/games/*.astro` | Páginas das rotas |
 
 ## Events (engine → Alpine)
-- `memory-lights` usa prefixo `ml:*` (legado) — `ml:state-change`, `ml:correct`, `ml:wrong`, `ml:countdown`, `ml:timer-*`, `ml:all-lights-flash`, `ml:light-on/off/tap`, `ml:btn-color`, `ml:score-animate`, `ml:pause-toggle`, `ml:paused/resumed`.
-- `memory-cards` usa prefixo `mc:*` (legado) — `mc:state-change`, `mc:round-start`, `mc:card-open/close/match/mismatch`, `mc:win`, `mc:paused/resumed`.
-- Novos jogos devem usar `<gameId>:*` (template já segue isso) ou `game:*` tipado via `@/lib/events`.
+- Cada jogo dispara eventos no prefixo do seu próprio `id` (que bate com o nome da pasta e da rota):
+  - `memory-sequence:*` — `state-change`, `correct`, `wrong`, `countdown`, `timer-*`, `all-lights-flash`, `light-on/off/tap`, `btn-color`, `score-animate`, `pause-toggle`, `paused/resumed`.
+  - `memory-cards:*` — `state-change`, `round-start`, `card-open/close/match/mismatch`, `win`, `paused/resumed`.
+- Novos jogos devem seguir o mesmo padrão `<gameId>:*` (template já faz isso) ou usar `game:*` tipado via `@/lib/events`.

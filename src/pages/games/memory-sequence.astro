@@ -7,22 +7,22 @@ import CelebrationOverlay from '@/components/ui/CelebrationOverlay.astro';
 import TimerBar from '@/components/ui/TimerBar.astro';
 import LightButton from '@/components/games/LightButton.astro';
 import GameCharacter from '@/components/games/GameCharacter.astro';
-import config from '@/games/memory-lights/config.json';
-import type { MemoryLightsConfig } from '@/games/memory-lights/types';
+import config from '@/games/memory-sequence/config.json';
+import type { MemorySequenceConfig } from '@/games/memory-sequence/types';
 
-const gameConfig = config as MemoryLightsConfig;
+const gameConfig = config as MemorySequenceConfig;
 const lights = gameConfig.lights;
 ---
 
 <BaseLayout fullscreen={true}>
   <div
-    x-data="memoryLights"
+    x-data="memorySequence"
     x-init="init()"
     class="relative h-full w-full overflow-hidden flex flex-col"
-    @ml:light-on.window="activeLightIndex = $event.detail.index"
-    @ml:light-off.window="activeLightIndex = null"
-    @ml:state-change.window="score = $event.detail.score; stars = $event.detail.stars; round = $event.detail.round; gameState = $event.detail.gameState"
-    @ml:correct.window="
+    @memory-sequence:light-on.window="activeLightIndex = $event.detail.index"
+    @memory-sequence:light-off.window="activeLightIndex = null"
+    @memory-sequence:state-change.window="score = $event.detail.score; stars = $event.detail.stars; round = $event.detail.round; gameState = $event.detail.gameState"
+    @memory-sequence:correct.window="
       centerPoints = $event.detail.earned;
       startFlyAnimation();
       $dispatch('celebration', { text: 'Muito bem! 🎉' });
@@ -30,11 +30,11 @@ const lights = gameConfig.lights;
       bgFlash = 'bg-green-400/20';
       setTimeout(() => bgFlash = '', 600);
     "
-    @ml:wrong.window="message = 'Tente de novo! 💪'; messageType = 'error'; bgFlash = 'bg-red-400/20'; setTimeout(() => { message = ''; messageType = ''; bgFlash = ''; }, 1500)"
-    @ml:countdown.window="countdownNumber = $event.detail.number"
-    @ml:light-tap.window="engine.handleTap($event.detail.index)"
-    @ml:btn-color.window="bgAmbient = $event.detail.color; setTimeout(() => bgAmbient = '', 400)"
-    @ml:pause-toggle.window="togglePause()"
+    @memory-sequence:wrong.window="message = 'Tente de novo! 💪'; messageType = 'error'; bgFlash = 'bg-red-400/20'; setTimeout(() => { message = ''; messageType = ''; bgFlash = ''; }, 1500)"
+    @memory-sequence:countdown.window="countdownNumber = $event.detail.number"
+    @memory-sequence:light-tap.window="engine.handleTap($event.detail.index)"
+    @memory-sequence:btn-color.window="bgAmbient = $event.detail.color; setTimeout(() => bgAmbient = '', 400)"
+    @memory-sequence:pause-toggle.window="togglePause()"
   >
     <Confetti />
 
@@ -241,7 +241,7 @@ const lights = gameConfig.lights;
     createPresentation,
     createScoreBoardData,
     createTimerBarData,
-  } from '@/games/memory-lights/presentation';
+  } from '@/games/memory-sequence/presentation';
 
   (async () => {
     try {
@@ -256,7 +256,7 @@ const lights = gameConfig.lights;
 
   Alpine.data('scoreBoard', createScoreBoardData);
   Alpine.data('timerBar', createTimerBarData);
-  Alpine.data('memoryLights', createPresentation);
+  Alpine.data('memorySequence', createPresentation);
   Alpine.start();
 </script>
 

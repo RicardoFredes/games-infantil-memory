@@ -14,17 +14,17 @@ const idleBg = `background: ${color}`;
 const styleExpression = `active ? '${activeBg}' : '${idleBg}'`;
 const onLightOn = `$event.detail.index === ${idx} && (active = true)`;
 const onLightOff = `$event.detail.index === ${idx} && (active = false)`;
-const onPointerDown = `active = true; $dispatch('ml:light-tap', { index: ${idx} })`;
+const onPointerDown = `active = true; $dispatch('memory-sequence:light-tap', { index: ${idx} })`;
 ---
 
 <button
   x-data="{ active: false, flashColor: '', flashShow: false }"
-  @ml:light-on.window={onLightOn}
-  @ml:light-off.window={onLightOff}
+  @memory-sequence:light-on.window={onLightOn}
+  @memory-sequence:light-off.window={onLightOff}
   @pointerdown={onPointerDown}
   @pointerup="active = false"
   @pointerleave="active = false"
-  @ml:all-lights-flash.window="flashColor = $event.detail.color; flashShow = true; setTimeout(() => flashShow = false, $event.detail.duration)"
+  @memory-sequence:all-lights-flash.window="flashColor = $event.detail.color; flashShow = true; setTimeout(() => flashShow = false, $event.detail.duration)"
   class="relative w-[min(25vmin,140px)] h-[min(25vmin,140px)] min-w-[80px] min-h-[80px]
     rounded-full flex items-center justify-center
     transition-all duration-200 ease-out

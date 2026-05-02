@@ -8,7 +8,7 @@ export const meta: GameMeta = {
   category: 'Memória',
   image: '/games/memory-cards/cover.webp',
   icon: '🃏',
-  route: '/games/cards',
+  route: '/games/memory-cards',
   ageRange: [2, 7],
   difficulty: 'progressivo',
   color: '#EC4899',

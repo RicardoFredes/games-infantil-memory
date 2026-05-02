@@ -1,9 +1,9 @@
 import type { GameMeta, GameRegistration } from '@/lib/game-engine';
-import * as memoryLights from './memory-lights';
+import * as memorySequence from './memory-sequence';
 import * as memoryCards from './memory-cards';
 
 export const registrations: GameRegistration[] = [
-  memoryLights.register() as GameRegistration,
+  memorySequence.register() as GameRegistration,
   memoryCards.register() as GameRegistration,
 ];
 

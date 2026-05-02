@@ -58,7 +58,7 @@ export interface GameConfigMeta {
   ageRange: [number, number];
 }
 
-export interface MemoryLightsConfig {
+export interface MemorySequenceConfig {
   meta: GameConfigMeta;
   lights: LightConfig[];
   audio: AudioConfig;

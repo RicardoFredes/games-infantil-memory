@@ -27,7 +27,7 @@ export function createPresentation() {
       const canvas = document.getElementById('confetti-canvas') as HTMLCanvasElement;
       this.engine = new MemoryCardsEngine(gameConfig, canvas);
 
-      window.addEventListener('mc:round-start', ((e: CustomEvent) => {
+      window.addEventListener('memory-cards:round-start', ((e: CustomEvent) => {
         this.columns = e.detail.columns;
         this.collecting = false;
         this.dealing = true;
@@ -37,12 +37,12 @@ export function createPresentation() {
         setTimeout(() => { this.dealing = false; }, settle);
       }) as EventListener);
 
-      window.addEventListener('mc:card-open', ((e: CustomEvent) => {
+      window.addEventListener('memory-cards:card-open', ((e: CustomEvent) => {
         const card = this.cards.find((c) => c.uid === e.detail.uid);
         if (card) card.open = true;
       }) as EventListener);
 
-      window.addEventListener('mc:card-close', ((e: CustomEvent) => {
+      window.addEventListener('memory-cards:card-close', ((e: CustomEvent) => {
         const uids = e.detail.uids as string[];
         uids.forEach((uid) => {
           const card = this.cards.find((c) => c.uid === uid);
@@ -50,7 +50,7 @@ export function createPresentation() {
         });
       }) as EventListener);
 
-      window.addEventListener('mc:card-match', ((e: CustomEvent) => {
+      window.addEventListener('memory-cards:card-match', ((e: CustomEvent) => {
         [e.detail.uidA, e.detail.uidB].forEach((uid: string) => {
           const card = this.cards.find((c) => c.uid === uid);
           if (card) { card.open = true; card.matched = true; }
@@ -62,14 +62,14 @@ export function createPresentation() {
         setTimeout(() => { this.message = ''; }, 1200);
       }) as EventListener);
 
-      window.addEventListener('mc:card-mismatch', () => {
+      window.addEventListener('memory-cards:card-mismatch', () => {
         this.message = 'Tente outra vez!';
         this.messageType = 'err';
         this.bgFlash = 'bg-red-400/15';
         setTimeout(() => { this.bgFlash = ''; this.message = ''; }, 1100);
       });
 
-      window.addEventListener('mc:win', () => {
+      window.addEventListener('memory-cards:win', () => {
         this.showWin = true;
         setTimeout(() => { this.collecting = true; }, 2800);
         setTimeout(() => { this.showWin = false; }, 4200);
@@ -78,12 +78,12 @@ export function createPresentation() {
       const setMood = (mood: string, duration = 0) => {
         window.dispatchEvent(new CustomEvent('character:set-mood', { detail: { mood, duration } }));
       };
-      window.addEventListener('mc:card-match', () => setMood('happy', 1500));
-      window.addEventListener('mc:card-mismatch', () => setMood('sad', 1200));
-      window.addEventListener('mc:win', () => setMood('excited', 3500));
-      window.addEventListener('mc:round-start', () => setMood('excited', 1200));
+      window.addEventListener('memory-cards:card-match', () => setMood('happy', 1500));
+      window.addEventListener('memory-cards:card-mismatch', () => setMood('sad', 1200));
+      window.addEventListener('memory-cards:win', () => setMood('excited', 3500));
+      window.addEventListener('memory-cards:round-start', () => setMood('excited', 1200));
 
-      window.addEventListener('mc:state-change', ((e: CustomEvent) => {
+      window.addEventListener('memory-cards:state-change', ((e: CustomEvent) => {
         this.score = e.detail.score;
         this.stars = e.detail.stars;
         this.round = e.detail.round;

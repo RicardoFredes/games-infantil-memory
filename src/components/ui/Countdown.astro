@@ -1,7 +1,7 @@
 <div
   x-data="{ show: false, display: '3', animClass: '' }"
-  @ml:state-change.window="show = $event.detail.gameState === 'COUNTDOWN'"
-  @ml:countdown.window="display = $event.detail.display; animClass = ''; requestAnimationFrame(() => requestAnimationFrame(() => animClass = 'animate-zoomout'))"
+  @memory-sequence:state-change.window="show = $event.detail.gameState === 'COUNTDOWN'"
+  @memory-sequence:countdown.window="display = $event.detail.display; animClass = ''; requestAnimationFrame(() => requestAnimationFrame(() => animClass = 'animate-zoomout'))"
   class="fixed inset-0 z-40 flex items-center justify-center pointer-events-none"
 >
   <!-- Blur backdrop -->

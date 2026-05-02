@@ -7,7 +7,7 @@
   x-transition:leave="transition ease-in duration-200"
   x-transition:leave-start="opacity-100 scale-100"
   x-transition:leave-end="opacity-0 scale-50"
-  @ml:state-change.window="show = $event.detail.gameState === 'CELEBRATING'"
+  @memory-sequence:state-change.window="show = $event.detail.gameState === 'CELEBRATING'"
   @celebration.window="text = $event.detail.text; show = true; setTimeout(() => show = false, 2000)"
   class="fixed inset-0 z-40 flex items-center justify-center pointer-events-none"
 >

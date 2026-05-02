@@ -1,21 +1,21 @@
 import type { GameRegistration } from '@/lib/game-engine';
-import type { MemoryLightsConfig, AppState } from './types';
+import type { MemorySequenceConfig, AppState } from './types';
 import { meta } from './meta';
-import { MemoryLightsEngine } from './engine';
+import { MemorySequenceEngine } from './engine';
 import { createPresentation } from './presentation';
 import config from './config.json';
 
 export { meta };
-export { MemoryLightsEngine };
-export type { MemoryLightsConfig };
+export { MemorySequenceEngine };
+export type { MemorySequenceConfig };
 
-const typedConfig = config as MemoryLightsConfig;
+const typedConfig = config as MemorySequenceConfig;
 
-export function register(): GameRegistration<MemoryLightsConfig, AppState> {
+export function register(): GameRegistration<MemorySequenceConfig, AppState> {
   return {
     meta,
     config: typedConfig,
-    createEngine: (canvas) => new MemoryLightsEngine(typedConfig, canvas),
+    createEngine: (canvas) => new MemorySequenceEngine(typedConfig, canvas),
     presentation: createPresentation,
   };
 }
