@@ -10,19 +10,17 @@ export interface Props {
 const { fullscreen = false } = Astro.props;
 const safeArea = 'pt-[env(safe-area-inset-top)] pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)]';
 const gradient = `bg-gradient-to-br ${appConfig.theme.backgroundGradient}`;
-const bodyClass = fullscreen
-  ? `${gradient} h-full overflow-hidden overscroll-none antialiased ${safeArea}`
-  : `${gradient} min-h-full overscroll-none antialiased ${safeArea}`;
-const mainClass = fullscreen ? 'h-full overflow-hidden' : 'min-h-full';
-const htmlClass = fullscreen ? `${gradient} h-full overflow-hidden` : `${gradient} h-full`;
+const mainClass = fullscreen
+  ? `h-full w-full ${safeArea}`
+  : `h-full w-full overflow-y-auto ${safeArea}`;
 ---
 
 <!doctype html>
-<html lang="pt-BR" data-theme={appConfig.app.theme} class={htmlClass}>
+<html lang="pt-BR" data-theme={appConfig.app.theme} class={gradient}>
   <head>
     <BaseHead />
   </head>
-  <body class={bodyClass} style={`font-family: ${appConfig.theme.fontFamily}`}>
+  <body class={`${gradient} antialiased`} style={`font-family: ${appConfig.theme.fontFamily}`}>
     <main class={mainClass}>
       <slot />
     </main>
