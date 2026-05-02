@@ -501,6 +501,25 @@ const cfg = config as MyFriendConfig;
   }
 
   /* ===== Sleep ===== */
+  #my-friend-stage .mf-bed {
+    position: absolute;
+    left: 50%;
+    bottom: 18%;
+    width: clamp(360px, 78vw, 580px);
+    transform: translate(-50%, 60%);
+    opacity: 0;
+    animation: mf-bed-rise 600ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    pointer-events: none;
+    z-index: 2;
+    will-change: transform, opacity;
+    filter: drop-shadow(0 8px 14px rgba(0, 0, 0, 0.28));
+  }
+  #my-friend-stage .mf-bed svg { width: 100%; height: auto; display: block; }
+  @keyframes mf-bed-rise {
+    0%   { opacity: 0; transform: translate(-50%, 60%); }
+    100% { opacity: 1; transform: translate(-50%, 0); }
+  }
+
   #my-friend-stage .mf-sleep-dim {
     position: absolute;
     inset: 0;
