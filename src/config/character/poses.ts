@@ -38,6 +38,9 @@ export const leftEyebrowPaths = {
   default:    'M89.4745 75.5 L109.4745 75.5',
   arched:     'M89.4745 77.5 Q99.4745 70 109.4745 77.5',
   'soft-arch':'M89.4745 76.5 Q99.4745 72 109.4745 76.5',
+  // sleeping: arco beeem suave para cima nas extremidades (relaxado),
+  // pontos de início/fim ligeiramente acima e controle mais alto ainda.
+  relaxed:    'M88.4745 77 Q99.4745 73.8 110.4745 77',
   worried:    'M89.4745 76 Q99.4745 80 109.4745 74',
   angry:      'M89.4745 71 L109.4745 82',
 } as const
@@ -46,6 +49,7 @@ export const rightEyebrowPaths = {
   default:    'M151.4745 75.5 L171.4745 75.5',
   arched:     'M151.4745 77.5 Q161.4745 70 171.4745 77.5',
   'soft-arch':'M151.4745 76.5 Q161.4745 72 171.4745 76.5',
+  relaxed:    'M150.4745 77 Q161.4745 73.8 172.4745 77',
   worried:    'M151.4745 74 Q161.4745 80 171.4745 76',
   angry:      'M151.4745 82 L171.4745 71',
 } as const
@@ -67,12 +71,12 @@ export const mouthParametricPresets = {
   excited:  { Ty: 130, My: 162, By: 178, gap: 4, c2x: 147,   c2y: 162, c3x: 147, c3y: 172 },
   thinking: { Ty: 145, My: 142, By: 145, gap: 2, c2x: 145,   c2y: 143, c3x: 150, c3y: 146 },
   angry:    { Ty: 148, My: 138, By: 152, gap: 1, c2x: 144,   c2y: 142, c3x: 144, c3y: 150 },
-  chewing:  { Ty: 138, My: 134, By: 150, gap: 3, c2x: 146,   c2y: 134, c3x: 146, c3y: 150 },
 } as const satisfies Record<string, MouthParametric>
 
 export const mouthLiteralPresets = {
   happy:     { kind: 'literal', d: 'M101 131 C101 131 112.5 137 129 137.5 C145.5 138 157 131 157 131 C157 131 156.149 138.674 154 143 C151.851 147.326 144 159 129 159 C114 159 106.149 147.326 104 143 C101.851 138.674 101 131 101 131 Z' },
   surprised: { kind: 'oval', cx: 130, cy: 140, rx: 9, ry: 13 },
+  chewing:   { kind: 'literal', d: 'M111.474 141 C111.474 141 112.974 135 129.474 135.5 C145.974 136 147.474 141 147.474 141 C147.474 141 149.623 144.674 147.474 149 C145.325 153.326 144.474 160 129.474 160 C114.474 160 113.623 153.326 111.474 149 C109.325 144.674 111.474 141 111.474 141 Z' },
 } as const
 
 export type MouthPoseName =

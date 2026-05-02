@@ -105,7 +105,7 @@ const colors = characterPalettes[palette];
     </g>
     <g :style="`transform: scaleY(${eyeRightBindings.closedOpacity}); transform-origin: 161.474px 97px; transition: transform 0.18s cubic-bezier(0.4, 0, 0.6, 1), opacity 0.15s ease;`"
        :opacity="eyeRightBindings.closedOpacity">
-      <path d="M148.474 97 Q161.474 104 174.474 97" stroke="black" stroke-width="3" stroke-linecap="round" fill="none"/>
+      <path d="M147.474 95.5 Q161.474 109 175.474 95.5" stroke="black" stroke-width="3.2" stroke-linecap="round" fill="none"/>
     </g>
 
     <!-- Left eye open -->
@@ -118,7 +118,7 @@ const colors = characterPalettes[palette];
     </g>
     <g :style="`transform: scaleY(${eyeLeftBindings.closedOpacity}); transform-origin: 99.4745px 97px; transition: transform 0.18s cubic-bezier(0.4, 0, 0.6, 1), opacity 0.15s ease;`"
        :opacity="eyeLeftBindings.closedOpacity">
-      <path d="M86.4745 97 Q99.4745 104 112.4745 97" stroke="black" stroke-width="3" stroke-linecap="round" fill="none"/>
+      <path d="M85.4745 95.5 Q99.4745 109 113.4745 95.5" stroke="black" stroke-width="3.2" stroke-linecap="round" fill="none"/>
     </g>
 
     <!-- Nose -->
@@ -139,6 +139,12 @@ const colors = characterPalettes[palette];
     <path :d="eyebrowRightBindings.pathD" stroke="black" stroke-width="3" stroke-linecap="round" fill="none"
       :transform="eyebrowRightBindings.transformAttr"
       style="transform-origin: 161.474px 75.5px;"/>
+
+    <!-- Cheek puffs (eating) -->
+    <circle cx="100.974" cy="147.5" r="18.5" data-paint="limbs" fill={colors.limbs}
+      :opacity="cheekPuffOpacity"/>
+    <circle cx="159.974" cy="147.5" r="18.5" data-paint="limbs" fill={colors.limbs}
+      :opacity="cheekPuffOpacity"/>
 
     <!-- Blush cheeks -->
     <circle cx="75" cy="120" r="18" fill="url(#blushGrad)" :opacity="blushOpacity"/>

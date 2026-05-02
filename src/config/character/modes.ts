@@ -21,6 +21,7 @@ export const modes: Record<ModeName, ModeConfig> = {
     nose:        { transform: { scaleX: 1, scaleY: 1 } },
     blush:       0,
     tears:       0,
+    cheekPuff:   0,
     cycles:      { armSway: idleSway },
   },
 
@@ -38,6 +39,7 @@ export const modes: Record<ModeName, ModeConfig> = {
     nose:        { transform: { scaleX: 1, scaleY: 1 } },
     blush:       0.75,
     tears:       0,
+    cheekPuff:   0,
     cycles:      { armSway: happySway, mouthGrin: { durationMs: 2400 } },
   },
 
@@ -55,6 +57,7 @@ export const modes: Record<ModeName, ModeConfig> = {
     nose:        { transform: { scaleX: 1, scaleY: 1 } },
     blush:       0.75,
     tears:       0,
+    cheekPuff:   0,
     cycles:      {
       armBob:        { amplitude: 10, durationMs: 500 },
       pupilSparkle:  { durationMs: 800 },
@@ -77,6 +80,7 @@ export const modes: Record<ModeName, ModeConfig> = {
     nose:        { transform: { scaleX: 1, scaleY: 1 } },
     blush:       0,
     tears:       0,
+    cheekPuff:   0,
     cycles:      {},
   },
 
@@ -94,6 +98,7 @@ export const modes: Record<ModeName, ModeConfig> = {
     nose:        { transform: { scaleX: 0.85, scaleY: 1 } },
     blush:       0,
     tears:       0.8,
+    cheekPuff:   0,
     cycles:      {},
   },
 
@@ -111,6 +116,7 @@ export const modes: Record<ModeName, ModeConfig> = {
     nose:        { transform: { scaleX: 1, scaleY: 1 } },
     blush:       0,
     tears:       0,
+    cheekPuff:   0,
     cycles:      {},
   },
 
@@ -128,6 +134,7 @@ export const modes: Record<ModeName, ModeConfig> = {
     nose:        { transform: { scaleX: 1, scaleY: 1 } },
     blush:       0,
     tears:       0.4,
+    cheekPuff:   0,
     cycles:      {},
   },
 
@@ -145,6 +152,7 @@ export const modes: Record<ModeName, ModeConfig> = {
     nose:        { transform: { scaleX: 1, scaleY: 1 } },
     blush:       0,
     tears:       0,
+    cheekPuff:   0,
     cycles:      { thinking: { durationMs: 1000 } },
   },
 
@@ -162,6 +170,7 @@ export const modes: Record<ModeName, ModeConfig> = {
     nose:        { transform: { scaleX: 1, scaleY: 1 } },
     blush:       0.85,
     tears:       0,
+    cheekPuff:   0,
     cycles:      { chewLoop: { durationMs: 320 }, pupilSparkle: { durationMs: 1200 } },
   },
 
@@ -170,8 +179,9 @@ export const modes: Record<ModeName, ModeConfig> = {
     armRight:    { pose: 'down', transform: { rotate: 0 } },
     eyeLeft:     { shape: { x: 1, y: 1 } },
     eyeRight:    { shape: { x: 1, y: 1 } },
-    eyebrowLeft: { pose: 'default', transform: { rotate: 0, translateY: 2 } },
-    eyebrowRight:{ pose: 'default', transform: { rotate: 0, translateY: 2 } },
+    // sobrancelhas relaxadas (arco suave) e levemente caídas — cara de sono
+    eyebrowLeft: { pose: 'relaxed', transform: { rotate: 0, translateY: 5 } },
+    eyebrowRight:{ pose: 'relaxed', transform: { rotate: 0, translateY: 5 } },
     mouth:       { pose: 'idle' },
     body:        { armsOverHead: false },
     legLeft:     { transform: { rotate: 0, translateY: 0 } },
@@ -179,6 +189,7 @@ export const modes: Record<ModeName, ModeConfig> = {
     nose:        { transform: { scaleX: 1, scaleY: 1 } },
     blush:       0,
     tears:       0,
+    cheekPuff:   0,
     cycles:      {},
   },
 }
