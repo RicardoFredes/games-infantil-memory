@@ -231,6 +231,27 @@ export function playGestureSfx(kind: string): void {
       s.triggerAttackRelease(noteToFreq('C5'), '4n');
       break;
     }
+    case 'refuse': {
+      // "Uh-uh!" curto: duas notas descendentes em triangle + pequeno
+      // sopro de ruído rosa filtrado.
+      const now = Tone.now();
+      const synth = new Tone.Synth({
+        oscillator: { type: 'triangle' },
+        envelope: { attack: 0.005, decay: 0.18, sustain: 0, release: 0.1 },
+      }).toDestination();
+      synth.volume.value = -10;
+      synth.triggerAttackRelease(noteToFreq('E4'), '16n', now);
+      synth.triggerAttackRelease(noteToFreq('B3'), '16n', now + 0.18);
+
+      const filter = new Tone.Filter({ type: 'lowpass', frequency: 800, Q: 1 }).toDestination();
+      const puff = new Tone.NoiseSynth({
+        noise: { type: 'pink' },
+        envelope: { attack: 0.01, decay: 0.18, sustain: 0, release: 0.05 },
+      }).connect(filter);
+      puff.volume.value = -22;
+      puff.triggerAttackRelease('8n', now + 0.36);
+      break;
+    }
     case 'inflate': {
       // "Balão enchendo": ruído rosa filtrado com cutoff subindo +
       // pitch glide pra cima de um oscilador triangle.

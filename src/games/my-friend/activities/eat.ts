@@ -152,6 +152,7 @@ registerActivity({
 
     function refuseFood() {
       if (savorTimer) { clearTimeout(savorTimer); savorTimer = null; }
+      playGestureSfx('refuse');
       window.dispatchEvent(new CustomEvent('character:set-mood', {
         detail: { mood: 'refuse', duration: 1500 },
       }));
