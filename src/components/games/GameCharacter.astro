@@ -3,15 +3,19 @@ import { characterPalettes, defaultPalette, type CharacterPaletteName } from '@/
 
 export interface Props {
   palette?: CharacterPaletteName;
+  /** Se false, ignora a preferência global (útil pra páginas de teste que mostram várias palettes ao mesmo tempo). */
+  syncWithGlobal?: boolean;
 }
 
-const { palette = defaultPalette } = Astro.props;
+const { palette = defaultPalette, syncWithGlobal = true } = Astro.props;
 const colors = characterPalettes[palette];
 ---
 
 <div
   x-data="gameCharacter"
   x-init="init()"
+  data-ssr-palette={palette}
+  data-sync-global={syncWithGlobal ? 'true' : 'false'}
   @character:set-mood.window="setMood($event.detail.mood, $event.detail.duration)"
   @click="jump()"
   @touchstart.passive="jump()"
@@ -167,8 +171,33 @@ const colors = characterPalettes[palette];
 <script>
   import Alpine from 'alpinejs'
   import { createCharacterStore } from '@/games/character/composer'
+  import { getPalette } from '@/lib/character-preferences'
+  import { applyPalette } from '@/lib/character-palette-swap'
+  import type { CharacterPaletteName } from '@/lib/character-palettes'
 
   document.addEventListener('alpine:init', () => {
     Alpine.data('gameCharacter', createCharacterStore)
   })
+
+  // Sincroniza com a preferência global. Cada personagem na página
+  // descobre seu próprio container via data-ssr-palette.
+  function syncEachCharacter() {
+    document.querySelectorAll<HTMLElement>('[data-ssr-palette]').forEach((el) => {
+      if (el.dataset.syncGlobal === 'false') return
+      const ssr = el.dataset.ssrPalette as CharacterPaletteName | undefined
+      if (!ssr) return
+      const current = (el.dataset.currentPalette as CharacterPaletteName | undefined) ?? ssr
+      const target = getPalette()
+      if (target === current) return
+      const svg = el.querySelector('svg')
+      if (!svg) return
+      const tempId = el.id || (el.id = `gc-${Math.random().toString(36).slice(2, 9)}`)
+      applyPalette(`#${tempId}`, current, target)
+      el.dataset.currentPalette = target
+    })
+  }
+
+  // Sync inicial após DOM montado e em resposta a mudanças de paleta.
+  document.addEventListener('DOMContentLoaded', syncEachCharacter)
+  window.addEventListener('character:palette-change', syncEachCharacter)
 </script>

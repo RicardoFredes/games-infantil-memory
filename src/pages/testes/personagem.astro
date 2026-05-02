@@ -17,7 +17,7 @@ const paletteNames = Object.keys(characterPalettes) as CharacterPaletteName[];
     <div class="relative flex items-center justify-center">
       {paletteNames.map((name) => (
         <div x-show={`palette === '${name}'`} x-cloak>
-          <GameCharacter palette={name} />
+          <GameCharacter palette={name} syncWithGlobal={false} />
         </div>
       ))}
     </div>

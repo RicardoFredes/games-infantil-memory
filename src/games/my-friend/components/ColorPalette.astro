@@ -1,0 +1,48 @@
+---
+import { characterPalettes, type CharacterPaletteName } from '@/lib/character-palettes';
+import config from '../config.json';
+
+const enabled = (config as { palettes?: CharacterPaletteName[] }).palettes
+  ?? (Object.keys(characterPalettes) as CharacterPaletteName[]);
+---
+
+<div
+  class="color-palette flex items-center justify-center gap-3 px-4 pb-6 pt-3"
+  style="padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 1.25rem);"
+>
+  {
+    enabled.map((name) => {
+      const c = characterPalettes[name];
+      return (
+        <button
+          type="button"
+          class="palette-swatch"
+          :class={`current === '${name}' ? 'is-active' : ''`}
+          @click={`pickPalette('${name}')`}
+          aria-label={`Cor ${name}`}
+          data-palette-name={name}
+          style={`background: linear-gradient(135deg, ${c.skinTop}, ${c.skinBottom});`}
+        ></button>
+      );
+    })
+  }
+</div>
+
+<style>
+  .palette-swatch {
+    width: clamp(40px, 11vw, 56px);
+    height: clamp(40px, 11vw, 56px);
+    border-radius: 9999px;
+    border: 4px solid white;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.18);
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    outline: none;
+  }
+  .palette-swatch:active { transform: scale(0.92); }
+  .palette-swatch:hover  { transform: scale(1.05); }
+  .palette-swatch.is-active {
+    transform: scale(1.15);
+    box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.45), 0 6px 14px rgba(0,0,0,0.22);
+  }
+</style>

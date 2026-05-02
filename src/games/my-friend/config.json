@@ -1,0 +1,32 @@
+{
+  "meta": {
+    "id": "my-friend",
+    "name": "Meu Amigo",
+    "description": "Troque a cor e interaja com seu amigo!",
+    "version": "1.0.0",
+    "ageRange": [2, 7]
+  },
+  "palettes": ["purple", "pink", "green", "blue", "yellow", "orange", "red"],
+  "defaultPalette": "purple",
+  "gestures": {
+    "tap":       { "maxDurationMs": 200, "maxDistance": 8, "cooldownMs": 250 },
+    "slap":      { "minVelocity": 1.2, "maxDurationMs": 250, "cooldownMs": 1500 },
+    "stroke":    { "minDistance": 30, "maxVelocity": 0.6, "cooldownMs": 600 },
+    "tickle":    { "minDirChanges": 2, "windowMs": 500, "cooldownMs": 800 },
+    "longPress": { "minDurationMs": 800, "maxDistance": 12, "cooldownMs": 1000 },
+    "doubleTap": { "maxIntervalMs": 350, "cooldownMs": 800 }
+  },
+  "reactions": {
+    "head:stroke":      { "mood": "happy",     "moodDuration": 1500 },
+    "head:slap":        { "mood": "sad",       "moodDuration": 2000, "action": "shake" },
+    "body:tickle":      { "mood": "excited",   "moodDuration": 2000, "action": "bounce" },
+    "body:longPress":   { "mood": "calm",      "moodDuration": 3000 },
+    "body:slap":        { "mood": "sad",       "moodDuration": 2000, "action": "shake" },
+    "eye-l:tap":        { "mood": "surprised", "moodDuration": 800 },
+    "eye-r:tap":        { "mood": "surprised", "moodDuration": 800 },
+    "mouth:tap":        { "mood": "happy",     "moodDuration": 600 },
+    "foot-l:tap":       { "mood": "excited",   "moodDuration": 1000, "action": "jump" },
+    "foot-r:tap":       { "mood": "excited",   "moodDuration": 1000, "action": "jump" },
+    "*:doubleTap":      { "mood": "happy",     "moodDuration": 1500, "action": "wave" }
+  }
+}
