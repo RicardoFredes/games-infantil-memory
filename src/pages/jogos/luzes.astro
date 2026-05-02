@@ -154,7 +154,8 @@ const lights = gameConfig.lights;
       <!-- Close X -->
       <button
         @click="resumeGame()"
-        class="absolute top-6 right-6 w-12 h-12 rounded-full bg-white/90 backdrop-blur shadow-lg border-2 border-purple-200 flex items-center justify-center text-2xl text-purple-600 hover:scale-110 transition-all z-10"
+        class="absolute w-12 h-12 rounded-full bg-white/90 backdrop-blur shadow-lg border-2 border-purple-200 flex items-center justify-center text-2xl text-purple-600 hover:scale-110 transition-all z-10"
+        style="top: calc(env(safe-area-inset-top, 0px) + 1rem); right: calc(env(safe-area-inset-right, 0px) + 1rem);"
         aria-label="Fechar"
       >
         ✕
