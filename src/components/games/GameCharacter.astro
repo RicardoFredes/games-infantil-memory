@@ -54,25 +54,25 @@ const colors = characterPalettes[palette];
     <g transform="translate(0, -3)">
       <g :transform="legLeftBindings.transformAttr" style="transform-origin: 95px 210px;">
         <path d="M95.4745 203.5C94.4745 211.833 92.5745 230.4 92.9745 238C93.3745 245.6 93.1411 250.833 92.9745 252.5"
-          stroke={colors.limbs} stroke-width="21" stroke-linecap="round"/>
+          data-paint="limbs" stroke={colors.limbs} stroke-width="21" stroke-linecap="round"/>
       </g>
     </g>
 
     <g :transform="footLeftBindings.transformAttr" style="transform-origin: 95px 255px;">
       <path d="M83.4745 245C97.8339 245 109.474 251.132 109.474 258.696C109.474 259.454 108.798 260 108.033 260H58.9162C58.1505 260 57.4745 259.454 57.4745 258.696C57.4745 251.132 69.1151 245 83.4745 245Z"
-        fill={colors.limbs}/>
+        data-paint="limbs" fill={colors.limbs}/>
     </g>
 
     <g transform="translate(0, -3)">
       <g :transform="legRightBindings.transformAttr" style="transform-origin: 165px 210px;">
         <path d="M165.474 203.5C166.474 211.833 168.374 230.4 167.974 238C167.574 245.6 167.808 250.833 167.974 252.5"
-          stroke={colors.limbs} stroke-width="21" stroke-linecap="round"/>
+          data-paint="limbs" stroke={colors.limbs} stroke-width="21" stroke-linecap="round"/>
       </g>
     </g>
 
     <g :transform="footRightBindings.transformAttr" style="transform-origin: 165px 255px;">
       <path d="M177.474 245C163.115 245 151.474 251.132 151.474 258.696C151.474 259.454 152.151 260 152.916 260H202.033C202.798 260 203.474 259.454 203.474 258.696C203.474 251.132 191.834 245 177.474 245Z"
-        fill={colors.limbs}/>
+        data-paint="limbs" fill={colors.limbs}/>
     </g>
 
     <!-- Breathing wrapper (interno, só upper body) -->
@@ -81,12 +81,12 @@ const colors = characterPalettes[palette];
     <!-- ===== ARMS (atrás da cabeça) ===== -->
     <g x-show="!armsOverHead">
       <g :transform="armLeftBindings.transformAttr" style="transform-origin: 40px 115px;">
-        <path :d="armLeftBindings.strokePath" stroke={colors.limbs} stroke-width="21" stroke-linecap="round"/>
-        <path :d="armLeftBindings.handPath" fill={colors.limbs}/>
+        <path :d="armLeftBindings.strokePath" data-paint="limbs" stroke={colors.limbs} stroke-width="21" stroke-linecap="round"/>
+        <path :d="armLeftBindings.handPath" data-paint="limbs" fill={colors.limbs}/>
       </g>
       <g :transform="armRightBindings.transformAttr" style="transform-origin: 220px 115px;">
-        <path :d="armRightBindings.strokePath" stroke={colors.limbs} stroke-width="21" stroke-linecap="round"/>
-        <path :d="armRightBindings.handPath" fill={colors.limbs}/>
+        <path :d="armRightBindings.strokePath" data-paint="limbs" stroke={colors.limbs} stroke-width="21" stroke-linecap="round"/>
+        <path :d="armRightBindings.handPath" data-paint="limbs" fill={colors.limbs}/>
       </g>
     </g>
 
@@ -151,12 +151,12 @@ const colors = characterPalettes[palette];
     <!-- ===== ARMS (na frente da cabeça) ===== -->
     <g x-show="armsOverHead">
       <g :transform="armLeftBindings.transformAttr" style="transform-origin: 40px 115px;">
-        <path :d="armLeftBindings.strokePath" stroke={colors.limbs} stroke-width="21" stroke-linecap="round"/>
-        <path :d="armLeftBindings.handPath" fill={colors.limbs}/>
+        <path :d="armLeftBindings.strokePath" data-paint="limbs" stroke={colors.limbs} stroke-width="21" stroke-linecap="round"/>
+        <path :d="armLeftBindings.handPath" data-paint="limbs" fill={colors.limbs}/>
       </g>
       <g :transform="armRightBindings.transformAttr" style="transform-origin: 220px 115px;">
-        <path :d="armRightBindings.strokePath" stroke={colors.limbs} stroke-width="21" stroke-linecap="round"/>
-        <path :d="armRightBindings.handPath" fill={colors.limbs}/>
+        <path :d="armRightBindings.strokePath" data-paint="limbs" stroke={colors.limbs} stroke-width="21" stroke-linecap="round"/>
+        <path :d="armRightBindings.handPath" data-paint="limbs" fill={colors.limbs}/>
       </g>
     </g>
 

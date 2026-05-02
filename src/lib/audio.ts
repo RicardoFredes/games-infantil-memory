@@ -253,6 +253,12 @@ const moodMotifs: Record<string, NoteStep[]> = {
     { note: 'F4', duration: '4n' },
     { note: 'D4', duration: '2n' },
   ],
+  angry: [
+    { note: 'F#3', duration: '8n' },
+    { note: 'F3', duration: '8n' },
+    { note: 'E3', duration: '8n' },
+    { note: 'F#3', duration: '4n' },
+  ],
   surprised: [
     { note: 'C5', duration: '16n' },
     { note: 'C6', duration: '4n' },

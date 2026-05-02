@@ -22,9 +22,14 @@ export interface ZoneConfig {
   cooldownMs: number;
 }
 
+export interface FeatureFlags {
+  /** Aplica tint de cor temporário no personagem conforme o mood ativo. */
+  moodPaletteTint: boolean;
+}
+
 export interface Reaction {
-  mood: string;
-  moodDuration: number;
+  mood?: string;
+  moodDuration?: number;
   action?: 'jump' | 'shake' | 'bounce' | 'wave';
 }
 
@@ -32,6 +37,7 @@ export interface MyFriendConfig {
   meta: GameConfigMeta;
   palettes: CharacterPaletteName[];
   defaultPalette: CharacterPaletteName;
+  features?: Partial<FeatureFlags>;
   zones: ZoneConfig;
   reactions: Record<string, Reaction>;
 }

@@ -82,7 +82,7 @@ export interface ModeConfig {
 }
 
 export type ModeName =
-  | 'idle' | 'happy' | 'excited' | 'sad'
+  | 'idle' | 'happy' | 'excited' | 'sad' | 'angry'
   | 'surprised' | 'tired' | 'thinking' | 'sleeping'
 
 // ─── One-shot actions ─────────────────────────────────────────

@@ -63,6 +63,23 @@ export const modes: Record<ModeName, ModeConfig> = {
     },
   },
 
+  angry: {
+    armLeft:     { pose: 'down', transform: { rotate:  18 } },
+    armRight:    { pose: 'down', transform: { rotate: -18 } },
+    eyeLeft:     { shape: { x: 1.05, y: 0.7 } },
+    eyeRight:    { shape: { x: 1.05, y: 0.7 } },
+    eyebrowLeft: { pose: 'angry', transform: { rotate: 0, translateY: 4 } },
+    eyebrowRight:{ pose: 'angry', transform: { rotate: 0, translateY: 4 } },
+    mouth:       { pose: 'angry' },
+    body:        { armsOverHead: false },
+    legLeft:     { transform: { rotate: 0, translateY: 0 } },
+    legRight:    { transform: { rotate: 0, translateY: 0 } },
+    nose:        { transform: { scaleX: 1, scaleY: 1 } },
+    blush:       0,
+    tears:       0,
+    cycles:      {},
+  },
+
   sad: {
     armLeft:     { pose: 'down', transform: { rotate:  10 } },
     armRight:    { pose: 'down', transform: { rotate: -10 } },

@@ -39,6 +39,7 @@ export const leftEyebrowPaths = {
   arched:     'M89.4745 77.5 Q99.4745 70 109.4745 77.5',
   'soft-arch':'M89.4745 76.5 Q99.4745 72 109.4745 76.5',
   worried:    'M89.4745 76 Q99.4745 80 109.4745 74',
+  angry:      'M89.4745 71 L109.4745 82',
 } as const
 
 export const rightEyebrowPaths = {
@@ -46,6 +47,7 @@ export const rightEyebrowPaths = {
   arched:     'M151.4745 77.5 Q161.4745 70 171.4745 77.5',
   'soft-arch':'M151.4745 76.5 Q161.4745 72 171.4745 76.5',
   worried:    'M151.4745 74 Q161.4745 80 171.4745 76',
+  angry:      'M151.4745 82 L171.4745 71',
 } as const
 
 export type EyebrowPoseName = keyof typeof leftEyebrowPaths
@@ -64,6 +66,7 @@ export const mouthParametricPresets = {
   tired:    { Ty: 151, My: 147, By: 151, gap: 1, c2x: 145,   c2y: 148, c3x: 145, c3y: 150 },
   excited:  { Ty: 130, My: 162, By: 178, gap: 4, c2x: 147,   c2y: 162, c3x: 147, c3y: 172 },
   thinking: { Ty: 145, My: 142, By: 145, gap: 2, c2x: 145,   c2y: 143, c3x: 150, c3y: 146 },
+  angry:    { Ty: 148, My: 138, By: 152, gap: 1, c2x: 144,   c2y: 142, c3x: 144, c3y: 150 },
 } as const satisfies Record<string, MouthParametric>
 
 export const mouthLiteralPresets = {

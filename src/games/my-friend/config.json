@@ -8,6 +8,9 @@
   },
   "palettes": ["purple", "pink", "green", "blue", "yellow", "orange", "red"],
   "defaultPalette": "purple",
+  "features": {
+    "moodPaletteTint": false
+  },
   "zones": {
     "cooldownMs": 350
   },
@@ -19,9 +22,9 @@
     "body":   { "mood": "excited",   "moodDuration": 2000, "action": "bounce" },
     "arm-l":  { "mood": "happy",     "moodDuration": 1500, "action": "wave" },
     "arm-r":  { "mood": "happy",     "moodDuration": 1500, "action": "wave" },
-    "leg-l":  { "mood": "excited",   "moodDuration": 1000, "action": "jump" },
-    "leg-r":  { "mood": "excited",   "moodDuration": 1000, "action": "jump" },
-    "foot-l": { "mood": "excited",   "moodDuration": 1000, "action": "jump" },
-    "foot-r": { "mood": "excited",   "moodDuration": 1000, "action": "jump" }
+    "leg-l":  { "action": "jump" },
+    "leg-r":  { "action": "jump" },
+    "foot-l": { "action": "jump" },
+    "foot-r": { "action": "jump" }
   }
 }

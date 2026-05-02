@@ -131,7 +131,7 @@ export class MyFriendEngine implements GameEngine<MyFriendConfig, MyFriendState>
     this.cooldowns.set(zone, now);
 
     playGestureSfx('tap');
-    setMood(reaction.mood, reaction.moodDuration);
+    if (reaction.mood) setMood(reaction.mood, reaction.moodDuration ?? 0);
     if (reaction.action) fireAction(reaction.action);
     emit('reaction', { zone, reaction });
   }

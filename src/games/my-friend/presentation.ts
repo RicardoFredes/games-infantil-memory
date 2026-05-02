@@ -1,16 +1,20 @@
 import { MyFriendEngine } from './engine';
 import config from './config.json';
 import type { MyFriendConfig, Zone } from './types';
-import type { CharacterPaletteName } from '@/lib/character-palettes';
-import { applyPalette } from '@/lib/character-palette-swap';
+import { characterPalettes, type CharacterPalette, type CharacterPaletteName } from '@/lib/character-palettes';
+import { applyPaletteValues } from '@/lib/character-palette-swap';
 import { initAudio, playMoodMotif } from '@/lib/audio';
 import type { ActivityName } from './activities';
+import { getMoodPalette } from './mood-palettes';
 import './activities/all';
 
 const gameConfig = config as MyFriendConfig;
 const STAGE_SELECTOR = '#my-friend-stage';
 const FX_SELECTOR = '.touch-fx';
 const MOOD_BUTTON_DURATION_MS = 4000;
+const PALETTE_TRANSITION_BASE_MS = 300;
+const PALETTE_TRANSITION_MOOD_IN_MS = 350;
+const PALETTE_TRANSITION_MOOD_OUT_MS = 500;
 
 function spawnRipple(layer: HTMLElement, x: number, y: number) {
   const el = document.createElement('span');
@@ -36,6 +40,9 @@ export function createPresentation() {
     activeActivity: null as ActivityName | null,
     activeTab: 'activities' as 'activities' | 'colors' | 'reactions',
     _moodResetTimer: null as ReturnType<typeof setTimeout> | null,
+    _moodPaletteRevertTimer: null as ReturnType<typeof setTimeout> | null,
+    _appliedColors: characterPalettes[gameConfig.defaultPalette] as CharacterPalette,
+    _moodOverrideActive: false,
     _pointerHandler: null as ((e: PointerEvent) => void) | null,
     _hitSvg: null as SVGElement | null,
     _activityStartHandler: null as ((e: Event) => void) | null,
@@ -46,10 +53,21 @@ export function createPresentation() {
 
       window.addEventListener('my-friend:palette-change', ((e: CustomEvent) => {
         const next = e.detail.palette as CharacterPaletteName;
-        const prev = (e.detail.previous as CharacterPaletteName) ?? this.current;
-        applyPalette(STAGE_SELECTOR, prev, next);
         this.current = next;
+        if (this._moodOverrideActive) return;
+        const target = characterPalettes[next];
+        applyPaletteValues(STAGE_SELECTOR, this._appliedColors, target, PALETTE_TRANSITION_BASE_MS);
+        this._appliedColors = target;
       }) as EventListener);
+
+      if (gameConfig.features?.moodPaletteTint) {
+        window.addEventListener('character:set-mood', ((e: CustomEvent) => {
+          const mood = e.detail?.mood as string | undefined;
+          const duration = (e.detail?.duration as number | undefined) ?? MOOD_BUTTON_DURATION_MS;
+          if (!mood) return;
+          this._applyMoodPalette(mood, duration);
+        }) as EventListener);
+      }
 
       this._activityStartHandler = ((e: Event) => {
         const detail = (e as CustomEvent).detail;
@@ -111,6 +129,33 @@ export function createPresentation() {
       }, MOOD_BUTTON_DURATION_MS);
     },
 
+    _applyMoodPalette(mood: string, durationMs: number) {
+      const override = getMoodPalette(mood);
+      if (this._moodPaletteRevertTimer) {
+        clearTimeout(this._moodPaletteRevertTimer);
+        this._moodPaletteRevertTimer = null;
+      }
+      if (!override) {
+        if (this._moodOverrideActive) {
+          const base = characterPalettes[this.current];
+          applyPaletteValues(STAGE_SELECTOR, this._appliedColors, base, PALETTE_TRANSITION_MOOD_OUT_MS);
+          this._appliedColors = base;
+          this._moodOverrideActive = false;
+        }
+        return;
+      }
+      applyPaletteValues(STAGE_SELECTOR, this._appliedColors, override, PALETTE_TRANSITION_MOOD_IN_MS);
+      this._appliedColors = override;
+      this._moodOverrideActive = true;
+      this._moodPaletteRevertTimer = setTimeout(() => {
+        const base = characterPalettes[this.current];
+        applyPaletteValues(STAGE_SELECTOR, this._appliedColors, base, PALETTE_TRANSITION_MOOD_OUT_MS);
+        this._appliedColors = base;
+        this._moodOverrideActive = false;
+        this._moodPaletteRevertTimer = null;
+      }, durationMs);
+    },
+
     togglePause() {
       if (!this.engine) return;
       if (this.isPaused) { this.isPaused = false; this.engine.resume(); }
@@ -133,6 +178,7 @@ export function createPresentation() {
         window.removeEventListener('my-friend:activity-end', this._activityEndHandler);
       }
       if (this._moodResetTimer) clearTimeout(this._moodResetTimer);
+      if (this._moodPaletteRevertTimer) clearTimeout(this._moodPaletteRevertTimer);
       this.engine?.destroy();
     },
   };
