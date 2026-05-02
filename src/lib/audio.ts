@@ -89,14 +89,17 @@ export function playScoreTick(): void {
 
 let bgPlayer: Tone.Player | null = null;
 
-export async function startBackgroundMusic(): Promise<void> {
+export async function startBackgroundMusic(
+  url = '/audio/leberch-suspense-511168.mp3',
+  volume = -16,
+): Promise<void> {
   if (!initialized) return;
   stopBackgroundMusic();
 
   bgPlayer = new Tone.Player({
-    url: '/audio/leberch-suspense-511168.mp3',
+    url,
     loop: true,
-    volume: -16,
+    volume,
   }).toDestination();
 
   await Tone.loaded();
@@ -112,6 +115,36 @@ export function stopBackgroundMusic(): void {
 }
 
 let timeoutPlayer: Tone.Player | null = null;
+
+const cardMatchArpeggio: NoteStep[] = [
+  { note: 'C5', duration: '16n' },
+  { note: 'E5', duration: '16n' },
+  { note: 'G5', duration: '8n' },
+];
+
+const cardWinArpeggio: NoteStep[] = [
+  { note: 'C5', duration: '8n' },
+  { note: 'E5', duration: '8n' },
+  { note: 'G5', duration: '8n' },
+  { note: 'C6', duration: '4n' },
+  { note: 'E6', duration: '4n' },
+];
+
+export function playCardMatch(volume = -10): void {
+  if (!initialized) return;
+  playSequence(cardMatchArpeggio, 90, volume);
+}
+
+export function playCardWin(volume = -8): void {
+  if (!initialized) return;
+  playSequence(cardWinArpeggio, 130, volume);
+  const noise = new Tone.NoiseSynth({
+    noise: { type: 'pink' },
+    envelope: { attack: 0.005, decay: 0.4, sustain: 0 },
+  }).toDestination();
+  noise.volume.value = volume - 6;
+  noise.triggerAttackRelease('8n', Tone.now() + 0.02);
+}
 
 export function playTimeoutSfx(): void {
   if (!initialized) return;
