@@ -67,6 +67,7 @@ export const mouthParametricPresets = {
   excited:  { Ty: 130, My: 162, By: 178, gap: 4, c2x: 147,   c2y: 162, c3x: 147, c3y: 172 },
   thinking: { Ty: 145, My: 142, By: 145, gap: 2, c2x: 145,   c2y: 143, c3x: 150, c3y: 146 },
   angry:    { Ty: 148, My: 138, By: 152, gap: 1, c2x: 144,   c2y: 142, c3x: 144, c3y: 150 },
+  chewing:  { Ty: 138, My: 134, By: 150, gap: 3, c2x: 146,   c2y: 134, c3x: 146, c3y: 150 },
 } as const satisfies Record<string, MouthParametric>
 
 export const mouthLiteralPresets = {

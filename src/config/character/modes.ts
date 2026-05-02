@@ -148,6 +148,23 @@ export const modes: Record<ModeName, ModeConfig> = {
     cycles:      { thinking: { durationMs: 1000 } },
   },
 
+  eating: {
+    armLeft:     { pose: 'down', transform: { rotate:  -5 } },
+    armRight:    { pose: 'down', transform: { rotate:   5 } },
+    eyeLeft:     { shape: { x: 1, y: 0.55 } },
+    eyeRight:    { shape: { x: 1, y: 0.55 } },
+    eyebrowLeft: { pose: 'soft-arch', transform: { rotate: -8, translateY: -2 } },
+    eyebrowRight:{ pose: 'soft-arch', transform: { rotate:  8, translateY: -2 } },
+    mouth:       { pose: 'chewing' },
+    body:        { armsOverHead: false },
+    legLeft:     { transform: { rotate: 0, translateY: 0 } },
+    legRight:    { transform: { rotate: 0, translateY: 0 } },
+    nose:        { transform: { scaleX: 1, scaleY: 1 } },
+    blush:       0.85,
+    tears:       0,
+    cycles:      { chewLoop: { durationMs: 320 }, pupilSparkle: { durationMs: 1200 } },
+  },
+
   sleeping: {
     armLeft:     { pose: 'down', transform: { rotate: 0 } },
     armRight:    { pose: 'down', transform: { rotate: 0 } },

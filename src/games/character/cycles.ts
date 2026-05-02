@@ -15,10 +15,11 @@ export interface CycleHandles {
   pupil:     Anim | null
   mouthGrin: Anim | null
   thinking:  Anim | null
+  chew:      Anim | null
 }
 
 export function createCycleHandles(): CycleHandles {
-  return { breathing: null, blink: null, armSway: null, armBob: null, pupil: null, mouthGrin: null, thinking: null }
+  return { breathing: null, blink: null, armSway: null, armBob: null, pupil: null, mouthGrin: null, thinking: null, chew: null }
 }
 
 function cancel(h: Anim | null) {
@@ -54,6 +55,7 @@ export function applyModeCycles(state: AnimState, h: CycleHandles, cfg: CycleCon
   cancel(h.pupil);     h.pupil     = null
   cancel(h.mouthGrin); h.mouthGrin = null
   cancel(h.thinking);  h.thinking  = null
+  cancel(h.chew);      h.chew      = null
 
   if (cfg.armSway) {
     const a = cfg.armSway.amplitude
@@ -103,8 +105,19 @@ export function applyModeCycles(state: AnimState, h: CycleHandles, cfg: CycleCon
       loop: true,
       ease: 'inOutSine',
     })
-  } else {
+  } else if (!cfg.chewLoop) {
     state.mouthGrinScale = 1
+  }
+
+  if (cfg.chewLoop) {
+    h.chew = animate(state, {
+      mouthGrinScale: [{ to: 0.85 }, { to: 1.05 }, { to: 0.85 }],
+      armLeftBobY:    [{ to: 0 },    { to: -2 },   { to: 0 }],
+      armRightBobY:   [{ to: 0 },    { to: -2 },   { to: 0 }],
+      duration: cfg.chewLoop.durationMs,
+      loop: true,
+      ease: 'inOutSine',
+    })
   }
 
   // Thinking: braço/mão direita "voam" pra junto da cabeça (entrada 700ms,

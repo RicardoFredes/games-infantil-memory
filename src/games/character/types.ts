@@ -60,6 +60,8 @@ export interface CycleConfig {
   bodyJumpLoop?: boolean
   /** Sobrancelha pensando — escala leve. */
   thinking?:   { durationMs: number }
+  /** Mastigação: pulso na escala da boca + bob no body (eating). */
+  chewLoop?:   { durationMs: number }
 }
 
 // ─── Modo (composição) ────────────────────────────────────────
@@ -83,7 +85,7 @@ export interface ModeConfig {
 
 export type ModeName =
   | 'idle' | 'happy' | 'excited' | 'sad' | 'angry'
-  | 'surprised' | 'tired' | 'thinking' | 'sleeping'
+  | 'surprised' | 'tired' | 'thinking' | 'sleeping' | 'eating'
 
 // ─── One-shot actions ─────────────────────────────────────────
 
