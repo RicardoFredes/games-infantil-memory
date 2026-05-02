@@ -4,6 +4,7 @@
 
 html, body {
   height: 100%;
+  height: 100dvh;
   margin: 0;
   overflow: hidden;
   overscroll-behavior: none;
