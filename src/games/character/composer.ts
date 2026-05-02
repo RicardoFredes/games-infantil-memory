@@ -54,9 +54,6 @@ export interface CharacterStore {
   readonly blushOpacity: number
   readonly tearOpacity:  number
   readonly armsOverHead: boolean
-  readonly armLeftPoseOpacities:  Record<string, number>
-  readonly armRightPoseOpacities: Record<string, number>
-  readonly mouthPoseOpacities:    Record<string, number>
 }
 
 const TRANSITION_MS = 400
@@ -179,8 +176,5 @@ export function createCharacterStore(): CharacterStore {
     get blushOpacity()      { return this.animState.blush },
     get tearOpacity()       { return this.animState.tears },
     get armsOverHead()      { return modes[this.mode].body.armsOverHead },
-    get armLeftPoseOpacities()  { return this.animState.armLeftPoseOpacities },
-    get armRightPoseOpacities() { return this.animState.armRightPoseOpacities },
-    get mouthPoseOpacities()    { return this.animState.mouthPoseOpacities },
   }
 }

@@ -1,21 +1,9 @@
 // Sistema de transição suave entre modos.
 // Cada parte expõe valores numéricos interpoláveis via anime.js.
-// Paths SVG (que mudam abruptamente) são suavizados por cross-fade
-// de opacidade entre camadas pré-renderizadas.
+// Paths SVG mudam instantaneamente (no swap visual via cross-fade).
 
 import { animate, utils } from 'animejs'
 import type { ModeConfig, Transform2D } from './types'
-import { armLeftPoses, armRightPoses } from '@/config/character/poses'
-
-const ARM_LEFT_POSE_NAMES  = Object.keys(armLeftPoses)  as Array<keyof typeof armLeftPoses>
-const ARM_RIGHT_POSE_NAMES = Object.keys(armRightPoses) as Array<keyof typeof armRightPoses>
-const MOUTH_POSE_NAMES = [
-  'idle', 'sad', 'tired', 'excited', 'thinking', 'happy', 'surprised',
-] as const
-
-type ArmLeftPoseOpacities  = Record<keyof typeof armLeftPoses,  number>
-type ArmRightPoseOpacities = Record<keyof typeof armRightPoses, number>
-type MouthPoseOpacities    = Record<typeof MOUTH_POSE_NAMES[number], number>
 
 export interface AnimState {
   armLeft:      Required<Transform2D>
@@ -29,11 +17,6 @@ export interface AnimState {
   nose:         { scaleX: number; scaleY: number }
   blush:  number
   tears:  number
-  /** Opacidade por pose: cross-fade entre paths de braço esquerdo. */
-  armLeftPoseOpacities:  ArmLeftPoseOpacities
-  armRightPoseOpacities: ArmRightPoseOpacities
-  /** Opacidade por pose: cross-fade entre paths de boca. */
-  mouthPoseOpacities: MouthPoseOpacities
 }
 
 const fullTransform = (t: Transform2D): Required<Transform2D> => ({
@@ -43,12 +26,6 @@ const fullTransform = (t: Transform2D): Required<Transform2D> => ({
   scaleX:     t.scaleX     ?? 1,
   scaleY:     t.scaleY     ?? 1,
 })
-
-const onlyOne = <K extends string>(keys: readonly K[], active: K): Record<K, number> => {
-  const out = {} as Record<K, number>
-  for (const k of keys) out[k] = k === active ? 1 : 0
-  return out
-}
 
 export function targetFromMode(mode: ModeConfig): AnimState {
   return {
@@ -63,9 +40,6 @@ export function targetFromMode(mode: ModeConfig): AnimState {
     nose:         { scaleX: mode.nose.transform.scaleX ?? 1, scaleY: mode.nose.transform.scaleY ?? 1 },
     blush:  mode.blush,
     tears:  mode.tears,
-    armLeftPoseOpacities:  onlyOne(ARM_LEFT_POSE_NAMES,  mode.armLeft.pose  as keyof typeof armLeftPoses),
-    armRightPoseOpacities: onlyOne(ARM_RIGHT_POSE_NAMES, mode.armRight.pose as keyof typeof armRightPoses),
-    mouthPoseOpacities:    onlyOne(MOUTH_POSE_NAMES,     mode.mouth.pose    as typeof MOUTH_POSE_NAMES[number]),
   }
 }
 
@@ -96,9 +70,6 @@ export function transitionTo(
     [state.legLeft,      target.legLeft],
     [state.legRight,     target.legRight],
     [state.nose,         target.nose],
-    [state.armLeftPoseOpacities,  target.armLeftPoseOpacities],
-    [state.armRightPoseOpacities, target.armRightPoseOpacities],
-    [state.mouthPoseOpacities,    target.mouthPoseOpacities],
   ]
 
   for (const [obj, goal] of groups) {

@@ -1,8 +1,5 @@
 ---
 import { characterPalettes, defaultPalette, type CharacterPaletteName } from '@/lib/character-palettes';
-import { armLeftPoses, armRightPoses } from '@/config/character/poses';
-import { mouthPosesRendered } from '@/games/character/precomputed';
-import { modes, defaultMode } from '@/config/character/modes';
 
 export interface Props {
   palette?: CharacterPaletteName;
@@ -10,23 +7,6 @@ export interface Props {
 
 const { palette = defaultPalette } = Astro.props;
 const colors = characterPalettes[palette];
-
-const armLeftEntries  = Object.entries(armLeftPoses)  as Array<[string, { stroke: string; hand: string }]>;
-const armRightEntries = Object.entries(armRightPoses) as Array<[string, { stroke: string; hand: string }]>;
-
-// Poses cuja camada visual fica atrás da cabeça vs. à frente.
-const FRONT_POSES = new Set(['head-grab']);
-const isFront = (pose: string) => FRONT_POSES.has(pose);
-
-const armLeftBack    = armLeftEntries.filter(([n])  => !isFront(n));
-const armLeftFront   = armLeftEntries.filter(([n])  =>  isFront(n));
-const armRightBack   = armRightEntries.filter(([n]) => !isFront(n));
-const armRightFront  = armRightEntries.filter(([n]) =>  isFront(n));
-
-// Pose ativa no modo inicial — usada como fallback antes do Alpine bootar.
-const initialArmLeftPose  = modes[defaultMode].armLeft.pose;
-const initialArmRightPose = modes[defaultMode].armRight.pose;
-const initialMouthPose    = modes[defaultMode].mouth.pose;
 ---
 
 <div
@@ -92,32 +72,20 @@ const initialMouthPose    = modes[defaultMode].mouth.pose;
     <!-- Breathing wrapper (idle) -->
     <g :class="bodyBindings.breathClass">
 
-    <!-- ===== ARMS BACK (behind head) ===== -->
-    <g :class="armLeftBindings.animClass">
-      <g :transform="armLeftBindings.transformAttr" style="transform-origin: 40px 115px;">
-        {armLeftBack.map(([name, pose]) => (
-          <g
-            style={`opacity: ${name === initialArmLeftPose ? 1 : 0}`}
-            :style={`{ opacity: armLeftPoseOpacities['${name}'] ?? 0 }`}
-          >
-            <path d={pose.stroke} stroke={colors.limbs} stroke-width="21" stroke-linecap="round"/>
-            <path d={pose.hand}   fill={colors.limbs}/>
-          </g>
-        ))}
+    <!-- ===== ARMS (behind head — when arms are NOT over head) ===== -->
+    <g x-show="!armsOverHead">
+      <g :class="armLeftBindings.animClass">
+        <g :transform="armLeftBindings.transformAttr" style="transform-origin: 40px 115px;">
+          <path :d="armLeftBindings.strokePath" stroke={colors.limbs} stroke-width="21" stroke-linecap="round"/>
+          <path :d="armLeftBindings.handPath" fill={colors.limbs}/>
+        </g>
       </g>
-    </g>
 
-    <g :class="armRightBindings.animClass">
-      <g :transform="armRightBindings.transformAttr" style="transform-origin: 220px 115px;">
-        {armRightBack.map(([name, pose]) => (
-          <g
-            style={`opacity: ${name === initialArmRightPose ? 1 : 0}`}
-            :style={`{ opacity: armRightPoseOpacities['${name}'] ?? 0 }`}
-          >
-            <path d={pose.stroke} stroke={colors.limbs} stroke-width="21" stroke-linecap="round"/>
-            <path d={pose.hand}   fill={colors.limbs}/>
-          </g>
-        ))}
+      <g :class="armRightBindings.animClass">
+        <g :transform="armRightBindings.transformAttr" style="transform-origin: 220px 115px;">
+          <path :d="armRightBindings.strokePath" stroke={colors.limbs} stroke-width="21" stroke-linecap="round"/>
+          <path :d="armRightBindings.handPath" fill={colors.limbs}/>
+        </g>
       </g>
     </g>
 
@@ -160,13 +128,9 @@ const initialMouthPose    = modes[defaultMode].mouth.pose;
     <path d="M129.974 107L134.738 115.25H125.211L129.974 107Z" fill="black"
       :transform="noseBindings.transformAttr" style="transform-origin: 130px 111px; display: none;"/>
 
-    <!-- Mouth — todas as poses como camadas com opacidade dinâmica -->
-    {mouthPosesRendered.map(({ name, pathD }) => (
-      <path d={pathD} fill="black" stroke="black" stroke-width="1"
-        :class="mouthBindings.animClass"
-        style={`opacity: ${name === initialMouthPose ? 1 : 0}`}
-        :style={`{ opacity: mouthPoseOpacities['${name}'] ?? 0 }`}/>
-    ))}
+    <!-- Mouth -->
+    <path :d="mouthBindings.pathD" fill="black" stroke="black" stroke-width="1"
+      :class="mouthBindings.animClass"/>
 
     <!-- Left eyebrow -->
     <path :d="eyebrowLeftBindings.pathD" stroke="black" stroke-width="3" stroke-linecap="round" fill="none"
@@ -186,32 +150,20 @@ const initialMouthPose    = modes[defaultMode].mouth.pose;
     <path d="M55 102 Q58 112 55 118 Q52 112 55 102Z" fill="#88CCFF" :opacity="tearOpacity"/>
     <path d="M206 102 Q209 112 206 118 Q203 112 206 102Z" fill="#88CCFF" :opacity="tearOpacity"/>
 
-    <!-- ===== ARMS FRONT (in front of head) ===== -->
-    <g :class="armLeftBindings.animClass">
-      <g :transform="armLeftBindings.transformAttr" style="transform-origin: 40px 115px;">
-        {armLeftFront.map(([name, pose]) => (
-          <g
-            style={`opacity: ${name === initialArmLeftPose ? 1 : 0}`}
-            :style={`{ opacity: armLeftPoseOpacities['${name}'] ?? 0 }`}
-          >
-            <path d={pose.stroke} stroke={colors.limbs} stroke-width="21" stroke-linecap="round"/>
-            <path d={pose.hand}   fill={colors.limbs}/>
-          </g>
-        ))}
+    <!-- ===== ARMS (in front of head — when arms ARE over head) ===== -->
+    <g x-show="armsOverHead">
+      <g :class="armLeftBindings.animClass">
+        <g :transform="armLeftBindings.transformAttr" style="transform-origin: 40px 115px;">
+          <path :d="armLeftBindings.strokePath" stroke={colors.limbs} stroke-width="21" stroke-linecap="round"/>
+          <path :d="armLeftBindings.handPath" fill={colors.limbs}/>
+        </g>
       </g>
-    </g>
 
-    <g :class="armRightBindings.animClass">
-      <g :transform="armRightBindings.transformAttr" style="transform-origin: 220px 115px;">
-        {armRightFront.map(([name, pose]) => (
-          <g
-            style={`opacity: ${name === initialArmRightPose ? 1 : 0}`}
-            :style={`{ opacity: armRightPoseOpacities['${name}'] ?? 0 }`}
-          >
-            <path d={pose.stroke} stroke={colors.limbs} stroke-width="21" stroke-linecap="round"/>
-            <path d={pose.hand}   fill={colors.limbs}/>
-          </g>
-        ))}
+      <g :class="armRightBindings.animClass">
+        <g :transform="armRightBindings.transformAttr" style="transform-origin: 220px 115px;">
+          <path :d="armRightBindings.strokePath" stroke={colors.limbs} stroke-width="21" stroke-linecap="round"/>
+          <path :d="armRightBindings.handPath" fill={colors.limbs}/>
+        </g>
       </g>
     </g>
 
