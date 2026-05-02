@@ -1,9 +1,10 @@
 // Comer (toggle): aparece uma mesa com vários pratos; a criança arrasta
 // um item até a boca do personagem. Solta na boca → ele come (migalhas
-// + bounce + mood happy). Solta fora → o item volta pro prato.
+// + mood eating/happy). Solta fora → o item volta pro prato.
 
 import { registerActivity } from './registry';
 import { playGestureSfx } from '@/lib/audio';
+import { attachDrag, createDragLock } from './_drag';
 
 interface Food {
   id: string;
@@ -20,6 +21,10 @@ const FOODS: Food[] = [
   { id: 'sandwich',    emoji: '🥪' },
   { id: 'broccoli',    emoji: '🥦' },
 ];
+
+const HITZONE_RELOCK_MS = 2000;
+const EAT_CHEW_MS = 1500;
+const EAT_SAVOR_MS = 700;
 
 function findMouthRect(stage: HTMLElement): DOMRect | null {
   const mouth = stage.querySelector('[data-zone="mouth"]');
@@ -53,25 +58,8 @@ registerActivity({
     layer.appendChild(table);
 
     const cleanups: Array<() => void> = [];
-
-    // Tempo após soltar a comida em que as zonas do personagem ficam
-    // desabilitadas, para evitar reações acidentais logo depois do drop.
-    const HITZONE_RELOCK_MS = 2000;
-    let hitzoneReleaseTimer: ReturnType<typeof setTimeout> | null = null;
-    function lockHitzones() {
-      if (hitzoneReleaseTimer) {
-        clearTimeout(hitzoneReleaseTimer);
-        hitzoneReleaseTimer = null;
-      }
-      stage.classList.add('mf-eat-dragging');
-    }
-    function scheduleHitzoneRelease() {
-      if (hitzoneReleaseTimer) clearTimeout(hitzoneReleaseTimer);
-      hitzoneReleaseTimer = setTimeout(() => {
-        stage.classList.remove('mf-eat-dragging');
-        hitzoneReleaseTimer = null;
-      }, HITZONE_RELOCK_MS);
-    }
+    const lock = createDragLock(stage, 'mf-eat-dragging', HITZONE_RELOCK_MS);
+    let savorTimer: ReturnType<typeof setTimeout> | null = null;
 
     function buildPlate(food: Food): HTMLElement {
       const plate = document.createElement('div');
@@ -89,90 +77,29 @@ registerActivity({
       food$.setAttribute('aria-label', food.id);
       plate.appendChild(food$);
 
-      attachDrag(plate, food$, food);
+      cleanups.push(attachDrag(plate, food$, {
+        layer,
+        cloneClass: 'mf-eat-food mf-eat-drag',
+        lock,
+        onDrop: ({ clientX, clientY, dragEl, original }) => {
+          const mouth = findMouthRect(stage);
+          const overMouth =
+            !!mouth &&
+            clientX >= mouth.left && clientX <= mouth.right &&
+            clientY >= mouth.top  && clientY <= mouth.bottom;
+          if (!overMouth) return false;
+          eatFood(food, original, dragEl, mouth!);
+          return true;
+        },
+      }));
       return plate;
     }
 
-    function attachDrag(plate: HTMLElement, food$: HTMLElement, food: Food) {
-      let dragging = false;
-      let pointerId = -1;
-      let dragEl: HTMLElement | null = null;
-      let startX = 0;
-      let startY = 0;
-      let layerRect: DOMRect;
-
-      const onDown = (e: PointerEvent) => {
-        if (dragging) return;
-        e.preventDefault();
-        e.stopPropagation();
-        dragging = true;
-        pointerId = e.pointerId;
-        layerRect = layer.getBoundingClientRect();
-        lockHitzones();
-
-        // clona o emoji para arrastar; o original some até resetar.
-        dragEl = document.createElement('span');
-        dragEl.className = 'mf-eat-food mf-eat-drag';
-        dragEl.textContent = food.emoji;
-        dragEl.style.left = `${e.clientX - layerRect.left}px`;
-        dragEl.style.top  = `${e.clientY - layerRect.top}px`;
-        layer.appendChild(dragEl);
-        food$.style.opacity = '0';
-        startX = e.clientX;
-        startY = e.clientY;
-
-        try { (e.target as Element).setPointerCapture(pointerId); } catch { /* no-op */ }
-        plate.addEventListener('pointermove', onMove);
-        plate.addEventListener('pointerup', onUp);
-        plate.addEventListener('pointercancel', onUp);
-      };
-
-      const onMove = (e: PointerEvent) => {
-        if (!dragging || e.pointerId !== pointerId || !dragEl) return;
-        dragEl.style.left = `${e.clientX - layerRect.left}px`;
-        dragEl.style.top  = `${e.clientY - layerRect.top}px`;
-      };
-
-      const onUp = (e: PointerEvent) => {
-        if (!dragging || e.pointerId !== pointerId) return;
-        dragging = false;
-        scheduleHitzoneRelease();
-        plate.removeEventListener('pointermove', onMove);
-        plate.removeEventListener('pointerup', onUp);
-        plate.removeEventListener('pointercancel', onUp);
-
-        const mouth = findMouthRect(stage);
-        const overMouth =
-          !!mouth &&
-          e.clientX >= mouth.left && e.clientX <= mouth.right &&
-          e.clientY >= mouth.top  && e.clientY <= mouth.bottom;
-
-        const moved = Math.hypot(e.clientX - startX, e.clientY - startY);
-        // Se nem moveu (tap) e a comida é pequena: aceita um "tap" também
-        // tratando como "alimentar" se a boca está visível e o tap foi nela.
-        if (overMouth) {
-          eatFood(food, food$, dragEl!, mouth!);
-        } else {
-          returnFood(food$, dragEl!, plate, moved < 4);
-        }
-        dragEl = null;
-      };
-
-      plate.addEventListener('pointerdown', onDown);
-      cleanups.push(() => {
-        plate.removeEventListener('pointerdown', onDown);
-        plate.removeEventListener('pointermove', onMove);
-        plate.removeEventListener('pointerup', onUp);
-        plate.removeEventListener('pointercancel', onUp);
-      });
-    }
-
-    function eatFood(food: Food, food$: HTMLElement, dragEl: HTMLElement, mouth: DOMRect) {
+    function eatFood(_food: Food, food$: HTMLElement, dragEl: HTMLElement, mouth: DOMRect) {
       const layerRect = layer.getBoundingClientRect();
       const tx = mouth.left - layerRect.left + mouth.width / 2;
       const ty = mouth.top  - layerRect.top  + mouth.height / 2;
 
-      // anima o emoji até a boca e some.
       dragEl.style.transition = 'left 220ms ease-out, top 220ms ease-out, transform 220ms ease-out, opacity 220ms ease-in';
       dragEl.style.left = `${tx}px`;
       dragEl.style.top  = `${ty}px`;
@@ -182,13 +109,21 @@ registerActivity({
 
       playGestureSfx('tap');
       spawnCrumbs(layer, tx, ty);
-      // Mantém o mood happy mas SEM disparar bounce/jump:
-      // o personagem não deve "começar a pular" após cada mordida.
-      window.dispatchEvent(new CustomEvent('character:set-mood', {
-        detail: { mood: 'happy', duration: 0 },
-      }));
 
-      // respawn no prato após pequena pausa.
+      if (savorTimer) clearTimeout(savorTimer);
+      window.dispatchEvent(new CustomEvent('character:set-mood', {
+        detail: { mood: 'eating', duration: 0 },
+      }));
+      savorTimer = setTimeout(() => {
+        window.dispatchEvent(new CustomEvent('character:eyes-closed', {
+          detail: { duration: 280 },
+        }));
+        window.dispatchEvent(new CustomEvent('character:set-mood', {
+          detail: { mood: 'happy', duration: EAT_SAVOR_MS },
+        }));
+      }, EAT_CHEW_MS);
+
+      // respawn no prato após pequena pausa
       window.setTimeout(() => {
         food$.style.transition = 'opacity 220ms ease-out, transform 220ms ease-out';
         food$.style.transform = 'scale(1)';
@@ -196,32 +131,12 @@ registerActivity({
       }, 700);
     }
 
-    function returnFood(food$: HTMLElement, dragEl: HTMLElement, plate: HTMLElement, isTap: boolean) {
-      const plateRect = plate.getBoundingClientRect();
-      const layerRect = layer.getBoundingClientRect();
-      const tx = plateRect.left - layerRect.left + plateRect.width / 2;
-      const ty = plateRect.top  - layerRect.top  + plateRect.height / 2;
-      dragEl.style.transition = 'left 280ms ease-out, top 280ms ease-out, transform 280ms ease-out, opacity 200ms ease-out';
-      dragEl.style.left = `${tx}px`;
-      dragEl.style.top  = `${ty}px`;
-      dragEl.style.transform = 'translate(-50%, -50%) scale(0.4)';
-      dragEl.style.opacity = '0';
-      window.setTimeout(() => {
-        dragEl.remove();
-        food$.style.transition = '';
-        food$.style.opacity = '1';
-      }, isTap ? 80 : 300);
-    }
-
     FOODS.forEach((food) => table.appendChild(buildPlate(food)));
 
     return () => {
       cleanups.forEach((fn) => fn());
-      if (hitzoneReleaseTimer) {
-        clearTimeout(hitzoneReleaseTimer);
-        hitzoneReleaseTimer = null;
-      }
-      stage.classList.remove('mf-eat-dragging');
+      lock.forceRelease();
+      if (savorTimer) { clearTimeout(savorTimer); savorTimer = null; }
       layer.remove();
     };
   },

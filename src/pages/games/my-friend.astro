@@ -235,10 +235,12 @@ const cfg = config as MyFriendConfig;
   }
 
   /* ===== Bath ===== */
+  #my-friend-stage.mf-bath-dragging svg.hit-zones { pointer-events: none; }
+
   #my-friend-stage .mf-bathtub {
     position: absolute;
     left: 50%;
-    bottom: 14%;
+    bottom: 24%;
     width: clamp(360px, 75vw, 560px);
     transform: translate(-50%, 100%);
     animation: mf-bath-rise 600ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
@@ -253,23 +255,182 @@ const cfg = config as MyFriendConfig;
 
   #my-friend-stage .mf-duck {
     position: absolute;
-    left: 28%;
-    bottom: 24%;
     width: clamp(40px, 7vw, 56px);
-    transform: translate(-50%, 60%);
-    opacity: 0;
-    animation: mf-duck-bob 600ms 500ms ease-out forwards,
-               mf-duck-wobble 1800ms 1100ms ease-in-out infinite;
+    transform: translate(-50%, -50%);
+    transition: left 280ms ease-out, top 280ms ease-out;
     z-index: 5;
+    animation: mf-duck-wobble 1800ms ease-in-out infinite;
+    pointer-events: none;
+  }
+  #my-friend-stage .mf-duck.mf-duck-hidden {
+    opacity: 0;
+    visibility: hidden;
   }
   #my-friend-stage .mf-duck svg { width: 100%; height: auto; display: block; }
-  @keyframes mf-duck-bob {
-    0%   { opacity: 0; transform: translate(-50%, 60%); }
-    100% { opacity: 1; transform: translate(-50%, 0); }
-  }
   @keyframes mf-duck-wobble {
-    0%, 100% { transform: translate(-50%, 0) rotate(-6deg); }
-    50%      { transform: translate(-50%, -6px) rotate(6deg); }
+    0%, 100% { transform: translate(-50%, -50%) rotate(-6deg); }
+    50%      { transform: translate(-50%, calc(-50% - 6px)) rotate(6deg); }
+  }
+
+  /* Prateleira de itens do banho */
+  #my-friend-stage .mf-bath-shelf {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: clamp(110px, 18vh, 150px);
+    padding: 12px clamp(12px, 3vw, 28px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(8px, 2.5vw, 22px);
+    flex-wrap: wrap;
+    background: linear-gradient(to bottom, rgba(96, 165, 200, 0.95), rgba(48, 110, 150, 0.98));
+    border-top: 5px solid #1F5C82;
+    box-shadow: 0 -6px 16px rgba(0, 0, 0, 0.25), inset 0 4px 0 rgba(190, 230, 240, 0.4);
+    pointer-events: auto;
+    touch-action: none;
+    z-index: 8;
+  }
+  #my-friend-stage .mf-bath-item {
+    position: relative;
+    width: clamp(56px, 12vw, 78px);
+    height: clamp(56px, 12vw, 78px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: grab;
+    user-select: none;
+    touch-action: none;
+  }
+  #my-friend-stage .mf-bath-item:active { cursor: grabbing; }
+  #my-friend-stage .mf-bath-stand {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: radial-gradient(circle at 50% 35%, #FFFFFF 0%, #DFEAF1 60%, #A4BCCB 100%);
+    box-shadow:
+      inset 0 -4px 6px rgba(0, 0, 0, 0.18),
+      inset 0 4px 6px rgba(255, 255, 255, 0.9),
+      0 6px 10px rgba(0, 0, 0, 0.25);
+  }
+  #my-friend-stage .mf-bath-tool {
+    position: relative;
+    font-size: clamp(28px, 7vw, 42px);
+    line-height: 1;
+    pointer-events: none;
+    filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.25));
+    transition: opacity 0.18s ease;
+  }
+  #my-friend-stage .mf-bath-drag {
+    position: absolute;
+    transform: translate(-50%, -50%) scale(1.2);
+    font-size: clamp(36px, 9vw, 54px);
+    z-index: 9;
+    pointer-events: none;
+    filter: drop-shadow(0 6px 8px rgba(0, 0, 0, 0.32));
+  }
+
+  /* Espuma sobre a banheira */
+  #my-friend-stage .mf-foam-wrap {
+    position: absolute;
+    left: 50%;
+    bottom: calc(24% + clamp(360px, 75vw, 560px) * 0.10);
+    width: clamp(320px, 70vw, 520px);
+    height: clamp(60px, 12vw, 90px);
+    transform: translateX(-50%);
+    pointer-events: none;
+    z-index: 5;
+  }
+  #my-friend-stage .mf-foam-blob {
+    position: absolute;
+    width: clamp(50px, 14vw, 90px);
+    height: clamp(40px, 10vw, 70px);
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, rgba(255,255,255,1) 0%, rgba(245,250,255,0.95) 55%, rgba(220,235,245,0.0) 90%);
+    box-shadow: 0 0 8px rgba(255,255,255,0.6), inset 0 -6px 10px rgba(180,210,230,0.35);
+    opacity: 0;
+    transition: opacity 0.45s ease, transform 0.45s ease;
+    will-change: opacity, transform;
+  }
+  #my-friend-stage .mf-foam-blob:nth-child(1) { left:  4%; bottom: 0;  transform: translateY(8px) scale(0.8); }
+  #my-friend-stage .mf-foam-blob:nth-child(2) { left: 22%; bottom: 22%; transform: translateY(8px) scale(0.95); }
+  #my-friend-stage .mf-foam-blob:nth-child(3) { left: 42%; bottom: 8%;  transform: translateY(8px) scale(1.1); }
+  #my-friend-stage .mf-foam-blob:nth-child(4) { left: 60%; bottom: 28%; transform: translateY(8px) scale(0.9); }
+  #my-friend-stage .mf-foam-blob:nth-child(5) { left: 78%; bottom: 4%;  transform: translateY(8px) scale(1); }
+  #my-friend-stage .mf-foam-wrap[style*="--lvl: 1"] .mf-foam-blob:nth-child(-n+1),
+  #my-friend-stage .mf-foam-wrap[style*="--lvl: 2"] .mf-foam-blob:nth-child(-n+2),
+  #my-friend-stage .mf-foam-wrap[style*="--lvl: 3"] .mf-foam-blob:nth-child(-n+3),
+  #my-friend-stage .mf-foam-wrap[style*="--lvl: 4"] .mf-foam-blob:nth-child(-n+4),
+  #my-friend-stage .mf-foam-wrap[style*="--lvl: 5"] .mf-foam-blob:nth-child(-n+5) {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  /* Espuma na cabeça (chapéu de bolha quando shampoo aplicado) */
+  #my-friend-stage .mf-foam-hat {
+    position: absolute;
+    width: 100px;
+    height: 70px;
+    transform: translate(-50%, -100%) scale(0.6);
+    opacity: 0;
+    background:
+      radial-gradient(circle at 30% 60%, rgba(255,255,255,1) 0 22px, transparent 24px),
+      radial-gradient(circle at 50% 30%, rgba(255,255,255,1) 0 28px, transparent 30px),
+      radial-gradient(circle at 70% 60%, rgba(255,255,255,1) 0 22px, transparent 24px),
+      radial-gradient(circle at 50% 75%, rgba(255,255,255,1) 0 26px, transparent 28px);
+    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2));
+    transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+    pointer-events: none;
+    z-index: 6;
+  }
+  #my-friend-stage .mf-foam-hat.is-on {
+    opacity: 1;
+    transform: translate(-50%, -100%) scale(1);
+  }
+
+  /* Bolhas de sabonete (efeito local no drop) */
+  #my-friend-stage .mf-bubble-soap {
+    background: radial-gradient(circle at 30% 30%, rgba(255,255,255,1), rgba(240,250,255,0.85) 60%, rgba(220,240,250,0) 100%);
+    box-shadow: inset 0 0 6px rgba(255,255,255,0.85);
+  }
+
+  /* Gotas do chuveiro */
+  #my-friend-stage .mf-rain-drop {
+    position: absolute;
+    width: 6px;
+    height: 14px;
+    margin-left: -3px;
+    border-radius: 60% 60% 50% 50% / 50% 50% 80% 80%;
+    background: linear-gradient(to bottom, rgba(170,220,250,0.95), rgba(80,160,220,0.95));
+    pointer-events: none;
+    will-change: transform, opacity;
+    animation: mf-rain-fall 540ms var(--delay, 0ms) ease-in forwards;
+    z-index: 7;
+  }
+  @keyframes mf-rain-fall {
+    0%   { transform: translate(0, 0)            scale(0.7); opacity: 0; }
+    20%  { opacity: 1; }
+    100% { transform: translate(0, var(--dy, 100px)) scale(0.9); opacity: 0; }
+  }
+
+  /* Splash do patinho */
+  #my-friend-stage .mf-splash-drop {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    margin-left: -4px;
+    margin-top: -4px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, rgba(220,245,255,1), rgba(120,180,210,0.9));
+    pointer-events: none;
+    will-change: transform, opacity;
+    animation: mf-splash-out 520ms ease-out forwards;
+    z-index: 7;
+  }
+  @keyframes mf-splash-out {
+    0%   { transform: translate(0, 0) scale(0.6); opacity: 1; }
+    100% { transform: translate(var(--dx, 0), var(--dy, -30px)) scale(1.1); opacity: 0; }
   }
 
   #my-friend-stage .mf-bubble {
