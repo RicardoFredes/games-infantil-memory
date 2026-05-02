@@ -128,7 +128,7 @@ export const modes: Record<ModeName, ModeConfig> = {
     nose:        { transform: { scaleX: 1, scaleY: 1 } },
     blush:       0,
     tears:       0,
-    cycles:      { thinking: { durationMs: 500 } },
+    cycles:      { thinking: { durationMs: 1000 } },
   },
 
   sleeping: {

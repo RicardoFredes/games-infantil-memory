@@ -107,22 +107,21 @@ export function applyModeCycles(state: AnimState, h: CycleHandles, cfg: CycleCon
     state.mouthGrinScale = 1
   }
 
-  // Thinking: braço/mão direita "voam" pra junto da cabeça (entrada 700ms)
-  // e depois ficam coçando — dedo traça uma pequena elipse no couro cabeludo
-  // (X 90° defasado de Y) + leve variação de rotação (pressão).
+  // Thinking: braço/mão direita "voam" pra junto da cabeça (entrada 700ms,
+  // chegando já na posição inicial do coçar = -4°), depois loop linear.
   if (cfg.thinking) {
     state.armRightSwayR = 40
     state.armRightBobY  = 20
     state.armRightBobX  = 0
     h.thinking = animate(state, {
-      armRightSwayR: 0,
+      armRightSwayR: -4,
       armRightBobY:  0,
       armRightBobX:  0,
       duration: 700,
       ease: 'inOutSine',
       onComplete: () => {
         h.thinking = animate(state, {
-          armRightSwayR: [{ to: 0 }, { to: -4 }, { to: 0 }],
+          armRightSwayR: [{ to: -4 }, { to: 0 }, { to: -4 }],
           duration: cfg.thinking!.durationMs,
           loop: true,
           ease: 'linear',
