@@ -1,6 +1,10 @@
 import * as Tone from 'tone';
 import { noteToFreq } from '@/lib/notes';
-import type { NoteStep } from '@/games/memory-lights/types';
+
+export interface NoteStep {
+  note: string;
+  duration: string;
+}
 
 let initialized = false;
 

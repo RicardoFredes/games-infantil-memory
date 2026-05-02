@@ -4,7 +4,6 @@ export function saveProgress(key: string, data: unknown): void {
   try {
     localStorage.setItem(`${STORAGE_PREFIX}${key}`, JSON.stringify(data));
   } catch {
-    // localStorage may be unavailable
   }
 }
 
@@ -27,6 +26,30 @@ export function clearProgress(key?: string): void {
       keys.forEach(k => localStorage.removeItem(k));
     }
   } catch {
-    // localStorage may be unavailable
+  }
+}
+
+const STATE_SUFFIX = '-state';
+
+export function loadGameState<T>(gameId: string): T | null {
+  try {
+    const raw = localStorage.getItem(`${STORAGE_PREFIX}${gameId}${STATE_SUFFIX}`);
+    return raw ? (JSON.parse(raw) as T) : null;
+  } catch {
+    return null;
+  }
+}
+
+export function saveGameState<T>(gameId: string, state: T): void {
+  try {
+    localStorage.setItem(`${STORAGE_PREFIX}${gameId}${STATE_SUFFIX}`, JSON.stringify(state));
+  } catch {
+  }
+}
+
+export function clearGameState(gameId: string): void {
+  try {
+    localStorage.removeItem(`${STORAGE_PREFIX}${gameId}${STATE_SUFFIX}`);
+  } catch {
   }
 }

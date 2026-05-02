@@ -1,4 +1,16 @@
-import type { ScoringConfig, StarLevel } from '@/games/memory-lights/types';
+export interface ScoringConfig {
+  basePoints: number;
+  bonusAboveSteps: number;
+  bonusAbovePoints: number;
+  streakThreshold: number;
+  streakBonus: number;
+  maxScore: number;
+}
+
+export interface StarLevel {
+  threshold: number;
+  count: number;
+}
 
 export interface ScoreState {
   points: number;
