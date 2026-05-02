@@ -39,11 +39,15 @@ function buildSideCharacterSvg(): string {
   <!-- OLHO FECHADO (line mais grossa) -->
   <line x1="152.268" y1="96.3205" x2="162.268" y2="79"      stroke="black" stroke-width="4" stroke-linecap="round"/>
 
-  <!-- BABA dormindo (sai da boca, escorre e forma poça) -->
+  <!-- BOCA -->
   <path d="M192.001 116.497C192.001 116.497 202.947 109.538 211.63 95.4987C220.313 81.4593 220.001 80 220.001 80C220.001 80 226.221 84.5738 228.893 88.5981C231.565 92.6223 233.75 96.2583 226.25 109.249C218.75 122.239 208.714 120.201 203.893 119.899C199.072 119.597 192.001 116.497 192.001 116.497Z"
-        fill="url(#mfSideDrool)" stroke="#3D8FBA" stroke-width="1.5"/>
-  <rect    x="196.999" y="116" width="14" height="28" fill="url(#mfSideDrool)"/>
-  <ellipse cx="207.999" cy="148" rx="21" ry="7"     fill="${drool}" stroke="#3D8FBA" stroke-width="1.2"/>
+        fill="black"/>
+
+  <!-- BABA (rect = filete escorrendo, ellipse = poça) -->
+  <g class="mf-side-drool">
+    <rect    x="196.999" y="116" width="14" height="28" fill="url(#mfSideDrool)"/>
+    <ellipse cx="207.999" cy="148" rx="21" ry="7"       fill="${drool}"/>
+  </g>
 
   <!-- BRAÇO DA FRENTE (curva descendo até a mão) -->
   <path d="M107 148C110.344 157.242 122.382 176.736 143.783 180.769C165.184 184.802 180.845 177.968 186 174.047"
