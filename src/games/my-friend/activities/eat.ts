@@ -182,7 +182,8 @@ registerActivity({
 
       playGestureSfx('tap');
       spawnCrumbs(layer, tx, ty);
-      window.dispatchEvent(new CustomEvent('character:bounce'));
+      // Mantém o mood happy mas SEM disparar bounce/jump:
+      // o personagem não deve "começar a pular" após cada mordida.
       window.dispatchEvent(new CustomEvent('character:set-mood', {
         detail: { mood: 'happy', duration: 0 },
       }));
