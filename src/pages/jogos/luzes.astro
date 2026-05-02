@@ -238,7 +238,18 @@ const lights = gameConfig.lights;
   import { MemoryLightsEngine } from '@/games/memory-lights/engine';
   import gameConfig from '@/config/memory-lights.json';
   import type { MemoryLightsConfig } from '@/games/memory-lights/types';
-  import { playScoreTick } from '@/lib/audio';
+  import { initAudio, playScoreTick, startBackgroundMusic } from '@/lib/audio';
+
+  (async () => {
+    try {
+      const pending = sessionStorage.getItem('pendingBgMusic');
+      if (!pending) return;
+      sessionStorage.removeItem('pendingBgMusic');
+      const { url, volume } = JSON.parse(pending) as { url: string; volume: number };
+      await initAudio();
+      await startBackgroundMusic(url, volume);
+    } catch {}
+  })();
 
   Alpine.data('scoreBoard', () => ({
     localScore: 0,

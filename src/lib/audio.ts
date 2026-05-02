@@ -88,12 +88,17 @@ export function playScoreTick(): void {
 }
 
 let bgPlayer: Tone.Player | null = null;
+let bgPlayerUrl: string | null = null;
 
 export async function startBackgroundMusic(
   url = '/audio/leberch-suspense-511168.mp3',
   volume = -16,
 ): Promise<void> {
   if (!initialized) return;
+  if (bgPlayer && bgPlayerUrl === url) {
+    bgPlayer.volume.value = volume;
+    return;
+  }
   stopBackgroundMusic();
 
   bgPlayer = new Tone.Player({
@@ -101,6 +106,7 @@ export async function startBackgroundMusic(
     loop: true,
     volume,
   }).toDestination();
+  bgPlayerUrl = url;
 
   await Tone.loaded();
   bgPlayer.start();
@@ -111,7 +117,28 @@ export function stopBackgroundMusic(): void {
     bgPlayer.stop();
     bgPlayer.dispose();
     bgPlayer = null;
+    bgPlayerUrl = null;
   }
+}
+
+export function stopAllAudio(): void {
+  stopBackgroundMusic();
+  if (timeoutPlayer) {
+    try { timeoutPlayer.stop(); } catch {}
+    try { timeoutPlayer.dispose(); } catch {}
+    timeoutPlayer = null;
+  }
+  try {
+    Tone.getTransport().stop();
+    Tone.getTransport().cancel(0);
+  } catch {}
+}
+
+if (typeof window !== 'undefined') {
+  window.addEventListener('pagehide', stopAllAudio);
+  window.addEventListener('pageshow', (e) => {
+    if (e.persisted) stopAllAudio();
+  });
 }
 
 let timeoutPlayer: Tone.Player | null = null;

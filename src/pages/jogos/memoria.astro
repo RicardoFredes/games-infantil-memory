@@ -214,10 +214,22 @@ const showLabels = gameConfig.behavior.showLabels;
 <script>
   import Alpine from 'alpinejs';
   import { MemoryCardsEngine } from '@/games/memory-cards/engine';
+  import { initAudio, startBackgroundMusic } from '@/lib/audio';
   import gameConfig from '@/config/memory-cards.json';
   import type { MemoryCardsConfig, CardData } from '@/games/memory-cards/types';
 
   const config = gameConfig as MemoryCardsConfig;
+
+  (async () => {
+    try {
+      const pending = sessionStorage.getItem('pendingBgMusic');
+      if (!pending) return;
+      sessionStorage.removeItem('pendingBgMusic');
+      const { url, volume } = JSON.parse(pending) as { url: string; volume: number };
+      await initAudio();
+      await startBackgroundMusic(url, volume);
+    } catch {}
+  })();
 
   Alpine.data('memoryCards', () => ({
     engine: null as MemoryCardsEngine | null,
@@ -294,7 +306,7 @@ const showLabels = gameConfig.behavior.showLabels;
       };
       window.addEventListener('mc:card-match', () => setMood('happy', 1500));
       window.addEventListener('mc:card-mismatch', () => setMood('sad', 1200));
-      window.addEventListener('mc:win', () => setMood('celebrating', 3500));
+      window.addEventListener('mc:win', () => setMood('excited', 3500));
       window.addEventListener('mc:round-start', () => setMood('excited', 1200));
 
       this.engine.start();

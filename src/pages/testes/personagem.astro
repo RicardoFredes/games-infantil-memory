@@ -1,6 +1,9 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import GameCharacter from '@/components/games/GameCharacter.astro';
+import { characterPalettes, type CharacterPaletteName } from '@/lib/character-palettes';
+
+const paletteNames = Object.keys(characterPalettes) as CharacterPaletteName[];
 ---
 
 <BaseLayout>
@@ -10,9 +13,24 @@ import GameCharacter from '@/components/games/GameCharacter.astro';
   >
     <h1 class="text-3xl font-black text-purple-600 mb-2">Teste de Personagem</h1>
 
-    <!-- Character -->
+    <!-- Character (renders all palettes; only the selected one is visible) -->
     <div class="relative flex items-center justify-center">
-      <GameCharacter />
+      {paletteNames.map((name) => (
+        <div x-show={`palette === '${name}'`} x-cloak>
+          <GameCharacter palette={name} />
+        </div>
+      ))}
+    </div>
+
+    <!-- Palette buttons -->
+    <div class="flex flex-wrap items-center justify-center gap-3">
+      {paletteNames.map((name) => (
+        <button
+          @click={`palette = '${name}'`}
+          :class={`palette === '${name}' ? 'btn-primary' : 'btn-outline'`}
+          class="btn btn-sm capitalize"
+        >{name}</button>
+      ))}
     </div>
 
     <!-- Mood label -->
@@ -23,13 +41,26 @@ import GameCharacter from '@/components/games/GameCharacter.astro';
 
     <!-- Mood buttons -->
     <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-lg w-full">
-      <button @click="setMood('idle')"        class="btn btn-outline btn-sm">😐 Idle</button>
-      <button @click="setMood('happy2')"      class="btn btn-outline btn-sm">😄 Feliz 2</button>
-      <button @click="setMood('celebrating')" class="btn btn-outline btn-sm">🥳 Comemorando</button>
-      <button @click="setMood('sad')"         class="btn btn-outline btn-sm">😢 Triste</button>
-      <button @click="setMood('surprised')"   class="btn btn-outline btn-sm">😮 Surpreso</button>
-      <button @click="setMood('tired')"       class="btn btn-outline btn-sm">😴 Cansado</button>
-      <button @click="setMood('thinking')"    class="btn btn-outline btn-sm">🤔 Pensando</button>
+      <button @click="setMood('idle')"        class="btn btn-outline btn-sm">idle</button>
+      <button @click="setMood('happy')"       class="btn btn-outline btn-sm">happy</button>
+      <button @click="setMood('excited')"     class="btn btn-outline btn-sm">excited</button>
+      <button @click="setMood('sad')"         class="btn btn-outline btn-sm">sad</button>
+      <button @click="setMood('surprised')"   class="btn btn-outline btn-sm">surprised</button>
+      <button @click="setMood('tired')"       class="btn btn-outline btn-sm">tired</button>
+      <button @click="setMood('thinking')"    class="btn btn-outline btn-sm">thinking</button>
+      <button @click="setMood('sleeping')"    class="btn btn-outline btn-sm">sleeping</button>
+    </div>
+
+    <!-- Eye actions -->
+    <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 max-w-lg w-full">
+      <button @click="wink('left')"  class="btn btn-soft btn-sm">😉 Wink esq.</button>
+      <button @click="wink('right')" class="btn btn-soft btn-sm">😉 Wink dir.</button>
+      <button @click="winkBoth()"    class="btn btn-soft btn-sm">😑 Pisca ambos</button>
+    </div>
+
+    <!-- Body actions -->
+    <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 max-w-lg w-full">
+      <button @click="jump()" class="btn btn-soft btn-sm btn-warning">🦘 Jump</button>
     </div>
 
     <!-- Mapeamento SVG -->
@@ -61,18 +92,18 @@ import GameCharacter from '@/components/games/GameCharacter.astro';
 
   Alpine.data('characterTester', () => ({
     currentMood: 'idle',
+    palette: 'purple',
 
     get moodLabel() {
       const map: Record<string, string> = {
         idle: 'Oscioso',
         happy: 'Feliz',
-        happy2: 'Feliz 2',
-        celebrating: 'Comemorando',
         sad: 'Triste',
         surprised: 'Surpreso',
         tired: 'Cansado',
         excited: 'Animado',
         thinking: 'Pensando',
+        sleeping: 'Dormindo',
       }
       return map[this.currentMood] || this.currentMood
     },
@@ -81,13 +112,12 @@ import GameCharacter from '@/components/games/GameCharacter.astro';
       const map: Record<string, string> = {
         idle: 'text-base-content',
         happy: 'text-green-500',
-        happy2: 'text-pink-500',
-        celebrating: 'text-amber-500',
         sad: 'text-blue-500',
         surprised: 'text-yellow-500',
         tired: 'text-purple-500',
         excited: 'text-orange-500',
         thinking: 'text-teal-500',
+        sleeping: 'text-indigo-500',
       }
       return map[this.currentMood] || 'text-base-content'
     },
@@ -96,6 +126,24 @@ import GameCharacter from '@/components/games/GameCharacter.astro';
       this.currentMood = mood
       window.dispatchEvent(new CustomEvent('character:set-mood', {
         detail: { mood }
+      }))
+    },
+
+    wink(side: 'left' | 'right') {
+      window.dispatchEvent(new CustomEvent('character:wink', {
+        detail: { side, duration: 600 }
+      }))
+    },
+
+    winkBoth() {
+      window.dispatchEvent(new CustomEvent('character:eyes-closed', {
+        detail: { duration: 700 }
+      }))
+    },
+
+    jump() {
+      window.dispatchEvent(new CustomEvent('character:jump', {
+        detail: { duration: 950 }
       }))
     },
   }))

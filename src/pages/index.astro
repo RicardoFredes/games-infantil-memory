@@ -29,6 +29,9 @@ const categories = [...new Set(enabled.map(g => g.category))];
                 enabled.filter(g => g.category === category).map(game => (
                   <a
                     href={game.route}
+                    data-game-launch
+                    data-bg-music={game.backgroundMusic}
+                    data-bg-volume={String(game.backgroundVolume ?? -16)}
                     class="group block relative overflow-hidden bg-white/80 backdrop-blur rounded-3xl p-5 shadow-md border-2 border-white/60
                            hover:scale-[1.02] hover:shadow-xl hover:border-purple-200 transition-all duration-300"
                   >
@@ -67,3 +70,24 @@ const categories = [...new Set(enabled.map(g => g.category))];
     </footer>
   </div>
 </BaseLayout>
+
+<script>
+  import { initAudio, startBackgroundMusic } from '@/lib/audio';
+
+  document.querySelectorAll<HTMLAnchorElement>('a[data-game-launch]').forEach((link) => {
+    link.addEventListener('click', async (e) => {
+      const url = link.dataset.bgMusic;
+      const volume = Number(link.dataset.bgVolume ?? -16);
+      if (!url) return;
+      e.preventDefault();
+      try {
+        sessionStorage.setItem('pendingBgMusic', JSON.stringify({ url, volume }));
+      } catch {}
+      try {
+        await initAudio();
+        await startBackgroundMusic(url, volume);
+      } catch {}
+      window.location.href = link.href;
+    });
+  });
+</script>

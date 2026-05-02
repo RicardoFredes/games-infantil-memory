@@ -10,7 +10,9 @@
       "category": "Memória",
       "difficulty": "progressivo",
       "color": "#7C3AED",
-      "enabled": true
+      "enabled": true,
+      "backgroundMusic": "/audio/leberch-suspense-511168.mp3",
+      "backgroundVolume": -16
     },
     {
       "id": "memory-cards",
@@ -22,7 +24,9 @@
       "category": "Memória",
       "difficulty": "progressivo",
       "color": "#EC4899",
-      "enabled": true
+      "enabled": true,
+      "backgroundMusic": "/audio/Coloured_Candles.mp3",
+      "backgroundVolume": -18
     }
   ]
 }

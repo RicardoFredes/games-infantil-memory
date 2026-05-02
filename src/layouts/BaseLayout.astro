@@ -25,10 +25,5 @@ const htmlClass = fullscreen ? 'h-full overflow-hidden' : 'h-full';
     <main class={mainClass}>
       <slot />
     </main>
-    {!fullscreen && (
-      <footer class="text-center py-2 text-xs text-base-content/40">
-        Animated icons by <a href="https://lordicon.com" class="underline">Lordicon.com</a>
-      </footer>
-    )}
   </body>
 </html>
