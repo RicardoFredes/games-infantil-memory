@@ -183,6 +183,7 @@ registerActivity({
       }));
       if (bellyScale > prevBelly + 0.0001) {
         spawnGrowSparks(stage, layer);
+        playGestureSfx('inflate');
       }
 
       const savorMood = bites >= SAD_THRESHOLD ? 'sad' : 'happy';

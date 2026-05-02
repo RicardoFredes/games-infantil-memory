@@ -231,6 +231,32 @@ export function playGestureSfx(kind: string): void {
       s.triggerAttackRelease(noteToFreq('C5'), '4n');
       break;
     }
+    case 'inflate': {
+      // "Balão enchendo": ruído rosa filtrado com cutoff subindo +
+      // pitch glide pra cima de um oscilador triangle.
+      const now = Tone.now();
+      const dur = 0.55;
+      const filter = new Tone.Filter({ type: 'lowpass', frequency: 400, Q: 1 }).toDestination();
+      filter.frequency.cancelScheduledValues(now);
+      filter.frequency.setValueAtTime(400, now);
+      filter.frequency.exponentialRampToValueAtTime(2400, now + dur);
+      const noise = new Tone.NoiseSynth({
+        noise: { type: 'pink' },
+        envelope: { attack: 0.05, decay: 0.5, sustain: 0.0, release: 0.05 },
+      }).connect(filter);
+      noise.volume.value = -18;
+      noise.triggerAttackRelease(dur, now);
+
+      const osc = new Tone.Synth({
+        oscillator: { type: 'triangle' },
+        envelope: { attack: 0.04, decay: 0.5, sustain: 0.0, release: 0.05 },
+      }).toDestination();
+      osc.volume.value = -22;
+      osc.frequency.setValueAtTime(noteToFreq('A3'), now);
+      osc.frequency.exponentialRampToValueAtTime(noteToFreq('E5'), now + dur * 0.95);
+      osc.triggerAttackRelease(noteToFreq('A3'), dur, now);
+      break;
+    }
   }
 }
 
