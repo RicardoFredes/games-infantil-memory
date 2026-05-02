@@ -54,6 +54,25 @@ registerActivity({
 
     const cleanups: Array<() => void> = [];
 
+    // Tempo após soltar a comida em que as zonas do personagem ficam
+    // desabilitadas, para evitar reações acidentais logo depois do drop.
+    const HITZONE_RELOCK_MS = 2000;
+    let hitzoneReleaseTimer: ReturnType<typeof setTimeout> | null = null;
+    function lockHitzones() {
+      if (hitzoneReleaseTimer) {
+        clearTimeout(hitzoneReleaseTimer);
+        hitzoneReleaseTimer = null;
+      }
+      stage.classList.add('mf-eat-dragging');
+    }
+    function scheduleHitzoneRelease() {
+      if (hitzoneReleaseTimer) clearTimeout(hitzoneReleaseTimer);
+      hitzoneReleaseTimer = setTimeout(() => {
+        stage.classList.remove('mf-eat-dragging');
+        hitzoneReleaseTimer = null;
+      }, HITZONE_RELOCK_MS);
+    }
+
     function buildPlate(food: Food): HTMLElement {
       const plate = document.createElement('div');
       plate.className = 'mf-eat-plate';
@@ -89,7 +108,7 @@ registerActivity({
         dragging = true;
         pointerId = e.pointerId;
         layerRect = layer.getBoundingClientRect();
-        stage.classList.add('mf-eat-dragging');
+        lockHitzones();
 
         // clona o emoji para arrastar; o original some até resetar.
         dragEl = document.createElement('span');
@@ -117,7 +136,7 @@ registerActivity({
       const onUp = (e: PointerEvent) => {
         if (!dragging || e.pointerId !== pointerId) return;
         dragging = false;
-        stage.classList.remove('mf-eat-dragging');
+        scheduleHitzoneRelease();
         plate.removeEventListener('pointermove', onMove);
         plate.removeEventListener('pointerup', onUp);
         plate.removeEventListener('pointercancel', onUp);
@@ -197,6 +216,10 @@ registerActivity({
 
     return () => {
       cleanups.forEach((fn) => fn());
+      if (hitzoneReleaseTimer) {
+        clearTimeout(hitzoneReleaseTimer);
+        hitzoneReleaseTimer = null;
+      }
       stage.classList.remove('mf-eat-dragging');
       layer.remove();
     };
