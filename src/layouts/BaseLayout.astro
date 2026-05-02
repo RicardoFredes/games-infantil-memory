@@ -8,7 +8,7 @@ export interface Props {
 }
 
 const { fullscreen = false } = Astro.props;
-const safeArea = 'pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)]';
+const safeArea = 'pt-[env(safe-area-inset-top)] pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)]';
 const bodyClass = fullscreen
   ? `bg-gradient-to-br ${appConfig.theme.backgroundGradient} h-dvh overflow-hidden overscroll-none antialiased ${safeArea}`
   : `bg-gradient-to-br ${appConfig.theme.backgroundGradient} min-h-dvh overscroll-none antialiased ${safeArea}`;
