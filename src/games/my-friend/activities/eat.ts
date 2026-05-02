@@ -31,6 +31,50 @@ function findMouthRect(stage: HTMLElement): DOMRect | null {
   return mouth ? (mouth as Element).getBoundingClientRect() : null;
 }
 
+function findFeedRect(stage: HTMLElement): DOMRect | null {
+  const rects = (['head', 'mouth', 'eye-l', 'eye-r'] as const)
+    .map((z) => stage.querySelector(`[data-zone="${z}"]`)?.getBoundingClientRect())
+    .filter((r): r is DOMRect => !!r);
+  if (rects.length === 0) return null;
+  const left = Math.min(...rects.map((r) => r.left));
+  const top = Math.min(...rects.map((r) => r.top));
+  const right = Math.max(...rects.map((r) => r.right));
+  const bottom = Math.max(...rects.map((r) => r.bottom));
+  return new DOMRect(left, top, right - left, bottom - top);
+}
+
+const SPARK_GLYPHS = ['✨', '⭐', '💫', '🌟'];
+function spawnGrowSparks(stage: HTMLElement, layer: HTMLElement) {
+  const body = stage.querySelector('[data-zone="body"]');
+  const layerRect = layer.getBoundingClientRect();
+  let cx: number;
+  let cy: number;
+  if (body) {
+    const r = (body as Element).getBoundingClientRect();
+    cx = r.left - layerRect.left + r.width / 2;
+    cy = r.top  - layerRect.top  + r.height / 2;
+  } else {
+    cx = layerRect.width / 2;
+    cy = layerRect.height * 0.55;
+  }
+  const count = 10;
+  for (let i = 0; i < count; i++) {
+    const el = document.createElement('span');
+    el.className = 'mf-grow-spark';
+    el.textContent = SPARK_GLYPHS[i % SPARK_GLYPHS.length];
+    const angle = (Math.PI * 2 * i) / count + (Math.random() - 0.5) * 0.4;
+    const dist = 60 + Math.random() * 50;
+    el.style.left = `${cx}px`;
+    el.style.top = `${cy}px`;
+    el.style.setProperty('--dx', `${Math.cos(angle) * dist}px`);
+    el.style.setProperty('--dy', `${Math.sin(angle) * dist - 20}px`);
+    el.style.setProperty('--rot', `${(Math.random() - 0.5) * 180}deg`);
+    el.style.setProperty('--delay', `${i * 22}ms`);
+    layer.appendChild(el);
+    el.addEventListener('animationend', () => el.remove(), { once: true });
+  }
+}
+
 function spawnCrumbs(layer: HTMLElement, x: number, y: number) {
   for (let i = 0; i < 5; i++) {
     const el = document.createElement('span');
@@ -61,6 +105,12 @@ registerActivity({
     const lock = createDragLock(stage, 'mf-eat-dragging', HITZONE_RELOCK_MS);
     let savorTimer: ReturnType<typeof setTimeout> | null = null;
 
+    const BITE_LIMIT = 15;
+    const SAD_THRESHOLD = 10;
+    const BELLY_MAX = 1.5;
+    const BELLY_GROWTH_PER_BITE = (BELLY_MAX - 1) / BITE_LIMIT;
+    let bites = 0;
+
     function buildPlate(food: Food): HTMLElement {
       const plate = document.createElement('div');
       plate.className = 'mf-eat-plate';
@@ -82,17 +132,32 @@ registerActivity({
         cloneClass: 'mf-eat-food mf-eat-drag',
         lock,
         onDrop: ({ clientX, clientY, dragEl, original }) => {
-          const mouth = findMouthRect(stage);
-          const overMouth =
-            !!mouth &&
-            clientX >= mouth.left && clientX <= mouth.right &&
-            clientY >= mouth.top  && clientY <= mouth.bottom;
-          if (!overMouth) return false;
-          eatFood(food, original, dragEl, mouth!);
+          const feed = findFeedRect(stage);
+          const overFeed =
+            !!feed &&
+            clientX >= feed.left && clientX <= feed.right &&
+            clientY >= feed.top  && clientY <= feed.bottom;
+          if (!overFeed) return false;
+          if (bites >= BITE_LIMIT) {
+            refuseFood();
+            return false;
+          }
+          const mouth = findMouthRect(stage) ?? feed;
+          eatFood(food, original, dragEl, mouth);
           return true;
         },
       }));
       return plate;
+    }
+
+    function refuseFood() {
+      if (savorTimer) { clearTimeout(savorTimer); savorTimer = null; }
+      window.dispatchEvent(new CustomEvent('character:set-mood', {
+        detail: { mood: 'refuse', duration: 1500 },
+      }));
+      window.dispatchEvent(new CustomEvent('character:shake', {
+        detail: { duration: 600 },
+      }));
     }
 
     function eatFood(_food: Food, food$: HTMLElement, dragEl: HTMLElement, mouth: DOMRect) {
@@ -110,6 +175,17 @@ registerActivity({
       playGestureSfx('tap');
       spawnCrumbs(layer, tx, ty);
 
+      bites += 1;
+      const prevBelly = Math.min(BELLY_MAX, 1 + (bites - 1) * BELLY_GROWTH_PER_BITE);
+      const bellyScale = Math.min(BELLY_MAX, 1 + bites * BELLY_GROWTH_PER_BITE);
+      window.dispatchEvent(new CustomEvent('character:belly-set', {
+        detail: { scale: bellyScale, duration: 350 },
+      }));
+      if (bellyScale > prevBelly + 0.0001) {
+        spawnGrowSparks(stage, layer);
+      }
+
+      const savorMood = bites >= SAD_THRESHOLD ? 'sad' : 'happy';
       if (savorTimer) clearTimeout(savorTimer);
       window.dispatchEvent(new CustomEvent('character:set-mood', {
         detail: { mood: 'eating', duration: 0 },
@@ -119,7 +195,7 @@ registerActivity({
           detail: { duration: 280 },
         }));
         window.dispatchEvent(new CustomEvent('character:set-mood', {
-          detail: { mood: 'happy', duration: EAT_SAVOR_MS },
+          detail: { mood: savorMood, duration: EAT_SAVOR_MS },
         }));
       }, EAT_CHEW_MS);
 
@@ -137,6 +213,10 @@ registerActivity({
       cleanups.forEach((fn) => fn());
       lock.forceRelease();
       if (savorTimer) { clearTimeout(savorTimer); savorTimer = null; }
+      bites = 0;
+      window.dispatchEvent(new CustomEvent('character:belly-set', {
+        detail: { scale: 1, duration: 600 },
+      }));
       layer.remove();
     };
   },
