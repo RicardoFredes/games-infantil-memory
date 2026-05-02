@@ -8,7 +8,7 @@ export const meta: GameMeta = {
   category: 'Memória',
   image: '/games/memory-sequence/cover.webp',
   icon: '💡',
-  route: '/games/sequence',
+  route: '/games/memory-sequence',
   ageRange: [2, 7],
   difficulty: 'progressivo',
   color: '#7C3AED',

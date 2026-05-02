@@ -35,6 +35,27 @@ export const characterPalettes = {
     eyeHighlightBottom: '#88B0E0',
     limbs: '#A0C3FF',
   },
+  yellow: {
+    skinTop: '#FFEAA8',
+    skinBottom: '#E0B040',
+    eyeHighlightTop: '#FFEAA8',
+    eyeHighlightBottom: '#E8C470',
+    limbs: '#FFD970',
+  },
+  orange: {
+    skinTop: '#FFD0A0',
+    skinBottom: '#E07A30',
+    eyeHighlightTop: '#FFD0A0',
+    eyeHighlightBottom: '#E89860',
+    limbs: '#FFB870',
+  },
+  red: {
+    skinTop: '#FFB8B8',
+    skinBottom: '#D85050',
+    eyeHighlightTop: '#FFB8B8',
+    eyeHighlightBottom: '#E08080',
+    limbs: '#FF9898',
+  },
 } as const satisfies Record<string, CharacterPalette>;
 
 export type CharacterPaletteName = keyof typeof characterPalettes;
