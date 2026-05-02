@@ -15,7 +15,7 @@ function setMood(mood: string, duration = 0) {
 }
 
 function fireAction(action: NonNullable<Reaction['action']>) {
-  window.dispatchEvent(new CustomEvent('character:action', { detail: { action } }));
+  window.dispatchEvent(new CustomEvent(`character:${action}`));
 }
 
 export class MyFriendEngine implements GameEngine<MyFriendConfig, MyFriendState> {

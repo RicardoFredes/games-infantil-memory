@@ -25,6 +25,7 @@ export interface AnimState {
   bodyBreatheY:   number
   bodyJumpY:      number
   bodyScaleY:     number   // squash & stretch (1 = neutro)
+  bodyShakeR:     number   // tilt em graus (shake action)
   eyeLeftBlinkY:  number
   eyeRightBlinkY: number
   armLeftSwayR:   number
@@ -33,6 +34,10 @@ export interface AnimState {
   armRightBobY:   number
   armLeftBobX:    number
   armRightBobX:   number
+  armLeftWaveR:   number   // wave action — offset de rotação
+  armRightWaveR:  number
+  armLeftWaveY:   number   // wave action — offset vertical
+  armRightWaveY:  number
   pupilSparkle:   number
   mouthGrinScale: number
   legLeftJumpR:   number
@@ -103,6 +108,7 @@ export function createAnimState(mode: ModeConfig): AnimState {
     bodyBreatheY:   0,
     bodyJumpY:      0,
     bodyScaleY:     1,
+    bodyShakeR:     0,
     eyeLeftBlinkY:  1,
     eyeRightBlinkY: 1,
     armLeftSwayR:   0,
@@ -111,6 +117,10 @@ export function createAnimState(mode: ModeConfig): AnimState {
     armRightBobY:   0,
     armLeftBobX:    0,
     armRightBobX:   0,
+    armLeftWaveR:   0,
+    armRightWaveR:  0,
+    armLeftWaveY:   0,
+    armRightWaveY:  0,
     pupilSparkle:   1,
     mouthGrinScale: 1,
     legLeftJumpR:   0,

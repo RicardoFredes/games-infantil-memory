@@ -31,6 +31,9 @@ import {
   playJump, startBodyJumpLoop, stopJump, createJumpHandles,
   type JumpHandles,
 } from './jump'
+import { playWave, stopWave, createWaveHandles, type WaveHandles } from './wave'
+import { playShake, stopShake, createShakeHandles, type ShakeHandles } from './shake'
+import { playBounce, stopBounce, createBounceHandles, type BounceHandles } from './bounce'
 
 type Timer = ReturnType<typeof setTimeout> | null
 
@@ -41,14 +44,23 @@ export interface CharacterStore {
   _transitionHandles: TransitionHandles
   _cycleHandles: CycleHandles
   _jumpHandles: JumpHandles
+  _waveHandles: WaveHandles
+  _shakeHandles: ShakeHandles
+  _bounceHandles: BounceHandles
   _moodTimer: Timer
   _jumpTimer: Timer
+  _waveTimer: Timer
+  _shakeTimer: Timer
+  _bounceTimer: Timer
   _leftEyeTimer: Timer
   _rightEyeTimer: Timer
 
   init(): void
   setMood(m: ModeName, durationMs?: number): void
   jump(durationMs?: number): void
+  wave(durationMs?: number): void
+  shake(durationMs?: number): void
+  bounce(durationMs?: number): void
   wink(side?: Side, durationMs?: number): void
   closeEyes(durationMs?: number): void
 
@@ -80,8 +92,14 @@ function combineArmTransform(
   swayR: number,
   bobY: number,
   bobX: number,
+  waveR = 0,
+  waveY = 0,
 ): Transform2D {
-  return mergeTransform(base, { rotate: swayR, translateX: bobX, translateY: bobY })
+  return mergeTransform(base, {
+    rotate: swayR + waveR,
+    translateX: bobX,
+    translateY: bobY + waveY,
+  })
 }
 
 function combineLegTransform(
@@ -95,12 +113,14 @@ function combineLegTransform(
 // Y do "chão" no viewBox (-90 -30 440 320) — pés estão por volta de y=260.
 const GROUND_Y = 260
 
-/** Transform attr do wrapper de jump: translate + scale ancorado no chão. */
-function jumpWrapperAttr(jumpY: number, scaleY: number): string {
+/** Transform attr do wrapper de jump: rotate (shake) + translate + scale ancorado no chão. */
+function jumpWrapperAttr(jumpY: number, scaleY: number, shakeR: number): string {
   // Scale around (anyX, GROUND_Y): translate(0, GROUND_Y*(1-sy)) scale(1, sy)
   // Layered com jumpY: translate(0, GROUND_Y*(1-sy) + jumpY) scale(1, sy)
+  // Shake roda em torno do quadril (~130, 200) sem afetar o pouso.
   const ty = GROUND_Y * (1 - scaleY) + jumpY
-  return `translate(0, ${ty}) scale(1, ${scaleY})`
+  const rotate = shakeR ? `rotate(${shakeR}, 130, 200) ` : ''
+  return `${rotate}translate(0, ${ty}) scale(1, ${scaleY})`
 }
 
 export function createCharacterStore(): CharacterStore {
@@ -111,8 +131,14 @@ export function createCharacterStore(): CharacterStore {
     _transitionHandles: createTransitionHandles(),
     _cycleHandles: createCycleHandles(),
     _jumpHandles: createJumpHandles(),
+    _waveHandles: createWaveHandles(),
+    _shakeHandles: createShakeHandles(),
+    _bounceHandles: createBounceHandles(),
     _moodTimer: null,
     _jumpTimer: null,
+    _waveTimer: null,
+    _shakeTimer: null,
+    _bounceTimer: null,
     _leftEyeTimer: null,
     _rightEyeTimer: null,
 
@@ -128,6 +154,15 @@ export function createCharacterStore(): CharacterStore {
       }) as EventListener)
       window.addEventListener('character:jump', ((e: CustomEvent) => {
         this.jump(e.detail?.duration)
+      }) as EventListener)
+      window.addEventListener('character:wave', ((e: CustomEvent) => {
+        this.wave(e.detail?.duration)
+      }) as EventListener)
+      window.addEventListener('character:shake', ((e: CustomEvent) => {
+        this.shake(e.detail?.duration)
+      }) as EventListener)
+      window.addEventListener('character:bounce', ((e: CustomEvent) => {
+        this.bounce(e.detail?.duration)
       }) as EventListener)
 
       startBreathing(this.animState, this._cycleHandles)
@@ -180,6 +215,52 @@ export function createCharacterStore(): CharacterStore {
       }, cfg.durationMs)
     },
 
+    wave(durationMs) {
+      if (this.overlay.waving) return
+      const ms = durationMs ?? actions.wave.durationMs
+      this.overlay.waving = true
+      playWave(this.animState, this._waveHandles, { durationMs: ms })
+      if (this._waveTimer) clearTimeout(this._waveTimer)
+      this._waveTimer = setTimeout(() => {
+        this.overlay.waving = false
+        stopWave(this.animState, this._waveHandles)
+      }, ms)
+    },
+
+    shake(durationMs) {
+      if (this.overlay.shaking) return
+      const ms = durationMs ?? actions.shake.durationMs
+      this.overlay.shaking = true
+      playShake(this.animState, this._shakeHandles, {
+        durationMs: ms,
+        amplitude: actions.shake.amplitude,
+      })
+      if (this._shakeTimer) clearTimeout(this._shakeTimer)
+      this._shakeTimer = setTimeout(() => {
+        this.overlay.shaking = false
+        stopShake(this.animState, this._shakeHandles)
+      }, ms)
+    },
+
+    bounce(durationMs) {
+      if (this.overlay.bouncing || this.overlay.jumping) return
+      const ms = durationMs ?? actions.bounce.durationMs
+      this.overlay.bouncing = true
+      playBounce(this.animState, this._bounceHandles, {
+        durationMs: ms,
+        peakY: actions.bounce.peakY,
+      })
+      if (this._bounceTimer) clearTimeout(this._bounceTimer)
+      this._bounceTimer = setTimeout(() => {
+        this.overlay.bouncing = false
+        if (modes[this.mode].cycles.bodyJumpLoop) {
+          startBodyJumpLoop(this.animState, this._jumpHandles, actions.jump.peakY, actions.jump.squatY)
+        } else {
+          stopBounce(this.animState, this._bounceHandles)
+        }
+      }, ms)
+    },
+
     wink(side = 'right', durationMs) {
       const ms = durationMs ?? actions.wink.durationMs
       applyWink(this.overlay, side)
@@ -208,13 +289,27 @@ export function createCharacterStore(): CharacterStore {
     get armLeftBindings() {
       return resolveArmLeft(
         modes[this.mode].armLeft,
-        combineArmTransform(this.animState.armLeft, this.animState.armLeftSwayR, this.animState.armLeftBobY, this.animState.armLeftBobX),
+        combineArmTransform(
+          this.animState.armLeft,
+          this.animState.armLeftSwayR,
+          this.animState.armLeftBobY,
+          this.animState.armLeftBobX,
+          this.animState.armLeftWaveR,
+          this.animState.armLeftWaveY,
+        ),
       )
     },
     get armRightBindings() {
       return resolveArmRight(
         modes[this.mode].armRight,
-        combineArmTransform(this.animState.armRight, this.animState.armRightSwayR, this.animState.armRightBobY, this.animState.armRightBobX),
+        combineArmTransform(
+          this.animState.armRight,
+          this.animState.armRightSwayR,
+          this.animState.armRightBobY,
+          this.animState.armRightBobX,
+          this.animState.armRightWaveR,
+          this.animState.armRightWaveY,
+        ),
       )
     },
     get eyeLeftBindings() {
@@ -231,7 +326,7 @@ export function createCharacterStore(): CharacterStore {
     get eyebrowRightBindings() { return resolveEyebrowRight(modes[this.mode].eyebrowRight, this.animState.eyebrowRight) },
     get mouthBindings()        { return resolveMouth(modes[this.mode].mouth, this.animState.mouthGrinScale) },
     get jumpWrapperTransform() {
-      return jumpWrapperAttr(this.animState.bodyJumpY, this.animState.bodyScaleY)
+      return jumpWrapperAttr(this.animState.bodyJumpY, this.animState.bodyScaleY, this.animState.bodyShakeR)
     },
     get bodyBindings() {
       // Breathing wrapper (interno, só upper body).

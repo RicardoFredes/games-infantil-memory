@@ -13,4 +13,15 @@ export const actions: ActionsConfig = {
   eyesClosed: {
     durationMs: 700,
   },
+  wave: {
+    durationMs: 1400,
+  },
+  shake: {
+    durationMs: 600,
+    amplitude: 8,
+  },
+  bounce: {
+    durationMs: 900,
+    peakY: -22,
+  },
 }

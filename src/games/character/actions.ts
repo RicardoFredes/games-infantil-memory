@@ -7,6 +7,9 @@ import type { Side } from './types'
 
 export interface OverlayState {
   jumping: boolean
+  waving: boolean
+  shaking: boolean
+  bouncing: boolean
   leftEyeClosed: boolean
   rightEyeClosed: boolean
 }
@@ -14,6 +17,9 @@ export interface OverlayState {
 export function createOverlayState(): OverlayState {
   return {
     jumping: false,
+    waving: false,
+    shaking: false,
+    bouncing: false,
     leftEyeClosed: false,
     rightEyeClosed: false,
   }

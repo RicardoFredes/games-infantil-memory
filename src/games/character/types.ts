@@ -99,10 +99,28 @@ export interface JumpAction {
 export interface WinkAction { durationMs: number }
 export interface EyesClosedAction { durationMs: number }
 
+export interface WaveAction {
+  durationMs: number
+}
+
+export interface ShakeAction {
+  durationMs: number
+  amplitude: number
+}
+
+export interface BounceAction {
+  durationMs: number
+  /** Pico vertical de cada hop (negativo = sobe). */
+  peakY: number
+}
+
 export interface ActionsConfig {
   jump: JumpAction
   wink: WinkAction
   eyesClosed: EyesClosedAction
+  wave: WaveAction
+  shake: ShakeAction
+  bounce: BounceAction
 }
 
 // ─── Bindings (saída dos resolvers) ───────────────────────────
