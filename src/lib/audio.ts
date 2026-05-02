@@ -6,7 +6,19 @@ let initialized = false;
 
 export async function initAudio(): Promise<void> {
   if (initialized) return;
+
+  const audioSession = (navigator as unknown as { audioSession?: { type: string } }).audioSession;
+  if (audioSession) {
+    try { audioSession.type = 'playback'; } catch {}
+  }
+
   await Tone.start();
+
+  const ctx = Tone.getContext().rawContext as AudioContext;
+  if (ctx.state === 'suspended') {
+    try { await ctx.resume(); } catch {}
+  }
+
   timeoutPlayer = new Tone.Player({
     url: '/audio/dragon-studio-cuckoo-clock-359874.mp3',
     volume: -8,
