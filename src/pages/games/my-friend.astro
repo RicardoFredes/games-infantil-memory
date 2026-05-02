@@ -151,15 +151,68 @@ const cfg = config as MyFriendConfig;
     z-index: 7;
   }
 
-  #my-friend-stage .mf-apple {
-    position: absolute;
-    width: clamp(54px, 9vw, 78px);
-    height: clamp(54px, 9vw, 78px);
-    transform: translate(-50%, 100%);
-    will-change: transform, opacity;
-    filter: drop-shadow(0 6px 8px rgba(0, 0, 0, 0.18));
+  /* ===== Eat (mesa de pratos + drag) ===== */
+  #my-friend-stage .mf-eat-layer {
+    pointer-events: none;
   }
-  #my-friend-stage .mf-apple svg { width: 100%; height: 100%; display: block; }
+  #my-friend-stage .mf-eat-table {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: clamp(120px, 22vh, 180px);
+    padding: 14px clamp(12px, 3vw, 28px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(8px, 2vw, 18px);
+    flex-wrap: wrap;
+    background: linear-gradient(to bottom, rgba(195, 130, 70, 0.95), rgba(140, 80, 30, 0.98));
+    border-top: 5px solid #6B3410;
+    box-shadow: 0 -6px 16px rgba(0, 0, 0, 0.25), inset 0 4px 0 rgba(255, 220, 180, 0.35);
+    pointer-events: auto;
+    touch-action: none;
+    z-index: 8;
+  }
+
+  #my-friend-stage .mf-eat-plate {
+    position: relative;
+    width: clamp(56px, 12vw, 78px);
+    height: clamp(56px, 12vw, 78px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: grab;
+    user-select: none;
+    touch-action: none;
+  }
+  #my-friend-stage .mf-eat-plate:active { cursor: grabbing; }
+  #my-friend-stage .mf-eat-dish {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: radial-gradient(circle at 50% 35%, #FFFFFF 0%, #E5E5E5 60%, #B8B8B8 100%);
+    box-shadow:
+      inset 0 -4px 6px rgba(0, 0, 0, 0.18),
+      inset 0 4px 6px rgba(255, 255, 255, 0.9),
+      0 6px 10px rgba(0, 0, 0, 0.25);
+  }
+  #my-friend-stage .mf-eat-food {
+    position: relative;
+    font-size: clamp(28px, 7vw, 42px);
+    line-height: 1;
+    pointer-events: none;
+    filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.25));
+    transition: opacity 0.18s ease;
+  }
+  #my-friend-stage .mf-eat-drag {
+    position: absolute;
+    transform: translate(-50%, -50%) scale(1.2);
+    font-size: clamp(36px, 9vw, 54px);
+    z-index: 9;
+    pointer-events: none;
+    filter: drop-shadow(0 6px 8px rgba(0, 0, 0, 0.32));
+  }
 
   #my-friend-stage .mf-crumb {
     position: absolute;
