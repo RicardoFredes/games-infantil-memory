@@ -68,7 +68,7 @@
     "maxWrongAttempts": 3,
     "reduceStepsOnFail": true,
     "vibrateOnTouch": true,
-    "instantFail": false,
+    "instantFail": true,
     "enableTimer": true
   },
   "theme": {

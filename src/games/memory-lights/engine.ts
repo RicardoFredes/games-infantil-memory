@@ -2,7 +2,7 @@ import type { MemoryLightsConfig } from './types';
 import type { GameState, AppState } from '@/types';
 import { generateSequence, getDifficultySteps, getDifficultyTiming } from './sequencer';
 import { calculateScore, resetStreak, getStars, createInitialState, type ScoreState } from '@/lib/scoring';
-import { initAudio, playNote, playSequence, playTap, playPop, playConfettiSfx, startBackgroundMusic, stopBackgroundMusic } from '@/lib/audio';
+import { initAudio, playNote, playSequence, playTap, playPop, playConfettiSfx, startBackgroundMusic, stopBackgroundMusic, playTimeoutSfx } from '@/lib/audio';
 import { ConfettiSystem } from '@/lib/confetti';
 
 function emit(name: string, detail?: unknown) {
@@ -24,6 +24,8 @@ export class MemoryLightsEngine {
   private timerTotalMs = 0;
   private timerInterval: ReturnType<typeof setInterval> | null = null;
   private timerStart = 0;
+  private pausedAt = 0;
+  paused = false;
 
   readonly appState: AppState;
 
@@ -102,7 +104,7 @@ export class MemoryLightsEngine {
   }
 
   handleTap(lightIndex: number): void {
-    if (this.gameState !== 'WAITING_INPUT') return;
+    if (this.gameState !== 'WAITING_INPUT' || this.paused) return;
 
     this.activeLight = lightIndex;
     const light = this.config.lights[lightIndex];
@@ -263,7 +265,7 @@ export class MemoryLightsEngine {
   }
 
   private startTimer(): void {
-    if (!this.config.behavior.enableTimer) return;
+    if (!this.config.behavior.enableTimer || this.paused) return;
     this.stopTimer();
     const stepMs = this.config.timing.timerStepBaseMs - (this.round * 100);
     const perStep = Math.max(this.config.timing.timerStepMinMs, stepMs);
@@ -271,11 +273,40 @@ export class MemoryLightsEngine {
     this.timerStart = Date.now();
 
     emit('timerStart', { totalMs: this.timerTotalMs });
+    this.startTimerRaw();
+  }
 
+  private stopTimer(): void {
+    if (this.timerInterval) {
+      clearInterval(this.timerInterval);
+      this.timerInterval = null;
+    }
+    emit('timerStop', {});
+  }
+
+  pause(): void {
+    if (this.paused) return;
+    this.paused = true;
+    this.pausedAt = Date.now();
+    this.stopTimer();
+    emit('paused', {});
+  }
+
+  resume(): void {
+    if (!this.paused) return;
+    this.paused = false;
+    if (this.gameState === 'WAITING_INPUT') {
+      this.timerStart += Date.now() - this.pausedAt;
+      this.startTimerRaw();
+    }
+    emit('resumed', {});
+  }
+
+  private startTimerRaw(): void {
+    if (!this.config.behavior.enableTimer || this.paused) return;
     this.timerInterval = setInterval(() => {
       const elapsed = Date.now() - this.timerStart;
       const remaining = Math.max(0, this.timerTotalMs - elapsed);
-      // Logarithmic display: shrinks fast early, slows near end
       const linear = remaining / this.timerTotalMs;
       const curved = linear < 0.3
         ? linear * (1 + Math.pow(1 - linear / 0.3, 2) * 0.5)
@@ -286,6 +317,7 @@ export class MemoryLightsEngine {
 
       if (remaining <= 0) {
         this.stopTimer();
+        try { playTimeoutSfx(); } catch {}
         this.gameState = 'IDLE';
         emit('timerExpired', {});
         emit('stateChange', {
@@ -298,14 +330,6 @@ export class MemoryLightsEngine {
         });
       }
     }, 100);
-  }
-
-  private stopTimer(): void {
-    if (this.timerInterval) {
-      clearInterval(this.timerInterval);
-      this.timerInterval = null;
-    }
-    emit('timerStop', {});
   }
 
   private updateAppState(): void {

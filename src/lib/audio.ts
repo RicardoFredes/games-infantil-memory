@@ -7,6 +7,11 @@ let initialized = false;
 export async function initAudio(): Promise<void> {
   if (initialized) return;
   await Tone.start();
+  timeoutPlayer = new Tone.Player({
+    url: '/audio/dragon-studio-cuckoo-clock-359874.mp3',
+    volume: -8,
+  }).toDestination();
+  await Tone.loaded();
   initialized = true;
 }
 
@@ -91,5 +96,22 @@ export function stopBackgroundMusic(): void {
     bgPlayer.stop();
     bgPlayer.dispose();
     bgPlayer = null;
+  }
+}
+
+let timeoutPlayer: Tone.Player | null = null;
+
+export function playTimeoutSfx(): void {
+  if (!initialized) return;
+  try {
+    if (!timeoutPlayer) {
+      timeoutPlayer = new Tone.Player({
+        url: '/audio/dragon-studio-cuckoo-clock-359874.mp3',
+        volume: -8,
+      }).toDestination();
+    }
+    timeoutPlayer.start(0, 0.55);
+  } catch {
+    // ignore audio errors
   }
 }

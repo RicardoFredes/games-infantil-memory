@@ -33,6 +33,7 @@ const lights = gameConfig.lights;
     @ml:countdown.window="countdownNumber = $event.detail.number"
     @ml:light-tap.window="engine.handleTap($event.detail.index)"
     @ml:btn-color.window="bgAmbient = $event.detail.color; setTimeout(() => bgAmbient = '', 400)"
+    @ml:pause-toggle.window="togglePause()"
   >
     <Confetti />
 
@@ -111,6 +112,52 @@ const lights = gameConfig.lights;
     <Countdown />
     <CelebrationOverlay />
     <TimerBar />
+
+    <!-- Pause menu overlay -->
+    <div
+      x-show="isPaused"
+      x-transition:enter="transition duration-300 ease-out"
+      x-transition:enter-start="opacity-0"
+      x-transition:enter-end="opacity-100"
+      x-transition:leave="transition duration-200 ease-in"
+      x-transition:leave-start="opacity-100"
+      x-transition:leave-end="opacity-0"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-md"
+    >
+      <!-- Close X -->
+      <button
+        @click="resumeGame()"
+        class="absolute top-6 right-6 w-12 h-12 rounded-full bg-white/90 backdrop-blur shadow-lg border-2 border-purple-200 flex items-center justify-center text-2xl text-purple-600 hover:scale-110 transition-all z-10"
+        aria-label="Fechar"
+      >
+        ✕
+      </button>
+
+      <!-- Menu items -->
+      <div
+        x-show="isPaused"
+        x-transition:enter="transition duration-400 ease-out delay-100"
+        x-transition:enter-start="opacity-0 translate-y-8 scale-90"
+        x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+        class="flex flex-col items-center gap-6"
+      >
+        <button
+          @click="resumeGame()"
+          class="flex items-center gap-4 bg-white/90 backdrop-blur rounded-3xl px-8 py-5 shadow-xl border-2 border-green-300 hover:scale-105 hover:border-green-400 hover:shadow-2xl transition-all duration-300 w-64"
+        >
+          <span class="text-4xl">▶️</span>
+          <span class="text-xl font-extrabold text-green-600">Continuar</span>
+        </button>
+
+        <a
+          href="/"
+          class="flex items-center gap-4 bg-white/90 backdrop-blur rounded-3xl px-8 py-5 shadow-xl border-2 border-red-300 hover:scale-105 hover:border-red-400 hover:shadow-2xl transition-all duration-300 w-64"
+        >
+          <span class="text-4xl">🚪</span>
+          <span class="text-xl font-extrabold text-red-500">Sair do jogo</span>
+        </a>
+      </div>
+    </div>
 
     <!-- Timeout restart overlay -->
     <div
@@ -261,6 +308,7 @@ const lights = gameConfig.lights;
     showCountdown: false,
     showStartButton: true,
     showTimeout: false,
+    isPaused: false,
 
     init() {
       const canvas = document.getElementById('confetti-canvas') as HTMLCanvasElement;
@@ -278,13 +326,30 @@ const lights = gameConfig.lights;
     startGame() {
       this.showStartButton = false;
       this.showTimeout = false;
+      this.isPaused = false;
       if (this.engine) {
         this.engine.start();
       }
     },
 
+    togglePause() {
+      if (!this.engine || this.showStartButton) return;
+      if (this.isPaused) {
+        this.resumeGame();
+      } else {
+        this.isPaused = true;
+        this.engine.pause();
+      }
+    },
+
+    resumeGame() {
+      this.isPaused = false;
+      this.engine?.resume();
+    },
+
     restartGame() {
       this.showTimeout = false;
+      this.isPaused = false;
       this.engine?.destroy();
       const canvas = document.getElementById('confetti-canvas') as HTMLCanvasElement;
       this.engine = new MemoryLightsEngine(gameConfig as MemoryLightsConfig, canvas);
