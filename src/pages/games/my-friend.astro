@@ -176,6 +176,22 @@ const cfg = config as MyFriendConfig;
     100% { transform: translate(var(--dx, 0), 80px) scale(0.6); opacity: 0; }
   }
 
+  /* ===== Dance ===== */
+  #my-friend-stage .mf-music-note {
+    position: absolute;
+    font-size: clamp(28px, 5vw, 38px);
+    font-weight: 600;
+    pointer-events: none;
+    will-change: transform, opacity;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.18);
+    animation: mf-music-rise 2200ms ease-out forwards;
+  }
+  @keyframes mf-music-rise {
+    0%   { transform: translate(-50%, 0)                       rotate(0)         scale(0.6); opacity: 0; }
+    15%  { transform: translate(calc(-50% + var(--drift, 0)), -10%) rotate(var(--rot, 0)) scale(1);   opacity: 1; }
+    100% { transform: translate(calc(-50% + var(--drift, 0)), -180px) rotate(var(--rot, 0)) scale(0.85); opacity: 0; }
+  }
+
   #my-friend-stage .character-shadow {
     position: absolute;
     left: 50%;

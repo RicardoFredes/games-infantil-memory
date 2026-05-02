@@ -77,7 +77,11 @@ export class MyFriendEngine implements GameEngine<MyFriendConfig, MyFriendState>
 
     this.state = { ...this.state, currentActivity: name };
     this.activityCleanup = spec.start(stage);
-    if (spec.mood) setMood(spec.mood, spec.durationMs);
+    if (spec.mood) {
+      // Toggle: mood persiste até stopActivity (duration 0 = sem auto-reset).
+      const moodDuration = spec.kind === 'toggle' ? 0 : spec.durationMs;
+      setMood(spec.mood, moodDuration);
+    }
     emit('activityStart', { name });
 
     if (spec.kind === 'oneshot') {
@@ -96,7 +100,10 @@ export class MyFriendEngine implements GameEngine<MyFriendConfig, MyFriendState>
     }
     if (this.state.currentActivity) {
       const name = this.state.currentActivity;
+      const spec = getActivity(name);
       this.state = { ...this.state, currentActivity: null };
+      // Toggle com mood persistente: volta pro idle ao encerrar.
+      if (spec?.kind === 'toggle' && spec.mood) setMood('idle', 0);
       emit('activityEnd', { name });
     }
   }
