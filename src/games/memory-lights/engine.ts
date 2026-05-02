@@ -284,6 +284,24 @@ export class MemoryLightsEngine {
     emit('timerStop', {});
   }
 
+  resetHistory(): void {
+    this.stopTimer();
+    try {
+      localStorage.removeItem(`memory-game-${this.config.meta.id}-state`);
+    } catch {}
+    this.scoreState = createInitialState();
+    this.round = 1;
+    this.wrongCount = 0;
+    this.playerInput = [];
+    this.currentStep = 0;
+    this.activeLight = null;
+    this.paused = false;
+    this.gameState = 'IDLE';
+    this.updateAppState();
+    this.emitState();
+    this.startCountdown(false);
+  }
+
   pause(): void {
     if (this.paused) return;
     this.paused = true;
