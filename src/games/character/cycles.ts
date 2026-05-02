@@ -14,10 +14,11 @@ export interface CycleHandles {
   armBob:    Anim | null
   pupil:     Anim | null
   mouthGrin: Anim | null
+  thinking:  Anim | null
 }
 
 export function createCycleHandles(): CycleHandles {
-  return { breathing: null, blink: null, armSway: null, armBob: null, pupil: null, mouthGrin: null }
+  return { breathing: null, blink: null, armSway: null, armBob: null, pupil: null, mouthGrin: null, thinking: null }
 }
 
 function cancel(h: Anim | null) {
@@ -52,6 +53,7 @@ export function applyModeCycles(state: AnimState, h: CycleHandles, cfg: CycleCon
   cancel(h.armBob);    h.armBob    = null
   cancel(h.pupil);     h.pupil     = null
   cancel(h.mouthGrin); h.mouthGrin = null
+  cancel(h.thinking);  h.thinking  = null
 
   if (cfg.armSway) {
     const a = cfg.armSway.amplitude
@@ -101,5 +103,26 @@ export function applyModeCycles(state: AnimState, h: CycleHandles, cfg: CycleCon
     })
   } else {
     state.mouthGrinScale = 1
+  }
+
+  // Thinking: braço/mão direita "voam" pra junto da cabeça (entrada 700ms)
+  // e depois ficam coçando suavemente (-4° ↔ 0° em loop).
+  if (cfg.thinking) {
+    state.armRightSwayR = 40
+    state.armRightBobY  = 20
+    h.thinking = animate(state, {
+      armRightSwayR: 0,
+      armRightBobY:  0,
+      duration: 700,
+      ease: 'inOutSine',
+      onComplete: () => {
+        h.thinking = animate(state, {
+          armRightSwayR: [{ to: 0 }, { to: -4 }, { to: 0 }],
+          duration: cfg.thinking!.durationMs,
+          loop: true,
+          ease: 'inOutSine',
+        })
+      },
+    })
   }
 }
