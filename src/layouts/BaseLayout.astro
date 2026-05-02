@@ -2,20 +2,31 @@
 import '@/styles/global.css';
 import BaseHead from '@/components/ui/BaseHead.astro';
 import appConfig from '@/config/app.json';
+
+export interface Props {
+  fullscreen?: boolean;
+}
+
+const { fullscreen = false } = Astro.props;
+const bodyClass = fullscreen
+  ? `bg-gradient-to-br ${appConfig.theme.backgroundGradient} h-dvh overflow-hidden overscroll-none antialiased`
+  : `bg-gradient-to-br ${appConfig.theme.backgroundGradient} min-h-dvh overscroll-none antialiased`;
+const mainClass = fullscreen ? 'h-dvh overflow-hidden' : 'min-h-dvh';
 ---
 
 <!doctype html>
-<html lang="pt-BR" data-theme={appConfig.app.theme}>
+<html lang="pt-BR" data-theme={appConfig.app.theme} class={fullscreen ? 'h-dvh overflow-hidden' : ''}>
   <head>
     <BaseHead />
   </head>
-  <body class={`bg-gradient-to-br ${appConfig.theme.backgroundGradient} min-h-dvh overscroll-none antialiased`}
-        style={`font-family: ${appConfig.theme.fontFamily}`}>
-    <main class="min-h-dvh">
+  <body class={bodyClass} style={`font-family: ${appConfig.theme.fontFamily}`}>
+    <main class={mainClass}>
       <slot />
     </main>
-    <footer class="text-center py-2 text-xs text-base-content/40">
-      Animated icons by <a href="https://lordicon.com" class="underline">Lordicon.com</a>
-    </footer>
+    {!fullscreen && (
+      <footer class="text-center py-2 text-xs text-base-content/40">
+        Animated icons by <a href="https://lordicon.com" class="underline">Lordicon.com</a>
+      </footer>
+    )}
   </body>
 </html>

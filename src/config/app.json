@@ -1,8 +1,8 @@
 {
   "app": {
-    "name": "Luzes da Memória",
-    "shortName": "LuzesMemo",
-    "description": "Jogos de memória para crianças de 2 a 7 anos",
+    "name": "Central de Jogos Educativos",
+    "shortName": "JogosEdu",
+    "description": "Jogos educativos para crianças de 2 a 7 anos",
     "version": "1.0.0",
     "theme": "cupcake"
   },

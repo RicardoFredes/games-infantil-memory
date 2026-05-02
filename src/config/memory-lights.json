@@ -1,8 +1,8 @@
 {
   "meta": {
     "id": "memory-lights",
-    "name": "Jogo das Luzes",
-    "description": "Memorize a sequência de luzes",
+    "name": "Imite a sequência",
+    "description": "Memorize a sequência de luzes coloridas e repita!",
     "version": "1.0.0",
     "ageRange": [2, 7]
   },

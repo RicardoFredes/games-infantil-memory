@@ -6,6 +6,7 @@ import Countdown from '@/components/ui/Countdown.astro';
 import CelebrationOverlay from '@/components/ui/CelebrationOverlay.astro';
 import TimerBar from '@/components/ui/TimerBar.astro';
 import LightButton from '@/components/games/LightButton.astro';
+import GameCharacter from '@/components/games/GameCharacter.astro';
 import config from '@/config/memory-lights.json';
 import type { MemoryLightsConfig } from '@/games/memory-lights/types';
 
@@ -13,11 +14,11 @@ const gameConfig = config as MemoryLightsConfig;
 const lights = gameConfig.lights;
 ---
 
-<BaseLayout>
+<BaseLayout fullscreen={true}>
   <div
     x-data="memoryLights"
     x-init="init()"
-    class="relative min-h-dvh w-full overflow-hidden flex flex-col"
+    class="relative h-dvh w-full overflow-hidden flex flex-col"
     @ml:light-on.window="activeLightIndex = $event.detail.index"
     @ml:light-off.window="activeLightIndex = null"
     @ml:state-change.window="score = $event.detail.score; stars = $event.detail.stars; round = $event.detail.round; gameState = $event.detail.gameState"
@@ -88,6 +89,14 @@ const lights = gameConfig.lights;
           ))
         }
       </div>
+    </div>
+
+    <div
+      class="character-stage fixed z-[60] pointer-events-none select-none"
+      x-show="!showStartButton && !isPaused && !showTimeout"
+      x-cloak
+    >
+      <GameCharacter />
     </div>
 
     <div
@@ -321,6 +330,20 @@ const lights = gameConfig.lights;
       window.addEventListener('ml:timer-expired', () => {
         this.showTimeout = true;
       });
+
+      const setMood = (mood: string, duration = 0) => {
+        window.dispatchEvent(new CustomEvent('character:set-mood', { detail: { mood, duration } }));
+      };
+
+      window.addEventListener('ml:correct', () => setMood('happy', 1800));
+      window.addEventListener('ml:wrong', () => setMood('sad', 1800));
+      window.addEventListener('ml:timer-expired', () => setMood('tired', 2500));
+      window.addEventListener('ml:state-change', ((e: CustomEvent) => {
+        const gs = e.detail?.gameState;
+        if (gs === 'SHOWING_SEQUENCE') setMood('thinking');
+        else if (gs === 'WAITING_INPUT') setMood('idle');
+        else if (gs === 'CELEBRATING') setMood('excited', 1500);
+      }) as EventListener);
     },
 
     startGame() {
@@ -391,4 +414,20 @@ const lights = gameConfig.lights;
 
 <style is:global>
   [x-cloak] { display: none !important; }
+
+  .character-stage {
+    width: clamp(110px, 30vw, 180px);
+    right: clamp(8px, 3vw, 24px);
+    bottom: calc(env(safe-area-inset-bottom, 0px) + clamp(40px, 10vw, 72px));
+    line-height: 0;
+    animation: character-float 4s ease-in-out infinite;
+    filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.18));
+  }
+  .character-stage > div { display: block; width: 100%; }
+  .character-stage svg { width: 100%; height: auto; display: block; }
+
+  @keyframes character-float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
 </style>

@@ -24,15 +24,12 @@ import GameCharacter from '@/components/games/GameCharacter.astro';
     <!-- Mood buttons -->
     <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-lg w-full">
       <button @click="setMood('idle')"        class="btn btn-outline btn-sm">😐 Idle</button>
-      <button @click="setMood('happy')"       class="btn btn-outline btn-sm">😊 Feliz</button>
       <button @click="setMood('happy2')"      class="btn btn-outline btn-sm">😄 Feliz 2</button>
+      <button @click="setMood('celebrating')" class="btn btn-outline btn-sm">🥳 Comemorando</button>
       <button @click="setMood('sad')"         class="btn btn-outline btn-sm">😢 Triste</button>
       <button @click="setMood('surprised')"   class="btn btn-outline btn-sm">😮 Surpreso</button>
       <button @click="setMood('tired')"       class="btn btn-outline btn-sm">😴 Cansado</button>
-      <button @click="setMood('excited')"     class="btn btn-outline btn-sm">🤩 Animado</button>
       <button @click="setMood('thinking')"    class="btn btn-outline btn-sm">🤔 Pensando</button>
-      <button @click="setMood('happy'); setTimeout(() => setMood('idle'), 2000)"
-        class="btn btn-outline btn-sm">⏱ Feliz 2s</button>
     </div>
 
     <!-- Mapeamento SVG -->
@@ -70,6 +67,7 @@ import GameCharacter from '@/components/games/GameCharacter.astro';
         idle: 'Oscioso',
         happy: 'Feliz',
         happy2: 'Feliz 2',
+        celebrating: 'Comemorando',
         sad: 'Triste',
         surprised: 'Surpreso',
         tired: 'Cansado',
@@ -84,6 +82,7 @@ import GameCharacter from '@/components/games/GameCharacter.astro';
         idle: 'text-base-content',
         happy: 'text-green-500',
         happy2: 'text-pink-500',
+        celebrating: 'text-amber-500',
         sad: 'text-blue-500',
         surprised: 'text-yellow-500',
         tired: 'text-purple-500',
