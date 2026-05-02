@@ -501,8 +501,16 @@ const cfg = config as MyFriendConfig;
   }
 
   /* ===== Sleep ===== */
-  #my-friend-stage.mf-sleep-active .character-stage > .character-container,
-  #my-friend-stage.mf-sleep-active svg.hit-zones { display: none; }
+  /* Esconde por completo o personagem ao vivo + hit-zones durante a cena
+     de dormir, pra evitar resquícios de olhos/boca sobre o personagem
+     deitado de lado. */
+  #my-friend-stage.mf-sleep-active .character-stage,
+  #my-friend-stage.mf-sleep-active .character-stage *,
+  #my-friend-stage.mf-sleep-active .hit-zones,
+  #my-friend-stage.mf-sleep-active svg.hit-zones {
+    visibility: hidden !important;
+    pointer-events: none !important;
+  }
 
   #my-friend-stage .mf-side-char {
     position: absolute;
