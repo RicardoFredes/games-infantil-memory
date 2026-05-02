@@ -12,7 +12,7 @@ const colors = characterPalettes[palette];
 <div
   x-data="gameCharacter"
   x-init="init()"
-  @character:set-mood.window="setMood($event.detail.mood)"
+  @character:set-mood.window="setMood($event.detail.mood, $event.detail.duration)"
   @click="spin()"
   @touchstart.passive="spin()"
   class="character-container inline-block pointer-events-auto cursor-pointer select-none"
@@ -26,7 +26,7 @@ const colors = characterPalettes[palette];
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
     class="character-svg transition-all duration-300"
-    :class="[bodyClass, spinning ? 'animate-spin-once' : '', jumping ? 'is-jumping' : '']"
+    :class="bodyBindings.bodyAnimClass"
   >
     <defs>
       <radialGradient id={`skinGrad-${palette}`} cx="40%" cy="35%" r="60%">
@@ -45,52 +45,46 @@ const colors = characterPalettes[palette];
 
     <!-- ===== LEGS (behind body — fixed, no breathing) ===== -->
 
-    <!-- LEFT LEG group -->
     <g transform="translate(0, -3)">
-      <g :transform="leftLegTransform" class="char-leg-left" style="transform-origin: 95px 210px; transition: transform 0.3s ease;">
+      <g :transform="legLeftBindings.transformAttr" class="char-leg-left" style="transform-origin: 95px 210px; transition: transform 0.3s ease;">
         <path d="M95.4745 203.5C94.4745 211.833 92.5745 230.4 92.9745 238C93.3745 245.6 93.1411 250.833 92.9745 252.5"
           stroke={colors.limbs} stroke-width="21" stroke-linecap="round"/>
       </g>
     </g>
 
-    <!-- LEFT FOOT group -->
-    <g :transform="leftFootTransform" class="char-foot-left" style="transform-origin: 95px 255px; transition: transform 0.3s ease;">
+    <g :transform="footLeftBindings.transformAttr" class="char-foot-left" style="transform-origin: 95px 255px; transition: transform 0.3s ease;">
       <path d="M83.4745 245C97.8339 245 109.474 251.132 109.474 258.696C109.474 259.454 108.798 260 108.033 260H58.9162C58.1505 260 57.4745 259.454 57.4745 258.696C57.4745 251.132 69.1151 245 83.4745 245Z"
         fill={colors.limbs}/>
     </g>
 
-    <!-- RIGHT LEG group -->
     <g transform="translate(0, -3)">
-      <g :transform="rightLegTransform" class="char-leg-right" style="transform-origin: 165px 210px; transition: transform 0.3s ease;">
+      <g :transform="legRightBindings.transformAttr" class="char-leg-right" style="transform-origin: 165px 210px; transition: transform 0.3s ease;">
         <path d="M165.474 203.5C166.474 211.833 168.374 230.4 167.974 238C167.574 245.6 167.808 250.833 167.974 252.5"
           stroke={colors.limbs} stroke-width="21" stroke-linecap="round"/>
       </g>
     </g>
 
-    <!-- RIGHT FOOT group -->
-    <g :transform="rightFootTransform" class="char-foot-right" style="transform-origin: 165px 255px; transition: transform 0.3s ease;">
+    <g :transform="footRightBindings.transformAttr" class="char-foot-right" style="transform-origin: 165px 255px; transition: transform 0.3s ease;">
       <path d="M177.474 245C163.115 245 151.474 251.132 151.474 258.696C151.474 259.454 152.151 260 152.916 260H202.033C202.798 260 203.474 259.454 203.474 258.696C203.474 251.132 191.834 245 177.474 245Z"
         fill={colors.limbs}/>
     </g>
 
     <!-- Breathing wrapper (idle) -->
-    <g :class="breathingClass">
+    <g :class="bodyBindings.breathClass">
 
-    <!-- ===== ARMS (behind head — default; excluded for excited) ===== -->
-    <g x-show="mood !== 'excited'">
-      <!-- LEFT ARM group -->
-      <g :class="leftArmAnimClass">
-        <g :transform="leftArmTransform" style="transform-origin: 40px 115px; transition: transform 0.3s ease;">
-          <path :d="leftArmPath" stroke={colors.limbs} stroke-width="21" stroke-linecap="round"/>
-          <path :d="leftHandPath" fill={colors.limbs}/>
+    <!-- ===== ARMS (behind head — when arms are NOT over head) ===== -->
+    <g x-show="!armsOverHead">
+      <g :class="armLeftBindings.animClass">
+        <g :transform="armLeftBindings.transformAttr" style="transform-origin: 40px 115px; transition: transform 0.3s ease;">
+          <path :d="armLeftBindings.strokePath" stroke={colors.limbs} stroke-width="21" stroke-linecap="round"/>
+          <path :d="armLeftBindings.handPath" fill={colors.limbs}/>
         </g>
       </g>
 
-      <!-- RIGHT ARM group -->
-      <g :class="rightArmAnimClass">
-        <g :transform="rightArmTransform" style="transform-origin: 220px 115px; transition: transform 0.3s ease;">
-          <path :d="rightArmPath" stroke={colors.limbs} stroke-width="21" stroke-linecap="round"/>
-          <path :d="rightHandPath" fill={colors.limbs}/>
+      <g :class="armRightBindings.animClass">
+        <g :transform="armRightBindings.transformAttr" style="transform-origin: 220px 115px; transition: transform 0.3s ease;">
+          <path :d="armRightBindings.strokePath" stroke={colors.limbs} stroke-width="21" stroke-linecap="round"/>
+          <path :d="armRightBindings.handPath" fill={colors.limbs}/>
         </g>
       </g>
     </g>
@@ -100,84 +94,82 @@ const colors = characterPalettes[palette];
 
     <!-- ===== FACE ===== -->
 
-    <!-- Right eye group (open) -->
-    <g :style="`transform: scaleY(${rightEyeOpenOpacity}); transform-origin: 161.474px 97px; transition: transform 0.18s cubic-bezier(0.4, 0, 0.6, 1), opacity 0.15s ease;`"
-       :opacity="rightEyeOpenOpacity">
-      <g :class="eyeBlinkClass" style="transform-origin: 161.474px 97px">
-        <g :transform="rightEyeTransform" style="transform-origin: 161.474px 97px; transition: transform 0.3s ease;">
+    <!-- Right eye open -->
+    <g :style="`transform: scaleY(${eyeRightBindings.openOpacity}); transform-origin: 161.474px 97px; transition: transform 0.18s cubic-bezier(0.4, 0, 0.6, 1), opacity 0.15s ease;`"
+       :opacity="eyeRightBindings.openOpacity">
+      <g :class="eyeRightBindings.blinkClass" style="transform-origin: 161.474px 97px">
+        <g :transform="eyeRightBindings.shapeTransform" style="transform-origin: 161.474px 97px; transition: transform 0.3s ease;">
           <circle cx="161.474" cy="97" r="10" fill="black" class="transition-all duration-300"/>
-          <circle cx="161.474" cy="97" r="2" fill={`url(#eyeHighlight-${palette})`} class="transition-all duration-300" :class="pupilClass"/>
+          <circle cx="161.474" cy="97" r="2" fill={`url(#eyeHighlight-${palette})`} class="transition-all duration-300" :class="eyeRightBindings.pupilClass"/>
         </g>
       </g>
     </g>
     <!-- Right eye closed (curved) -->
-    <g :style="`transform: scaleY(${rightEyeClosedOpacity}); transform-origin: 161.474px 97px; transition: transform 0.18s cubic-bezier(0.4, 0, 0.6, 1), opacity 0.15s ease;`"
-       :opacity="rightEyeClosedOpacity">
+    <g :style="`transform: scaleY(${eyeRightBindings.closedOpacity}); transform-origin: 161.474px 97px; transition: transform 0.18s cubic-bezier(0.4, 0, 0.6, 1), opacity 0.15s ease;`"
+       :opacity="eyeRightBindings.closedOpacity">
       <path d="M148.474 97 Q161.474 104 174.474 97" stroke="black" stroke-width="3" stroke-linecap="round" fill="none"/>
     </g>
 
-    <!-- Left eye group (open) -->
-    <g :style="`transform: scaleY(${leftEyeOpenOpacity}); transform-origin: 99.4745px 97px; transition: transform 0.18s cubic-bezier(0.4, 0, 0.6, 1), opacity 0.15s ease;`"
-       :opacity="leftEyeOpenOpacity">
-      <g :class="eyeBlinkClass" style="transform-origin: 99.4745px 97px">
-        <g :transform="leftEyeTransform" style="transform-origin: 99.4745px 97px; transition: transform 0.3s ease;">
+    <!-- Left eye open -->
+    <g :style="`transform: scaleY(${eyeLeftBindings.openOpacity}); transform-origin: 99.4745px 97px; transition: transform 0.18s cubic-bezier(0.4, 0, 0.6, 1), opacity 0.15s ease;`"
+       :opacity="eyeLeftBindings.openOpacity">
+      <g :class="eyeLeftBindings.blinkClass" style="transform-origin: 99.4745px 97px">
+        <g :transform="eyeLeftBindings.shapeTransform" style="transform-origin: 99.4745px 97px; transition: transform 0.3s ease;">
           <circle cx="99.4745" cy="97" r="10" fill="black" class="transition-all duration-300"/>
-          <circle cx="99.4745" cy="97" r="2" fill={`url(#eyeHighlight-${palette})`} class="transition-all duration-300" :class="pupilClass"/>
+          <circle cx="99.4745" cy="97" r="2" fill={`url(#eyeHighlight-${palette})`} class="transition-all duration-300" :class="eyeLeftBindings.pupilClass"/>
         </g>
       </g>
     </g>
     <!-- Left eye closed (curved) -->
-    <g :style="`transform: scaleY(${leftEyeClosedOpacity}); transform-origin: 99.4745px 97px; transition: transform 0.18s cubic-bezier(0.4, 0, 0.6, 1), opacity 0.15s ease;`"
-       :opacity="leftEyeClosedOpacity">
+    <g :style="`transform: scaleY(${eyeLeftBindings.closedOpacity}); transform-origin: 99.4745px 97px; transition: transform 0.18s cubic-bezier(0.4, 0, 0.6, 1), opacity 0.15s ease;`"
+       :opacity="eyeLeftBindings.closedOpacity">
       <path d="M86.4745 97 Q99.4745 104 112.4745 97" stroke="black" stroke-width="3" stroke-linecap="round" fill="none"/>
     </g>
 
     <!-- Nose -->
     <path d="M129.974 107L134.738 115.25H125.211L129.974 107Z" fill="black"
-      :transform="noseTransform" style="transform-origin: 130px 111px; transition: transform 0.3s ease; display: none;"/>
+      :transform="noseBindings.transformAttr" style="transform-origin: 130px 111px; transition: transform 0.3s ease; display: none;"/>
 
     <!-- Mouth -->
-    <path :d="mouthPath" fill="black" stroke="black" stroke-width="1"
-      :class="mouthAnimClass"
+    <path :d="mouthBindings.pathD" fill="black" stroke="black" stroke-width="1"
+      :class="mouthBindings.animClass"
       class="transition-all duration-300" style="transition: d 0.3s ease"/>
 
     <!-- Left eyebrow -->
-    <path :d="leftEyebrowPath" stroke="black" stroke-width="3" stroke-linecap="round" fill="none"
-      :transform="leftEyebrowTransform"
+    <path :d="eyebrowLeftBindings.pathD" stroke="black" stroke-width="3" stroke-linecap="round" fill="none"
+      :transform="eyebrowLeftBindings.transformAttr"
       style="transform-origin: 99.4745px 75.5px; transition: transform 0.3s ease, d 0.3s ease;"/>
 
     <!-- Right eyebrow -->
-    <path :d="rightEyebrowPath" stroke="black" stroke-width="3" stroke-linecap="round" fill="none"
-      :transform="rightEyebrowTransform"
+    <path :d="eyebrowRightBindings.pathD" stroke="black" stroke-width="3" stroke-linecap="round" fill="none"
+      :transform="eyebrowRightBindings.transformAttr"
       style="transform-origin: 161.474px 75.5px; transition: transform 0.3s ease, d 0.3s ease;"/>
 
-    <!-- Blush cheeks (happy/excited) -->
+    <!-- Blush cheeks -->
     <circle cx="75" cy="120" r="18" fill="url(#blushGrad)" :opacity="blushOpacity"
       class="transition-opacity duration-300"/>
     <circle cx="186" cy="120" r="18" fill="url(#blushGrad)" :opacity="blushOpacity"
       class="transition-opacity duration-300"/>
 
-    <!-- Tears (sad/tired) -->
+    <!-- Tears -->
     <path d="M55 102 Q58 112 55 118 Q52 112 55 102Z" fill="#88CCFF"
       :opacity="tearOpacity" class="transition-opacity duration-300"/>
     <path d="M206 102 Q209 112 206 118 Q203 112 206 102Z" fill="#88CCFF"
       :opacity="tearOpacity" class="transition-opacity duration-300"/>
 
-    <!-- ===== ARMS (in front of head — for excited) ===== -->
-    <g x-show="mood === 'excited'">
-      <!-- LEFT ARM group -->
-      <g :class="leftArmAnimClass">
-        <g :transform="leftArmTransform" style="transform-origin: 40px 115px; transition: transform 0.3s ease;">
-          <path :d="leftArmPath" stroke={colors.limbs} stroke-width="21" stroke-linecap="round"/>
-          <path :d="leftHandPath" fill={colors.limbs}/>
+    <!-- ===== ARMS (in front of head — when arms ARE over head) ===== -->
+    <g x-show="armsOverHead">
+      <g :class="armLeftBindings.animClass">
+        <g :transform="armLeftBindings.transformAttr" style="transform-origin: 40px 115px; transition: transform 0.3s ease;">
+          <path :d="armLeftBindings.strokePath" stroke={colors.limbs} stroke-width="21" stroke-linecap="round"/>
+          <path :d="armLeftBindings.handPath" fill={colors.limbs}/>
         </g>
       </g>
 
-      <!-- RIGHT ARM group -->
-      <g :class="rightArmAnimClass">
-        <g :transform="rightArmTransform" style="transform-origin: 220px 115px; transition: transform 0.3s ease;">
-          <path :d="rightArmPath" stroke={colors.limbs} stroke-width="21" stroke-linecap="round"/>
-          <path :d="rightHandPath" fill={colors.limbs}/>
+      <g :class="armRightBindings.animClass">
+        <g :transform="armRightBindings.transformAttr" style="transform-origin: 220px 115px; transition: transform 0.3s ease;">
+          <path :d="armRightBindings.strokePath" stroke={colors.limbs} stroke-width="21" stroke-linecap="round"/>
+          <path :d="armRightBindings.handPath" fill={colors.limbs}/>
         </g>
       </g>
     </g>
@@ -189,612 +181,9 @@ const colors = characterPalettes[palette];
 
 <script>
   import Alpine from 'alpinejs'
+  import { createCharacterStore } from '@/games/character/composer'
 
   document.addEventListener('alpine:init', () => {
-    Alpine.data('gameCharacter', () => ({
-    mood: 'idle',
-    spinning: false,
-    jumping: false,
-    leftEyeClosed: false,
-    rightEyeClosed: false,
-    _moodTimer: null as ReturnType<typeof setTimeout> | null,
-    _spinTimer: null as ReturnType<typeof setTimeout> | null,
-    _jumpTimer: null as ReturnType<typeof setTimeout> | null,
-    _leftEyeTimer: null as ReturnType<typeof setTimeout> | null,
-    _rightEyeTimer: null as ReturnType<typeof setTimeout> | null,
-
-    init() {
-      window.addEventListener('character:set-mood', ((e: CustomEvent) => {
-        this.setMood(e.detail.mood, e.detail.duration)
-      }) as EventListener)
-      window.addEventListener('character:wink', ((e: CustomEvent) => {
-        this.wink(e.detail?.side ?? 'right', e.detail?.duration ?? 600)
-      }) as EventListener)
-      window.addEventListener('character:eyes-closed', ((e: CustomEvent) => {
-        this.closeEyes(e.detail?.duration ?? 0)
-      }) as EventListener)
-      window.addEventListener('character:jump', ((e: CustomEvent) => {
-        this.jump(e.detail?.duration ?? 950)
-      }) as EventListener)
-    },
-
-    jump(duration = 950) {
-      if (this.jumping) return
-      this.jumping = true
-      try {
-        if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(20)
-      } catch {}
-      if (this._jumpTimer) clearTimeout(this._jumpTimer)
-      this._jumpTimer = setTimeout(() => { this.jumping = false }, duration)
-    },
-
-    wink(side: 'left' | 'right' = 'right', duration = 600) {
-      const isLeft = side === 'left'
-      if (isLeft) {
-        this.leftEyeClosed = true
-        if (this._leftEyeTimer) clearTimeout(this._leftEyeTimer)
-        this._leftEyeTimer = setTimeout(() => { this.leftEyeClosed = false }, duration)
-      } else {
-        this.rightEyeClosed = true
-        if (this._rightEyeTimer) clearTimeout(this._rightEyeTimer)
-        this._rightEyeTimer = setTimeout(() => { this.rightEyeClosed = false }, duration)
-      }
-    },
-
-    closeEyes(duration = 0) {
-      this.leftEyeClosed = true
-      this.rightEyeClosed = true
-      if (this._leftEyeTimer) clearTimeout(this._leftEyeTimer)
-      if (this._rightEyeTimer) clearTimeout(this._rightEyeTimer)
-      if (duration > 0) {
-        this._leftEyeTimer = setTimeout(() => { this.leftEyeClosed = false }, duration)
-        this._rightEyeTimer = setTimeout(() => { this.rightEyeClosed = false }, duration)
-      }
-    },
-
-    setMood(m: string, duration = 0) {
-      this.mood = m
-      if (this._moodTimer) clearTimeout(this._moodTimer)
-      if (duration > 0) {
-        this._moodTimer = setTimeout(() => { this.mood = 'idle' }, duration)
-      }
-    },
-
-    spin() {
-      if (this.spinning) return
-      this.spinning = true
-      this.setMood('excited', 900)
-      try {
-        if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(15)
-      } catch {}
-      window.dispatchEvent(new CustomEvent('character:spin'))
-      if (this._spinTimer) clearTimeout(this._spinTimer)
-      this._spinTimer = setTimeout(() => { this.spinning = false }, 800)
-    },
-
-    // ─── ANIMATION CLASSES ───────────────────────
-
-    get leftArmAnimClass() {
-      const map: Record<string, string> = {
-        idle: 'animate-arm-idle-left',
-        happy: 'animate-arm-happy-left',
-        excited: 'animate-arm-excited-bob',
-        surprised: 'animate-arm-surprise-left',
-        thinking: 'animate-arm-idle-left',
-      }
-      return map[this.mood] || ''
-    },
-
-    get rightArmAnimClass() {
-      const map: Record<string, string> = {
-        idle: 'animate-arm-idle-right',
-        happy: 'animate-arm-happy-right',
-        excited: 'animate-arm-excited-bob',
-        surprised: 'animate-arm-surprise-right',
-        thinking: 'animate-arm-think-right',
-      }
-      return map[this.mood] || ''
-    },
-
-    get pupilClass() {
-      return this.mood === 'excited' ? 'animate-pupil-sparkle' : ''
-    },
-
-    get eyeBlinkClass() {
-      return ['idle', 'happy'].includes(this.mood) ? 'animate-blink' : ''
-    },
-
-    get leftEyeClosedOpacity() {
-      return this.leftEyeClosed || this.mood === 'sleeping' ? 1 : 0
-    },
-
-    get rightEyeClosedOpacity() {
-      return this.rightEyeClosed || this.mood === 'sleeping' ? 1 : 0
-    },
-
-    get leftEyeOpenOpacity() {
-      return 1 - this.leftEyeClosedOpacity
-    },
-
-    get rightEyeOpenOpacity() {
-      return 1 - this.rightEyeClosedOpacity
-    },
-
-    get breathingClass() {
-      return ['idle', 'happy', 'excited', 'surprised', 'thinking'].includes(this.mood) ? 'animate-breathe' : ''
-    },
-
-    get mouthAnimClass() {
-      return ['happy', 'excited'].includes(this.mood) ? 'animate-mouth-grin' : ''
-    },
-
-    get bodyClass() {
-      const map: Record<string, string> = {
-        idle: '',
-        happy: '',
-        sad: '',
-        surprised: '',
-        tired: '',
-        excited: 'animate-jump-loop',
-        thinking: '',
-      }
-      return map[this.mood] || ''
-    },
-
-    // ─── ARM PATHS ───────────────────────────────
-
-    get leftArmPath() {
-      if (this.mood === 'surprised' || this.mood === 'excited') {
-        // Arms-on-head pose (translated from public/person/person (2).svg, -20px offset)
-        return 'M38.8909 130.028C30.8288 124.406 15.1156 107.733 16.7589 86.018C18.4023 64.3019 29.0565 50.9436 34.1782 46.9789'
-      }
-      // Default arm stroke
-      return 'M47.4745 107C38.232 110.344 18.7389 122.382 14.7058 143.783C10.6727 165.184 17.5065 180.845 21.4276 186'
-    },
-
-    get rightArmPath() {
-      if (this.mood === 'thinking') {
-        // Bent arm reaching up beside head (translated from public/person/person (3).svg, -20px offset)
-        return 'M215.142 87.47C219.427 78.625 224.988 56.3992 212.941 38.2569C200.894 20.1146 185.07 13.6674 178.664 12.7116'
-      }
-      if (this.mood === 'surprised' || this.mood === 'excited') {
-        // Arms-on-head pose (translated from public/person/person (2).svg, -20px offset)
-        return 'M220.755 130.028C228.817 124.406 244.53 107.733 242.887 86.018C241.243 64.3019 230.589 50.9436 225.467 46.9789'
-      }
-      return 'M213.475 107C222.717 110.344 242.21 122.382 246.243 143.783C250.276 165.184 243.442 180.845 239.521 186'
-    },
-
-    get leftHandPath() {
-      if (this.mood === 'surprised' || this.mood === 'excited') {
-        // Hand at top-left of head (translated from reference, -20px offset)
-        return 'M30.6337 54.3402C31.1944 57.2171 36.9229 58.5217 43.4279 57.2538C49.9328 55.9859 54.7519 52.6255 54.1912 49.7486C53.7485 47.4786 50.0881 46.1899 45.3677 46.3693C49.3605 40.5644 49.5505 33.0014 45.2963 27.6495C39.9695 20.9484 29.6931 20.2521 22.3434 26.0944C14.9938 31.9367 13.3545 42.105 18.6812 48.8061C21.6066 52.4862 26.0243 54.3556 30.6307 54.3252C30.6316 54.3302 30.6327 54.3352 30.6337 54.3402Z'
-      }
-      return 'M19.9091 177.972C21.1953 175.338 27.0662 175.561 33.0214 178.469C38.9765 181.378 42.7617 185.871 41.4755 188.504C40.4603 190.582 36.5911 190.88 32.078 189.485C34.4323 196.125 32.6584 203.48 27.164 207.548C20.2843 212.642 10.1779 210.655 4.59072 203.11C-0.996328 195.564 0.0518956 185.318 6.93154 180.224C10.7097 177.427 15.4607 176.764 19.9022 177.986C19.9045 177.981 19.9068 177.977 19.9091 177.972Z'
-    },
-
-    get rightHandPath() {
-      if (this.mood === 'thinking') {
-        // Hand resting against head (translated from public/person/person (3).svg, -20px offset)
-        return 'M164.837 2.84C162.1 1.791 157.958 5.9577 155.586 12.1461C153.214 18.3345 153.51 24.202 156.247 25.251C158.407 26.0785 161.439 23.6572 163.789 19.559C166.596 26.0213 172.909 30.1902 179.702 29.4184C188.207 28.452 194.244 20.1062 193.184 10.7774C192.124 1.4486 184.369 -5.33 175.864 -4.3637C171.193 -3.833 167.266 -1.0771 164.851 2.8453C164.846 2.8435 164.841 2.8418 164.837 2.84Z'
-      }
-      if (this.mood === 'surprised' || this.mood === 'excited') {
-        // Hand at top-right of head (translated from reference, -20px offset)
-        return 'M229.012 54.3402C228.451 57.2171 222.723 58.5217 216.218 57.2538C209.713 55.9859 204.894 52.6255 205.454 49.7486C205.897 47.4786 209.558 46.1899 214.278 46.3693C210.285 40.5644 210.095 33.0014 214.349 27.6495C219.676 20.9484 229.952 20.2521 237.302 26.0944C244.652 31.9367 246.291 42.105 240.964 48.8061C238.039 52.4862 233.621 54.3556 229.015 54.3252C229.014 54.3302 229.013 54.3352 229.012 54.3402Z'
-      }
-      return 'M241.04 177.972C239.754 175.338 233.883 175.561 227.928 178.469C221.972 181.378 218.187 185.871 219.473 188.504C220.489 190.582 224.358 190.88 228.871 189.485C226.517 196.125 228.291 203.48 233.785 207.548C240.665 212.642 250.771 210.655 256.358 203.11C261.945 195.564 260.897 185.318 254.017 180.224C250.239 177.427 245.488 176.764 241.047 177.986C241.045 177.981 241.042 177.977 241.04 177.972Z'
-    },
-
-    // ─── BODY TRANSFORMS ─────────────────────────
-
-    get leftArmTransform() {
-      if (this.jumping) return 'rotate(-8) translate(6, 0)'
-      const map: Record<string, string> = {
-        idle: 'rotate(0)',
-        happy: 'rotate(0)',
-        sad: 'rotate(10)',
-        surprised: 'rotate(0)',
-        tired: 'rotate(15)',
-        excited: 'rotate(0)',
-        thinking: 'rotate(0)',
-      }
-      return map[this.mood] || 'rotate(0)'
-    },
-
-    get rightArmTransform() {
-      if (this.jumping) return 'rotate(8) translate(-6, 0)'
-      const map: Record<string, string> = {
-        idle: 'rotate(0)',
-        happy: 'rotate(0)',
-        sad: 'rotate(-10)',
-        surprised: 'rotate(0)',
-        tired: 'rotate(-15)',
-        excited: 'rotate(0)',
-        thinking: 'rotate(2)', // tilt elbow outward, away from body
-      }
-      return map[this.mood] || 'rotate(0)'
-    },
-
-    get leftLegTransform() {
-      const map: Record<string, string> = {
-        idle: 'rotate(0) translate(0, 0)',
-        happy: 'rotate(0) translate(0, 0)',
-        sad: 'rotate(0) translate(0, 0)',
-        surprised: 'rotate(0) translate(0, 0)',
-        tired: 'rotate(0) translate(0, 0)',
-        excited: 'rotate(0) translate(0, 0)',
-        thinking: 'rotate(0) translate(0, 0)',
-      }
-      return map[this.mood] || 'rotate(0) translate(0, 0)'
-    },
-
-    get rightLegTransform() {
-      const map: Record<string, string> = {
-        idle: 'rotate(0) translate(0, 0)',
-        happy: 'rotate(0) translate(0, 0)',
-        sad: 'rotate(0) translate(0, 0)',
-        surprised: 'rotate(0) translate(0, 0)',
-        tired: 'rotate(0) translate(0, 0)',
-        excited: 'rotate(0) translate(0, 0)',
-        thinking: 'rotate(0) translate(0, 0)',
-      }
-      return map[this.mood] || 'rotate(0) translate(0, 0)'
-    },
-
-    get leftFootTransform() {
-      return this.leftLegTransform
-    },
-
-    get rightFootTransform() {
-      return this.rightLegTransform
-    },
-
-    // ─── EYES ────────────────────────────────────
-
-    get rightEyeTransform() {
-      const map: Record<string, string> = {
-        idle: 'scale(1, 1)',
-        happy: 'scale(1, 0.7)',
-        sad: 'scale(0.85, 0.85)',
-        surprised: 'scale(1.45, 1.45)',
-        tired: 'scale(1, 0.4)',
-        excited: 'scale(1, 0.7)',
-        thinking: 'scale(0.9, 0.9)',
-      }
-      return map[this.mood] || 'scale(1, 1)'
-    },
-
-    get leftEyeTransform() {
-      return this.rightEyeTransform
-    },
-
-    // ─── EYEBROWS ────────────────────────────────
-
-    get leftEyebrowTransform() {
-      const map: Record<string, string> = {
-        idle: 'rotate(0) translate(0, 0)',
-        happy: 'rotate(-10) translate(0, -3)',
-        sad: 'rotate(24) translate(0, 0)',
-        surprised: 'rotate(0) translate(0, 0)',
-        tired: 'rotate(15) translate(0, 2)',
-        excited: 'rotate(-10) translate(0, -3)',
-        thinking: 'rotate(-5) translate(0, -2)',
-      }
-      return map[this.mood] || 'rotate(0) translate(0, 0)'
-    },
-
-    get rightEyebrowTransform() {
-      const map: Record<string, string> = {
-        idle: 'rotate(0) translate(0, 0)',
-        happy: 'rotate(10) translate(0, -3)',
-        sad: 'rotate(-24) translate(0, 0)',
-        surprised: 'rotate(0) translate(0, 0)',
-        tired: 'rotate(-15) translate(0, 2)',
-        excited: 'rotate(10) translate(0, -3)',
-        thinking: 'rotate(0) translate(0, -3)',
-      }
-      return map[this.mood] || 'rotate(0) translate(0, 0)'
-    },
-
-    // ─── EYEBROW PATHS (left center=99.47, right center=161.47, y=75.5) ───
-    // Default = straight line. Curved/arched paths can be added per mood for richer expressions.
-    get leftEyebrowPath() {
-      const map: Record<string, string> = {
-        // Arched up (eyebrow raised in surprise)
-        surprised: 'M89.4745 77.5 Q99.4745 70 109.4745 77.5',
-        // Slight arch for happy
-        happy: 'M89.4745 76.5 Q99.4745 72 109.4745 76.5',
-        happy2: 'M89.4745 76.5 Q99.4745 72 109.4745 76.5',
-        excited: 'M89.4745 76.5 Q99.4745 72 109.4745 76.5',
-        // Worried curve (peaks toward inner corner)
-        sad: 'M89.4745 76 Q99.4745 80 109.4745 74',
-      }
-      return map[this.mood] || 'M89.4745 75.5 L109.4745 75.5'
-    },
-
-    get rightEyebrowPath() {
-      const map: Record<string, string> = {
-        surprised: 'M151.4745 77.5 Q161.4745 70 171.4745 77.5',
-        happy: 'M151.4745 76.5 Q161.4745 72 171.4745 76.5',
-        happy2: 'M151.4745 76.5 Q161.4745 72 171.4745 76.5',
-        excited: 'M151.4745 76.5 Q161.4745 72 171.4745 76.5',
-        // Mirror of sad: peaks toward inner (right side's inner is left endpoint)
-        sad: 'M151.4745 74 Q161.4745 80 171.4745 76',
-      }
-      return map[this.mood] || 'M151.4745 75.5 L171.4745 75.5'
-    },
-
-    // ─── NOSE ────────────────────────────────────
-
-    get noseTransform() {
-      const map: Record<string, string> = {
-        sad: 'scale(0.85, 1)',
-      }
-      return map[this.mood] || 'scale(1, 1)'
-    },
-
-    // ─── MOUTH ───────────────────────────────────
-
-    get mouthPath() {
-      // Surprised: small vertical oval (open mouth, taller than wide)
-      if (this.mood === 'surprised') {
-        const cx = 130, cy = 140, rx = 9, ry = 13
-        return `M${cx - rx},${cy} a${rx},${ry} 0 1,0 ${rx * 2},0 a${rx},${ry} 0 1,0 ${-rx * 2},0 Z`
-      }
-      // Happy / Excited: wide curved smile (translated from public/person/person (2).svg, -20px offset)
-      if (this.mood === 'happy' || this.mood === 'excited') {
-        return 'M101 131 C101 131 112.5 137 129 137.5 C145.5 138 157 131 157 131 C157 131 156.149 138.674 154 143 C151.851 147.326 144 159 129 159 C114 159 106.149 147.326 104 143 C101.851 138.674 101 131 101 131 Z'
-      }
-      // Based on reference SVG structure: M Lx,Ty C ... Cx,My C ... Rx,Ty V Ty+gap C ... Cx,By C ... Lx,Ty+gap V Ty Z
-      // Left-side control points are mirrored from right side for symmetry
-      const Lx = 101, Rx = 157, Cx = 130
-      const mir = (v: number) => 2 * Cx - v   // mirror around Cx=130
-      const maps: Record<string, {
-        Ty: number; My: number; By: number; gap: number
-        c2x: number; c2y: number   // top-right control
-        c3x: number; c3y: number   // bottom-right control
-      }> = {
-        idle:   { Ty:128, My:135, By:149, gap:2, c2x:148.5, c2y:135, c3x:148, c3y:149 },
-        sad:    { Ty:150, My:144, By:150, gap:1, c2x:148, c2y:146, c3x:148, c3y:149 },
-        tired:  { Ty:151, My:147, By:151, gap:1, c2x:145, c2y:148, c3x:145, c3y:150 },
-        excited:{ Ty:130, My:162, By:178, gap:4, c2x:147, c2y:162, c3x:147, c3y:172 },
-        thinking:{ Ty:145, My:142, By:145, gap:2, c2x:145, c2y:143, c3x:150, c3y:146 },
-      }
-      const m = maps[this.mood] || maps['idle']
-      // Top lip: left→center→right  |  Bottom lip: right→center→left (mirrored)
-      return `M${Lx},${m.Ty} C${Lx},${m.Ty} ${mir(m.c2x)},${m.c2y} ${Cx},${m.My} C${m.c2x},${m.c2y} ${Rx},${m.Ty} ${Rx},${m.Ty} V${m.Ty+m.gap} C${Rx},${m.Ty+m.gap} ${m.c3x},${m.c3y} ${Cx},${m.By} C${mir(m.c3x)},${m.c3y} ${Lx},${m.Ty+m.gap} ${Lx},${m.Ty+m.gap} V${m.Ty} Z`
-    },
-
-    // ─── EXTRAS ──────────────────────────────────
-
-    get blushOpacity() {
-      const map: Record<string, number> = {
-        happy: 0.75,
-        excited: 0.75,
-      }
-      return map[this.mood] || 0
-    },
-
-    get tearOpacity() {
-      return this.mood === 'sad' ? 0.8 : this.mood === 'tired' ? 0.4 : 0
-    },
-  }))
+    Alpine.data('gameCharacter', createCharacterStore)
   })
 </script>
-
-<style>
-  .character-svg * {
-    transition: transform 0.3s ease, opacity 0.3s ease;
-  }
-
-  /* ─── Body bounce (translate-only — no scale on body/face/arms) ─ */
-  @keyframes bounce-soft {
-    0%, 100% { transform: translateY(0); }
-    20%      { transform: translateY(2px); }   /* anticipation dip */
-    55%      { transform: translateY(-10px); } /* airborne peak */
-    82%      { transform: translateY(2px); }   /* landing absorb */
-  }
-  .animate-bounce-soft {
-    animation: bounce-soft 0.9s ease-in-out infinite;
-  }
-
-  /* ─── Idle arm sway ──────────────────────────── */
-  @keyframes arm-idle-left {
-    0%, 100% { transform: rotate(0deg); }
-    50% { transform: rotate(3deg); }
-  }
-  .animate-arm-idle-left {
-    animation: arm-idle-left 4s ease-in-out infinite;
-    transform-origin: 40px 115px;
-  }
-
-  @keyframes arm-idle-right {
-    0%, 100% { transform: rotate(0deg); }
-    50% { transform: rotate(-3deg); }
-  }
-  .animate-arm-idle-right {
-    animation: arm-idle-right 4s ease-in-out infinite;
-    transform-origin: 220px 115px;
-  }
-
-  /* ─── Happy arm sway (wider + faster than idle) ── */
-  @keyframes arm-happy-left {
-    0%, 100% { transform: rotate(-8deg); }
-    50%      { transform: rotate(12deg); }
-  }
-  .animate-arm-happy-left {
-    animation: arm-happy-left 1.4s ease-in-out infinite;
-    transform-origin: 40px 115px;
-  }
-
-  @keyframes arm-happy-right {
-    0%, 100% { transform: rotate(8deg); }
-    50%      { transform: rotate(-12deg); }
-  }
-  .animate-arm-happy-right {
-    animation: arm-happy-right 1.4s ease-in-out infinite;
-    transform-origin: 220px 115px;
-  }
-
-  /* ─── Idle blink ──────────────────────────────── */
-  @keyframes blink {
-    0%, 90%, 96%, 100% { transform: scaleY(1); }
-    93% { transform: scaleY(0.1); }
-  }
-  .animate-blink {
-    animation: blink 4s ease-in-out infinite;
-  }
-
-  /* ─── Idle breathing ──────────────────────────── */
-  @keyframes breathe {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-3px); }
-  }
-  .animate-breathe {
-    animation: breathe 4s ease-in-out infinite;
-  }
-
-  /* ─── Excited arm bob (hands-on-head, up/down) ─── */
-  @keyframes arm-excited-bob {
-    0%, 100% { transform: translateY(0); }
-    50%      { transform: translateY(-10px); }
-  }
-  .animate-arm-excited-bob {
-    animation: arm-excited-bob 0.5s ease-in-out infinite;
-  }
-
-  /* ─── Arm surprise (hands-on-head swing-up) ───── */
-  @keyframes arm-surprise-left {
-    0%   { transform: rotate(-60deg) translate(15px, 50px); opacity: 0.6; }
-    100% { transform: rotate(0deg)   translate(0, 0);       opacity: 1;   }
-  }
-  .animate-arm-surprise-left {
-    animation: arm-surprise-left 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
-    transform-origin: 40px 115px;
-  }
-  @keyframes arm-surprise-right {
-    0%   { transform: rotate(60deg) translate(-15px, 50px); opacity: 0.6; }
-    100% { transform: rotate(0deg)  translate(0, 0);        opacity: 1;   }
-  }
-  .animate-arm-surprise-right {
-    animation: arm-surprise-right 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
-    transform-origin: 220px 115px;
-  }
-
-  /* ─── Arm thinking (swing-in counter-clockwise + slow head scratch) ───── */
-  @keyframes arm-think-in-right {
-    0%   { transform: rotate(40deg) translateY(20px); }
-    100% { transform: rotate(0deg); }
-  }
-  @keyframes arm-think-scratch-right {
-    0%, 100% { transform: rotate(0deg); }
-    50%      { transform: rotate(-4deg); }
-  }
-  .animate-arm-think-right {
-    animation:
-      arm-think-in-right 0.7s ease-in-out both,
-      arm-think-scratch-right 1.85s ease-in-out 0.7s infinite;
-    transform-origin: 220px 115px;
-  }
-
-  /* ─── Spin (interactive tap) ──────────────────── */
-  @keyframes character-spin-once {
-    0%   { transform: rotate(0deg)   scale(1); }
-    50%  { transform: rotate(180deg) scale(1.1); }
-    100% { transform: rotate(360deg) scale(1); }
-  }
-  .animate-spin-once {
-    animation: character-spin-once 0.8s cubic-bezier(0.35, 0, 0.25, 1);
-    transform-origin: 50% 60%;
-  }
-
-  /* ─── Jump (anticipation → physical airtime → impact) ─── */
-  /* Linear timing with asymmetric stops mimics y(t) = v·t − ½·g·t² */
-  @keyframes jump-body {
-    0%   { transform: translateY(0)     scaleY(1);    }
-    8%   { transform: translateY(2px)   scaleY(0.98); }
-    15%  { transform: translateY(6px)   scaleY(0.92); } /* deepest squat */
-    22%  { transform: translateY(-15px) scaleY(1.05); } /* lift-off, stretch */
-    35%  { transform: translateY(-44px) scaleY(1.02); }
-    50%  { transform: translateY(-50px) scaleY(1);    } /* apex (hover) */
-    65%  { transform: translateY(-44px) scaleY(1.02); }
-    78%  { transform: translateY(-15px) scaleY(1.05); }
-    85%  { transform: translateY(5px)   scaleY(0.94); } /* impact */
-    93%  { transform: translateY(2px)   scaleY(0.98); }
-    100% { transform: translateY(0)     scaleY(1);    }
-  }
-  .character-svg.is-jumping {
-    animation: jump-body 0.95s linear both;
-    transform-origin: 50% 100%;
-  }
-
-  @keyframes jump-leg-left {
-    0%, 100% { transform: rotate(0deg)  translate(0, 0);   }
-    12%      { transform: rotate(6deg)  translate(0, 4px); } /* squat bend */
-    25%      { transform: rotate(0deg)  translate(0, 0);   } /* lift-off straight */
-    50%      { transform: rotate(2deg)  translate(0, 0);   }
-    90%      { transform: rotate(4deg)  translate(0, 2px); } /* landing soft */
-  }
-  @keyframes jump-leg-right {
-    0%, 100% { transform: rotate(0deg)  translate(0, 0);   }
-    12%      { transform: rotate(-6deg) translate(0, 4px); }
-    25%      { transform: rotate(0deg)  translate(0, 0);   }
-    50%      { transform: rotate(-2deg) translate(0, 0);   }
-    90%      { transform: rotate(-4deg) translate(0, 2px); }
-  }
-  .is-jumping .char-leg-left  { animation: jump-leg-left  0.95s linear both; }
-  .is-jumping .char-leg-right { animation: jump-leg-right 0.95s linear both; }
-
-  @keyframes jump-foot-left {
-    0%, 100% { transform: rotate(0deg)   translate(0, 0);   }
-    12%      { transform: rotate(6deg)   translate(0, 4px); }
-    35%      { transform: rotate(-12deg) translate(0, 0);   } /* relaxed in air */
-    65%      { transform: rotate(-12deg) translate(0, 0);   }
-    90%      { transform: rotate(4deg)   translate(0, 2px); }
-  }
-  @keyframes jump-foot-right {
-    0%, 100% { transform: rotate(0deg)  translate(0, 0);   }
-    12%      { transform: rotate(-6deg) translate(0, 4px); }
-    35%      { transform: rotate(12deg) translate(0, 0);   }
-    65%      { transform: rotate(12deg) translate(0, 0);   }
-    90%      { transform: rotate(-4deg) translate(0, 2px); }
-  }
-  .is-jumping .char-foot-left  { animation: jump-foot-left  0.95s linear both; }
-  .is-jumping .char-foot-right { animation: jump-foot-right 0.95s linear both; }
-
-  /* ─── Excited: jump mechanism on loop ─────────── */
-  .character-svg.animate-jump-loop {
-    animation: jump-body 0.95s linear infinite;
-    transform-origin: 50% 100%;
-  }
-  .animate-jump-loop .char-leg-left   { animation: jump-leg-left   0.95s linear infinite; }
-  .animate-jump-loop .char-leg-right  { animation: jump-leg-right  0.95s linear infinite; }
-  .animate-jump-loop .char-foot-left  { animation: jump-foot-left  0.95s linear infinite; }
-  .animate-jump-loop .char-foot-right { animation: jump-foot-right 0.95s linear infinite; }
-
-  /* ─── Mouth grin (happy entry) ─────────────────── */
-  @keyframes mouth-grin {
-    0%   { transform: scale(0.6); }
-    55%  { transform: scale(1.15); }
-    100% { transform: scale(1); }
-  }
-  .animate-mouth-grin {
-    animation: mouth-grin 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) both,
-               mouth-grin-loop 2.4s ease-in-out 0.55s infinite;
-    transform-origin: 130px 145px;
-    transform-box: view-box;
-  }
-  @keyframes mouth-grin-loop {
-    0%, 100% { transform: scale(1); }
-    50%      { transform: scale(1.06); }
-  }
-
-  /* ─── Pupil sparkle (excited) ─────────────────── */
-  @keyframes pupil-sparkle {
-    0%, 100% { opacity: 1; }
-    40% { opacity: 0.3; }
-    60% { opacity: 0.2; }
-  }
-  .animate-pupil-sparkle {
-    animation: pupil-sparkle 0.8s ease-in-out infinite;
-  }
-</style>

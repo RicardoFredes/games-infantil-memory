@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./character.css";
 @plugin "daisyui";
 
 @plugin "daisyui/theme" {
