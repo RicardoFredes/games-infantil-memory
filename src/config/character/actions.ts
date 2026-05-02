@@ -4,11 +4,8 @@ export const actions: ActionsConfig = {
   jump: {
     durationMs: 950,
     vibrateMs: 20,
-    armTransform: {
-      left:  { rotate: -8, translateX:  6 },
-      right: { rotate:  8, translateX: -6 },
-    },
-    bodyAnim: 'jump-once',
+    peakY: -50,
+    squatY: 6,
   },
   wink: {
     durationMs: 600,

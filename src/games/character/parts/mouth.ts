@@ -4,7 +4,6 @@ import {
   mouthLiteralPresets,
   type MouthParametric,
 } from '@/config/character/poses'
-import { mouthAnims, type MouthAnimName } from '@/config/character/animations'
 
 const Lx = 101, Rx = 157, Cx = 130
 const mir = (v: number) => 2 * Cx - v
@@ -22,7 +21,7 @@ function ovalPath(cx: number, cy: number, rx: number, ry: number): string {
   return `M${cx - rx},${cy} a${rx},${ry} 0 1,0 ${rx * 2},0 a${rx},${ry} 0 1,0 ${-rx * 2},0 Z`
 }
 
-export function resolveMouth(spec: MouthSpec): MouthBindings {
+export function resolveMouth(spec: MouthSpec, grinScale: number): MouthBindings {
   const pose = spec.pose as keyof typeof mouthParametricPresets | keyof typeof mouthLiteralPresets
 
   let pathD: string
@@ -34,6 +33,9 @@ export function resolveMouth(spec: MouthSpec): MouthBindings {
     pathD = parametricToPath(preset)
   }
 
-  const animClass = spec.anim ? (mouthAnims[spec.anim as MouthAnimName] ?? '') : ''
-  return { pathD, animClass }
+  // Grin scale aplicado via transform no path (origem no centro da boca).
+  return {
+    pathD,
+    transformAttr: grinScale === 1 ? '' : `scale(${grinScale})`,
+  }
 }

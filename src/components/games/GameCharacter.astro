@@ -26,7 +26,6 @@ const colors = characterPalettes[palette];
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
     class="character-svg"
-    :class="bodyBindings.bodyAnimClass"
   >
     <defs>
       <radialGradient id={`skinGrad-${palette}`} cx="40%" cy="35%" r="60%">
@@ -43,49 +42,44 @@ const colors = characterPalettes[palette];
       </radialGradient>
     </defs>
 
-    <!-- ===== LEGS (behind body — fixed, no breathing) ===== -->
+    <!-- ===== LEGS (behind body) ===== -->
 
     <g transform="translate(0, -3)">
-      <g :transform="legLeftBindings.transformAttr" class="char-leg-left" style="transform-origin: 95px 210px;">
+      <g :transform="legLeftBindings.transformAttr" style="transform-origin: 95px 210px;">
         <path d="M95.4745 203.5C94.4745 211.833 92.5745 230.4 92.9745 238C93.3745 245.6 93.1411 250.833 92.9745 252.5"
           stroke={colors.limbs} stroke-width="21" stroke-linecap="round"/>
       </g>
     </g>
 
-    <g :transform="footLeftBindings.transformAttr" class="char-foot-left" style="transform-origin: 95px 255px;">
+    <g :transform="footLeftBindings.transformAttr" style="transform-origin: 95px 255px;">
       <path d="M83.4745 245C97.8339 245 109.474 251.132 109.474 258.696C109.474 259.454 108.798 260 108.033 260H58.9162C58.1505 260 57.4745 259.454 57.4745 258.696C57.4745 251.132 69.1151 245 83.4745 245Z"
         fill={colors.limbs}/>
     </g>
 
     <g transform="translate(0, -3)">
-      <g :transform="legRightBindings.transformAttr" class="char-leg-right" style="transform-origin: 165px 210px;">
+      <g :transform="legRightBindings.transformAttr" style="transform-origin: 165px 210px;">
         <path d="M165.474 203.5C166.474 211.833 168.374 230.4 167.974 238C167.574 245.6 167.808 250.833 167.974 252.5"
           stroke={colors.limbs} stroke-width="21" stroke-linecap="round"/>
       </g>
     </g>
 
-    <g :transform="footRightBindings.transformAttr" class="char-foot-right" style="transform-origin: 165px 255px;">
+    <g :transform="footRightBindings.transformAttr" style="transform-origin: 165px 255px;">
       <path d="M177.474 245C163.115 245 151.474 251.132 151.474 258.696C151.474 259.454 152.151 260 152.916 260H202.033C202.798 260 203.474 259.454 203.474 258.696C203.474 251.132 191.834 245 177.474 245Z"
         fill={colors.limbs}/>
     </g>
 
-    <!-- Breathing wrapper (idle) -->
-    <g :class="bodyBindings.breathClass">
+    <!-- Body wrapper (breathing + jump deslocam translateY) -->
+    <g :transform="bodyBindings.transformAttr">
 
-    <!-- ===== ARMS (behind head — when arms are NOT over head) ===== -->
+    <!-- ===== ARMS (atrás da cabeça) ===== -->
     <g x-show="!armsOverHead">
-      <g :class="armLeftBindings.animClass">
-        <g :transform="armLeftBindings.transformAttr" style="transform-origin: 40px 115px;">
-          <path :d="armLeftBindings.strokePath" stroke={colors.limbs} stroke-width="21" stroke-linecap="round"/>
-          <path :d="armLeftBindings.handPath" fill={colors.limbs}/>
-        </g>
+      <g :transform="armLeftBindings.transformAttr" style="transform-origin: 40px 115px;">
+        <path :d="armLeftBindings.strokePath" stroke={colors.limbs} stroke-width="21" stroke-linecap="round"/>
+        <path :d="armLeftBindings.handPath" fill={colors.limbs}/>
       </g>
-
-      <g :class="armRightBindings.animClass">
-        <g :transform="armRightBindings.transformAttr" style="transform-origin: 220px 115px;">
-          <path :d="armRightBindings.strokePath" stroke={colors.limbs} stroke-width="21" stroke-linecap="round"/>
-          <path :d="armRightBindings.handPath" fill={colors.limbs}/>
-        </g>
+      <g :transform="armRightBindings.transformAttr" style="transform-origin: 220px 115px;">
+        <path :d="armRightBindings.strokePath" stroke={colors.limbs} stroke-width="21" stroke-linecap="round"/>
+        <path :d="armRightBindings.handPath" fill={colors.limbs}/>
       </g>
     </g>
 
@@ -97,11 +91,9 @@ const colors = characterPalettes[palette];
     <!-- Right eye open -->
     <g :style="`transform: scaleY(${eyeRightBindings.openOpacity}); transform-origin: 161.474px 97px; transition: transform 0.18s cubic-bezier(0.4, 0, 0.6, 1), opacity 0.15s ease;`"
        :opacity="eyeRightBindings.openOpacity">
-      <g :class="eyeRightBindings.blinkClass" style="transform-origin: 161.474px 97px">
-        <g :transform="eyeRightBindings.shapeTransform" style="transform-origin: 161.474px 97px;">
-          <circle cx="161.474" cy="97" r="10" fill="black"/>
-          <circle cx="161.474" cy="97" r="2" fill={`url(#eyeHighlight-${palette})`} :class="eyeRightBindings.pupilClass"/>
-        </g>
+      <g :transform="eyeRightBindings.shapeTransform" style="transform-origin: 161.474px 97px;">
+        <circle cx="161.474" cy="97" r="10" fill="black"/>
+        <circle cx="161.474" cy="97" r="2" fill={`url(#eyeHighlight-${palette})`} :opacity="pupilOpacity"/>
       </g>
     </g>
     <g :style="`transform: scaleY(${eyeRightBindings.closedOpacity}); transform-origin: 161.474px 97px; transition: transform 0.18s cubic-bezier(0.4, 0, 0.6, 1), opacity 0.15s ease;`"
@@ -112,11 +104,9 @@ const colors = characterPalettes[palette];
     <!-- Left eye open -->
     <g :style="`transform: scaleY(${eyeLeftBindings.openOpacity}); transform-origin: 99.4745px 97px; transition: transform 0.18s cubic-bezier(0.4, 0, 0.6, 1), opacity 0.15s ease;`"
        :opacity="eyeLeftBindings.openOpacity">
-      <g :class="eyeLeftBindings.blinkClass" style="transform-origin: 99.4745px 97px">
-        <g :transform="eyeLeftBindings.shapeTransform" style="transform-origin: 99.4745px 97px;">
-          <circle cx="99.4745" cy="97" r="10" fill="black"/>
-          <circle cx="99.4745" cy="97" r="2" fill={`url(#eyeHighlight-${palette})`} :class="eyeLeftBindings.pupilClass"/>
-        </g>
+      <g :transform="eyeLeftBindings.shapeTransform" style="transform-origin: 99.4745px 97px;">
+        <circle cx="99.4745" cy="97" r="10" fill="black"/>
+        <circle cx="99.4745" cy="97" r="2" fill={`url(#eyeHighlight-${palette})`} :opacity="pupilOpacity"/>
       </g>
     </g>
     <g :style="`transform: scaleY(${eyeLeftBindings.closedOpacity}); transform-origin: 99.4745px 97px; transition: transform 0.18s cubic-bezier(0.4, 0, 0.6, 1), opacity 0.15s ease;`"
@@ -130,7 +120,8 @@ const colors = characterPalettes[palette];
 
     <!-- Mouth -->
     <path :d="mouthBindings.pathD" fill="black" stroke="black" stroke-width="1"
-      :class="mouthBindings.animClass"/>
+      :transform="mouthBindings.transformAttr"
+      style="transform-origin: 130px 145px; transform-box: view-box;"/>
 
     <!-- Left eyebrow -->
     <path :d="eyebrowLeftBindings.pathD" stroke="black" stroke-width="3" stroke-linecap="round" fill="none"
@@ -150,25 +141,20 @@ const colors = characterPalettes[palette];
     <path d="M55 102 Q58 112 55 118 Q52 112 55 102Z" fill="#88CCFF" :opacity="tearOpacity"/>
     <path d="M206 102 Q209 112 206 118 Q203 112 206 102Z" fill="#88CCFF" :opacity="tearOpacity"/>
 
-    <!-- ===== ARMS (in front of head — when arms ARE over head) ===== -->
+    <!-- ===== ARMS (na frente da cabeça) ===== -->
     <g x-show="armsOverHead">
-      <g :class="armLeftBindings.animClass">
-        <g :transform="armLeftBindings.transformAttr" style="transform-origin: 40px 115px;">
-          <path :d="armLeftBindings.strokePath" stroke={colors.limbs} stroke-width="21" stroke-linecap="round"/>
-          <path :d="armLeftBindings.handPath" fill={colors.limbs}/>
-        </g>
+      <g :transform="armLeftBindings.transformAttr" style="transform-origin: 40px 115px;">
+        <path :d="armLeftBindings.strokePath" stroke={colors.limbs} stroke-width="21" stroke-linecap="round"/>
+        <path :d="armLeftBindings.handPath" fill={colors.limbs}/>
       </g>
-
-      <g :class="armRightBindings.animClass">
-        <g :transform="armRightBindings.transformAttr" style="transform-origin: 220px 115px;">
-          <path :d="armRightBindings.strokePath" stroke={colors.limbs} stroke-width="21" stroke-linecap="round"/>
-          <path :d="armRightBindings.handPath" fill={colors.limbs}/>
-        </g>
+      <g :transform="armRightBindings.transformAttr" style="transform-origin: 220px 115px;">
+        <path :d="armRightBindings.strokePath" stroke={colors.limbs} stroke-width="21" stroke-linecap="round"/>
+        <path :d="armRightBindings.handPath" fill={colors.limbs}/>
       </g>
     </g>
 
     </g>
-    <!-- end breathing wrapper -->
+    <!-- end body wrapper -->
   </svg>
 </div>
 

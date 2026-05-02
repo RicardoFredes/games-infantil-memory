@@ -1,6 +1,7 @@
 // Tipos centrais do sistema de personagem.
-// Cada parte do corpo é resolvida a partir de um conjunto de "movimentos"
-// (pose, transform, anim, opacidade) declarados em modos (composições).
+// Cada parte é descrita por uma pose (path SVG) + transform (números).
+// Animações cíclicas e one-shots são todas tocadas via anime.js,
+// escrevendo em offsets dedicados do AnimState.
 
 export type Side = 'left' | 'right'
 
@@ -17,13 +18,10 @@ export interface Transform2D {
 export interface ArmSpec {
   pose: string
   transform: Transform2D
-  anim: string | null
 }
 
 export interface EyeSpec {
   shape: { x: number; y: number }
-  blinkAnim: boolean
-  pupilAnim: string | null
 }
 
 export interface EyebrowSpec {
@@ -33,12 +31,9 @@ export interface EyebrowSpec {
 
 export interface MouthSpec {
   pose: string
-  anim: string | null
 }
 
 export interface BodySpec {
-  breathe: boolean
-  anim: string | null
   armsOverHead: boolean
 }
 
@@ -48,6 +43,23 @@ export interface LegSpec {
 
 export interface NoseSpec {
   transform: Transform2D
+}
+
+// ─── Cycle: define como anime.js anima offsets de uma parte ──
+
+export interface CycleConfig {
+  /** Idle sway: rotação cíclica dos braços (mood-dependent). */
+  armSway?:    { amplitude: number; durationMs: number }
+  /** Bob vertical (excited / hands-on-head). */
+  armBob?:     { amplitude: number; durationMs: number }
+  /** Pupila piscando/brilhando (excited). */
+  pupilSparkle?: { durationMs: number }
+  /** Mouth grin pulsante (happy / excited). */
+  mouthGrin?:  { durationMs: number }
+  /** Body jump em loop (excited). */
+  bodyJumpLoop?: boolean
+  /** Sobrancelha pensando — escala leve. */
+  thinking?:   { durationMs: number }
 }
 
 // ─── Modo (composição) ────────────────────────────────────────
@@ -66,6 +78,7 @@ export interface ModeConfig {
   nose: NoseSpec
   blush: number
   tears: number
+  cycles: CycleConfig
 }
 
 export type ModeName =
@@ -77,8 +90,10 @@ export type ModeName =
 export interface JumpAction {
   durationMs: number
   vibrateMs: number
-  armTransform: { left: Transform2D; right: Transform2D }
-  bodyAnim: string
+  /** Pico vertical do salto (negativo = sobe). */
+  peakY: number
+  /** Compressão (squat) na descolagem e pouso. */
+  squatY: number
 }
 
 export interface WinkAction { durationMs: number }
@@ -96,15 +111,12 @@ export interface ArmBindings {
   strokePath: string
   handPath: string
   transformAttr: string
-  animClass: string
 }
 
 export interface EyeBindings {
   closedOpacity: number
   openOpacity: number
   shapeTransform: string
-  blinkClass: string
-  pupilClass: string
 }
 
 export interface EyebrowBindings {
@@ -114,12 +126,11 @@ export interface EyebrowBindings {
 
 export interface MouthBindings {
   pathD: string
-  animClass: string
+  transformAttr: string
 }
 
 export interface BodyBindings {
-  breathClass: string
-  bodyAnimClass: string
+  transformAttr: string
 }
 
 export interface LegBindings {
