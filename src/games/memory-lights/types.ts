@@ -1,7 +1,8 @@
-export interface NoteStep {
-  note: string;
-  duration: string;
-}
+import type { NoteStep } from '@/lib/audio';
+import type { ScoringConfig, StarLevel } from '@/lib/scoring';
+
+export type { NoteStep };
+export type { ScoringConfig, StarLevel };
 
 export interface LightConfig {
   id: string;
@@ -27,25 +28,13 @@ export interface DifficultyLevel {
   gapDuration: number;
 }
 
-export interface ScoringConfig {
-  basePoints: number;
-  bonusAboveSteps: number;
-  bonusAbovePoints: number;
-  streakThreshold: number;
-  streakBonus: number;
-  maxScore: number;
-}
-
-export interface StarLevel {
-  threshold: number;
-  count: number;
-}
-
 export interface TimingConfig {
   countdownDuration: number;
   celebrationDuration: number;
   wrongFlashDuration: number;
   wrongFlashCount: number;
+  timerStepBaseMs: number;
+  timerStepMinMs: number;
 }
 
 export interface BehaviorConfig {
@@ -56,21 +45,12 @@ export interface BehaviorConfig {
   enableTimer: boolean;
 }
 
-export interface TimingConfig {
-  countdownDuration: number;
-  celebrationDuration: number;
-  wrongFlashDuration: number;
-  wrongFlashCount: number;
-  timerStepBaseMs: number;
-  timerStepMinMs: number;
-}
-
 export interface ThemeConfig {
   backgroundGradient: string;
   fontFamily: string;
 }
 
-export interface GameMeta {
+export interface GameConfigMeta {
   id: string;
   name: string;
   description: string;
@@ -79,7 +59,7 @@ export interface GameMeta {
 }
 
 export interface MemoryLightsConfig {
-  meta: GameMeta;
+  meta: GameConfigMeta;
   lights: LightConfig[];
   audio: AudioConfig;
   difficulty: DifficultyLevel[];
@@ -88,4 +68,27 @@ export interface MemoryLightsConfig {
   timing: TimingConfig;
   behavior: BehaviorConfig;
   theme: ThemeConfig;
+}
+
+export type GameState =
+  | 'IDLE'
+  | 'SHOWING_SEQUENCE'
+  | 'WAITING_INPUT'
+  | 'CHECKING'
+  | 'CORRECT'
+  | 'WRONG'
+  | 'CELEBRATING'
+  | 'COUNTDOWN';
+
+export interface AppState {
+  score: number;
+  stars: number;
+  round: number;
+  gameState: GameState;
+  activeLight: number | null;
+  message: string;
+  showCountdown: boolean;
+  showCelebration: boolean;
+  sequenceDisplay: number[];
+  earnedPoints: number;
 }

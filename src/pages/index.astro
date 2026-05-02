@@ -1,9 +1,9 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import gamesConfig from '@/config/games.json';
+import { games } from '@/games/registry';
 
-const enabled = gamesConfig.games.filter(g => g.enabled);
-const categories = [...new Set(enabled.map(g => g.category))];
+const enabled = games.filter((g) => g.enabled);
+const categories = [...new Set(enabled.map((g) => g.category))];
 ---
 
 <BaseLayout>
@@ -18,7 +18,7 @@ const categories = [...new Set(enabled.map(g => g.category))];
 
     <div class="w-full max-w-md space-y-8">
       {
-        categories.map(category => (
+        categories.map((category) => (
           <section>
             <div class="flex items-center gap-2 mb-3">
               <span class="w-2 h-2 rounded-full bg-purple-400"></span>
@@ -26,7 +26,7 @@ const categories = [...new Set(enabled.map(g => g.category))];
             </div>
             <div class="space-y-3">
               {
-                enabled.filter(g => g.category === category).map(game => (
+                enabled.filter((g) => g.category === category).map((game) => (
                   <a
                     href={game.route}
                     data-game-launch
@@ -37,14 +37,25 @@ const categories = [...new Set(enabled.map(g => g.category))];
                   >
                     <div class="flex items-center gap-4">
                       <div
-                        class="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl shadow-sm flex-shrink-0"
+                        class="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl shadow-sm flex-shrink-0 overflow-hidden bg-cover bg-center"
                         style={`background: linear-gradient(135deg, ${game.color}18, ${game.color}33)`}
                       >
-                        {game.icon}
+                        {game.image ? (
+                          <img
+                            src={game.image}
+                            alt={game.title}
+                            loading="lazy"
+                            class="w-full h-full object-cover"
+                            onerror="this.replaceWith(Object.assign(document.createElement('span'),{textContent:this.dataset.fallback,className:'text-3xl'}))"
+                            data-fallback={game.icon}
+                          />
+                        ) : (
+                          <span>{game.icon}</span>
+                        )}
                       </div>
                       <div class="flex-1 min-w-0">
-                        <h3 class="text-lg font-extrabold text-purple-800 truncate">{game.name}</h3>
-                        <p class="text-xs text-purple-500/70 mt-0.5 line-clamp-2">{game.description}</p>
+                        <h3 class="text-lg font-extrabold text-purple-800 truncate">{game.title}</h3>
+                        <p class="text-xs text-purple-500/70 mt-0.5 line-clamp-2">{game.subtitle}</p>
                         <div class="flex items-center gap-2 mt-2">
                           <span class="badge badge-xs badge-outline border-purple-300 text-purple-500">
                             {game.ageRange[0]}-{game.ageRange[1]} anos

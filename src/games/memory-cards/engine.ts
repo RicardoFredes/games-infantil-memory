@@ -1,4 +1,5 @@
 import type { MemoryCardsConfig, CardData, CardsGameState } from './types';
+import type { GameEngine } from '@/lib/game-engine';
 import {
   initAudio,
   playCardMatch,
@@ -10,6 +11,7 @@ import {
 } from '@/lib/audio';
 import { ConfettiSystem } from '@/lib/confetti';
 import { createInitialState, getStars, type ScoreState } from '@/lib/scoring';
+import { loadGameState, saveGameState, clearGameState } from '@/lib/storage';
 
 function emit(name: string, detail?: unknown) {
   const kebab = name.replace(/[A-Z]/g, (m) => '-' + m.toLowerCase());
@@ -25,7 +27,8 @@ function shuffle<T>(arr: T[]): T[] {
   return a;
 }
 
-export class MemoryCardsEngine {
+export class MemoryCardsEngine implements GameEngine<MemoryCardsConfig, { cards: CardData[]; gameState: CardsGameState }> {
+  readonly id: string;
   private config: MemoryCardsConfig;
   private confetti: ConfettiSystem | null = null;
   private scoreState: ScoreState;
@@ -42,7 +45,8 @@ export class MemoryCardsEngine {
 
   constructor(config: MemoryCardsConfig, confettiCanvas?: HTMLCanvasElement) {
     this.config = config;
-    this.scoreState = loadPersistedState(config.meta.id) ?? createInitialState();
+    this.id = config.meta.id;
+    this.scoreState = loadGameState<ScoreState>(config.meta.id) ?? createInitialState();
     this.round = this.scoreState.round || 1;
     if (confettiCanvas) {
       this.confetti = new ConfettiSystem(confettiCanvas);
@@ -153,7 +157,7 @@ export class MemoryCardsEngine {
       this.config.scoring.maxScore,
     );
     this.scoreState.totalCorrect++;
-    savePersistedState(this.config.meta.id, this.scoreState);
+    saveGameState(this.config.meta.id, this.scoreState);
 
     playCardMatch(this.config.audio.volume);
 
@@ -188,7 +192,7 @@ export class MemoryCardsEngine {
     this.gameState = 'WIN';
     this.round++;
     this.scoreState.round = this.round;
-    savePersistedState(this.config.meta.id, this.scoreState);
+    saveGameState(this.config.meta.id, this.scoreState);
 
     playCardWin(this.config.audio.volume);
     playConfettiSfx();
@@ -204,9 +208,7 @@ export class MemoryCardsEngine {
 
   resetHistory(): void {
     if (this.winTimer) clearTimeout(this.winTimer);
-    try {
-      localStorage.removeItem(`memory-game-${this.config.meta.id}-state`);
-    } catch {}
+    clearGameState(this.config.meta.id);
     this.scoreState = createInitialState();
     this.round = 1;
     this.firstCard = null;
@@ -253,18 +255,3 @@ export class MemoryCardsEngine {
   }
 }
 
-function loadPersistedState(gameId: string): ScoreState | null {
-  try {
-    const raw = localStorage.getItem(`memory-game-${gameId}-state`);
-    if (!raw) return null;
-    return JSON.parse(raw) as ScoreState;
-  } catch {
-    return null;
-  }
-}
-
-function savePersistedState(gameId: string, state: ScoreState): void {
-  try {
-    localStorage.setItem(`memory-game-${gameId}-state`, JSON.stringify(state));
-  } catch {}
-}

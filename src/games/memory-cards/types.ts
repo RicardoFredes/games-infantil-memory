@@ -1,3 +1,7 @@
+import type { StarLevel } from '@/lib/scoring';
+
+export type { StarLevel };
+
 export interface CardImage {
   src: string;
   label: string;
@@ -14,11 +18,6 @@ export interface ScoringConfig {
   streakThreshold: number;
   streakBonus: number;
   maxScore: number;
-}
-
-export interface StarLevel {
-  threshold: number;
-  count: number;
 }
 
 export interface AudioConfig {

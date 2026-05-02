@@ -1,7 +1,8 @@
-import type { MemoryLightsConfig } from './types';
-import type { GameState, AppState } from '@/types';
+import type { MemoryLightsConfig, GameState, AppState } from './types';
+import type { GameEngine } from '@/lib/game-engine';
 import { generateSequence, getDifficultySteps, getDifficultyTiming } from './sequencer';
 import { calculateScore, resetStreak, getStars, createInitialState, type ScoreState } from '@/lib/scoring';
+import { loadGameState, saveGameState, clearGameState } from '@/lib/storage';
 import { initAudio, playNote, playSequence, playTap, playPop, playConfettiSfx, startBackgroundMusic, stopBackgroundMusic, playTimeoutSfx } from '@/lib/audio';
 import { ConfettiSystem } from '@/lib/confetti';
 
@@ -10,7 +11,8 @@ function emit(name: string, detail?: unknown) {
   window.dispatchEvent(new CustomEvent(`ml:${kebab}`, { detail }));
 }
 
-export class MemoryLightsEngine {
+export class MemoryLightsEngine implements GameEngine<MemoryLightsConfig, AppState> {
+  readonly id: string;
   private config: MemoryLightsConfig;
   private confetti: ConfettiSystem | null = null;
   private scoreState: ScoreState;
@@ -31,7 +33,8 @@ export class MemoryLightsEngine {
 
   constructor(config: MemoryLightsConfig, confettiCanvas?: HTMLCanvasElement) {
     this.config = config;
-    this.scoreState = loadPersistedState(config.meta.id) ?? createInitialState();
+    this.id = config.meta.id;
+    this.scoreState = loadGameState<ScoreState>(config.meta.id) ?? createInitialState();
     this.round = this.scoreState.round || 1;
 
     if (confettiCanvas) {
@@ -167,7 +170,7 @@ export class MemoryLightsEngine {
       this.confetti.burst();
     }
 
-    savePersistedState(this.config.meta.id, this.scoreState);
+    saveGameState(this.config.meta.id, this.scoreState);
 
     emit('correct', {
       points: this.scoreState.points,
@@ -286,9 +289,7 @@ export class MemoryLightsEngine {
 
   resetHistory(): void {
     this.stopTimer();
-    try {
-      localStorage.removeItem(`memory-game-${this.config.meta.id}-state`);
-    } catch {}
+    clearGameState(this.config.meta.id);
     this.scoreState = createInitialState();
     this.round = 1;
     this.wrongCount = 0;
@@ -392,19 +393,3 @@ export class MemoryLightsEngine {
   }
 }
 
-function loadPersistedState(gameId: string): ScoreState | null {
-  try {
-    const raw = localStorage.getItem(`memory-game-${gameId}-state`);
-    if (!raw) return null;
-    return JSON.parse(raw) as ScoreState;
-  } catch {
-    return null;
-  }
-}
-
-function savePersistedState(gameId: string, state: ScoreState): void {
-  try {
-    localStorage.setItem(`memory-game-${gameId}-state`, JSON.stringify(state));
-  } catch {
-  }
-}
