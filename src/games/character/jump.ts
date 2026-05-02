@@ -35,73 +35,68 @@ export function stopJump(state: AnimState, h: JumpHandles) {
   state.footLeftJumpY = 0; state.footRightJumpY = 0
 }
 
-/** One-shot jump (corpo + pernas + pés). Duração base 950ms. */
-export function playJump(state: AnimState, h: JumpHandles, cfg: JumpAction) {
-  cancel(h.body); cancel(h.legs); cancel(h.feet)
-
-  const total = cfg.durationMs
-
-  // ─── BODY: anticipation → lift → apex → impact → settle ───
-  // Os duration de cada keyframe somam total.
-  // Antecipação: agacha (Y +6, scaleY 0.92) antes de explodir pra cima.
-  // Stretch no lift-off (scaleY 1.05). Apex hover. Squash no impacto.
-  h.body = animate(state, {
-    keyframes: [
-      { bodyJumpY: 0,   bodyScaleY: 1,    duration: 0 },
-      { bodyJumpY: 2,   bodyScaleY: 0.98, duration: total * 0.08 },
-      { bodyJumpY: 6,   bodyScaleY: 0.92, duration: total * 0.07 },  // deepest squat
-      { bodyJumpY: -15, bodyScaleY: 1.05, duration: total * 0.07 },  // lift-off, stretch
-      { bodyJumpY: -44, bodyScaleY: 1.02, duration: total * 0.13 },
-      { bodyJumpY: -50, bodyScaleY: 1,    duration: total * 0.15 },  // apex (hover)
-      { bodyJumpY: -44, bodyScaleY: 1.02, duration: total * 0.15 },
-      { bodyJumpY: -15, bodyScaleY: 1.05, duration: total * 0.13 },
-      { bodyJumpY: 5,   bodyScaleY: 0.94, duration: total * 0.07 },  // impact squash
-      { bodyJumpY: 2,   bodyScaleY: 0.98, duration: total * 0.08 },
-      { bodyJumpY: 0,   bodyScaleY: 1,    duration: total * 0.07 },
-    ],
-    ease: 'linear',
-  })
-
-  // ─── LEGS: agachamento → reta no lift → leve abertura no apex → soft landing
-  h.legs = animate(state, {
-    keyframes: [
-      { legLeftJumpR: 0, legRightJumpR: 0,  legLeftJumpY: 0, legRightJumpY: 0, duration: 0 },
-      { legLeftJumpR: 6, legRightJumpR: -6, legLeftJumpY: 4, legRightJumpY: 4, duration: total * 0.12 },
-      { legLeftJumpR: 0, legRightJumpR: 0,  legLeftJumpY: 0, legRightJumpY: 0, duration: total * 0.13 }, // lift-off
-      { legLeftJumpR: 2, legRightJumpR: -2, legLeftJumpY: 0, legRightJumpY: 0, duration: total * 0.40 }, // mid-air slight
-      { legLeftJumpR: 4, legRightJumpR: -4, legLeftJumpY: 2, legRightJumpY: 2, duration: total * 0.25 }, // landing soft
-      { legLeftJumpR: 0, legRightJumpR: 0,  legLeftJumpY: 0, legRightJumpY: 0, duration: total * 0.10 },
-    ],
-    ease: 'linear',
-  })
-
-  // ─── FEET: divergem das pernas no ar (pendem relaxados ↘ -12°)
-  h.feet = animate(state, {
-    keyframes: [
-      { footLeftJumpR: 0,   footRightJumpR: 0,   footLeftJumpY: 0, footRightJumpY: 0, duration: 0 },
-      { footLeftJumpR: 6,   footRightJumpR: -6,  footLeftJumpY: 4, footRightJumpY: 4, duration: total * 0.12 }, // squat
-      { footLeftJumpR: -12, footRightJumpR: 12,  footLeftJumpY: 0, footRightJumpY: 0, duration: total * 0.23 }, // air relax
-      { footLeftJumpR: -12, footRightJumpR: 12,  footLeftJumpY: 0, footRightJumpY: 0, duration: total * 0.30 }, // hold
-      { footLeftJumpR: 4,   footRightJumpR: -4,  footLeftJumpY: 2, footRightJumpY: 2, duration: total * 0.25 }, // landing
-      { footLeftJumpR: 0,   footRightJumpR: 0,   footLeftJumpY: 0, footRightJumpY: 0, duration: total * 0.10 },
-    ],
-    ease: 'linear',
-  })
+interface JumpKeyframes {
+  body: Array<Record<string, number>>
+  legs: Array<Record<string, number>>
+  feet: Array<Record<string, number>>
 }
 
-/** Body jump-loop em modo excited (mesma curva do one-shot, em loop). */
-export function startBodyJumpLoop(state: AnimState, h: JumpHandles, peakY: number, squatY: number) {
-  cancel(h.body); cancel(h.legs); cancel(h.feet)
-  h.body = animate(state, {
-    keyframes: [
-      { bodyJumpY: 0,        bodyScaleY: 1,    duration: 0 },
-      { bodyJumpY: squatY,   bodyScaleY: 0.92, duration: 150 },
-      { bodyJumpY: peakY,    bodyScaleY: 1.05, duration: 250 },
-      { bodyJumpY: peakY,    bodyScaleY: 1,    duration: 150 },
-      { bodyJumpY: squatY*0.8, bodyScaleY: 0.94, duration: 200 },
-      { bodyJumpY: 0,        bodyScaleY: 1,    duration: 200 },
+function buildJumpKeyframes(total: number, peak: number, squat: number): JumpKeyframes {
+  return {
+    // Body: anticipation → lift → apex (hover) → impact → settle.
+    // Squash 0.92 no agachamento, stretch 1.05 no voo, squash 0.94 no pouso.
+    body: [
+      { bodyJumpY: 0,           bodyScaleY: 1,    duration: 0 },
+      { bodyJumpY: squat * 0.3, bodyScaleY: 0.98, duration: total * 0.08 },
+      { bodyJumpY: squat,       bodyScaleY: 0.92, duration: total * 0.07 }, // deepest squat
+      { bodyJumpY: -15,         bodyScaleY: 1.05, duration: total * 0.07 }, // lift-off stretch
+      { bodyJumpY: peak * 0.88, bodyScaleY: 1.02, duration: total * 0.13 },
+      { bodyJumpY: peak,        bodyScaleY: 1,    duration: total * 0.15 }, // apex hover
+      { bodyJumpY: peak * 0.88, bodyScaleY: 1.02, duration: total * 0.15 },
+      { bodyJumpY: -15,         bodyScaleY: 1.05, duration: total * 0.13 },
+      { bodyJumpY: squat * 0.8, bodyScaleY: 0.94, duration: total * 0.07 }, // impact squash
+      { bodyJumpY: squat * 0.3, bodyScaleY: 0.98, duration: total * 0.08 },
+      { bodyJumpY: 0,           bodyScaleY: 1,    duration: total * 0.07 },
     ],
-    loop: true,
-    ease: 'linear',
-  })
+    // Pernas: agacham junto, retas no lift, leve abertura no apex, soft landing.
+    legs: [
+      { legLeftJumpR: 0, legRightJumpR: 0,  legLeftJumpY: 0, legRightJumpY: 0, duration: 0 },
+      { legLeftJumpR: 6, legRightJumpR: -6, legLeftJumpY: 4, legRightJumpY: 4, duration: total * 0.12 },
+      { legLeftJumpR: 0, legRightJumpR: 0,  legLeftJumpY: 0, legRightJumpY: 0, duration: total * 0.13 },
+      { legLeftJumpR: 2, legRightJumpR: -2, legLeftJumpY: 0, legRightJumpY: 0, duration: total * 0.40 },
+      { legLeftJumpR: 4, legRightJumpR: -4, legLeftJumpY: 2, legRightJumpY: 2, duration: total * 0.25 },
+      { legLeftJumpR: 0, legRightJumpR: 0,  legLeftJumpY: 0, legRightJumpY: 0, duration: total * 0.10 },
+    ],
+    // Pés divergem das pernas no ar (pendem relaxados ↘ -12°).
+    feet: [
+      { footLeftJumpR: 0,   footRightJumpR: 0,   footLeftJumpY: 0, footRightJumpY: 0, duration: 0 },
+      { footLeftJumpR: 6,   footRightJumpR: -6,  footLeftJumpY: 4, footRightJumpY: 4, duration: total * 0.12 },
+      { footLeftJumpR: -12, footRightJumpR: 12,  footLeftJumpY: 0, footRightJumpY: 0, duration: total * 0.23 },
+      { footLeftJumpR: -12, footRightJumpR: 12,  footLeftJumpY: 0, footRightJumpY: 0, duration: total * 0.30 },
+      { footLeftJumpR: 4,   footRightJumpR: -4,  footLeftJumpY: 2, footRightJumpY: 2, duration: total * 0.25 },
+      { footLeftJumpR: 0,   footRightJumpR: 0,   footLeftJumpY: 0, footRightJumpY: 0, duration: total * 0.10 },
+    ],
+  }
+}
+
+function applyJumpKeyframes(
+  state: AnimState,
+  h: JumpHandles,
+  kf: JumpKeyframes,
+  loop: boolean,
+) {
+  cancel(h.body); cancel(h.legs); cancel(h.feet)
+  h.body = animate(state, { keyframes: kf.body, loop, ease: 'linear' })
+  h.legs = animate(state, { keyframes: kf.legs, loop, ease: 'linear' })
+  h.feet = animate(state, { keyframes: kf.feet, loop, ease: 'linear' })
+}
+
+/** One-shot jump (corpo + pernas + pés). */
+export function playJump(state: AnimState, h: JumpHandles, cfg: JumpAction) {
+  applyJumpKeyframes(state, h, buildJumpKeyframes(cfg.durationMs, cfg.peakY, cfg.squatY), false)
+}
+
+/** Body jump-loop em modo excited — mesma mecânica do one-shot, em loop. */
+export function startBodyJumpLoop(state: AnimState, h: JumpHandles, peakY: number, squatY: number) {
+  applyJumpKeyframes(state, h, buildJumpKeyframes(950, peakY, squatY), true)
 }
