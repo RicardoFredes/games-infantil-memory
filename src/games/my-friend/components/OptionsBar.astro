@@ -1,0 +1,111 @@
+---
+import ColorPalette from './ColorPalette.astro';
+import MoodButtons from './MoodButtons.astro';
+import ActivityButtons from './ActivityButtons.astro';
+
+const tabs = [
+  { id: 'activities', emoji: '🎭', label: 'Atividades' },
+  { id: 'colors',     emoji: '🎨', label: 'Cores' },
+  { id: 'reactions',  emoji: '😊', label: 'Reações' },
+];
+---
+
+<div
+  class="options-bar"
+  style="padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 0.75rem);"
+>
+  <div class="options-panel">
+    <div x-show="activeTab === 'activities'" x-transition.opacity>
+      <ActivityButtons />
+    </div>
+    <div x-show="activeTab === 'colors'" x-transition.opacity>
+      <ColorPalette />
+    </div>
+    <div x-show="activeTab === 'reactions'" x-transition.opacity>
+      <MoodButtons />
+    </div>
+  </div>
+
+  <div class="options-tabs">
+    {
+      tabs.map((t) => (
+        <button
+          type="button"
+          class="options-tab"
+          :class={`activeTab === '${t.id}' ? 'is-active' : ''`}
+          @click={`activeTab = '${t.id}'`}
+          aria-label={t.label}
+        >
+          <span class="options-tab-emoji" aria-hidden="true">{t.emoji}</span>
+          <span class="options-tab-label">{t.label}</span>
+        </button>
+      ))
+    }
+  </div>
+</div>
+
+<style>
+  .options-bar {
+    position: relative;
+    z-index: 20;
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(8px);
+    border-top: 2px solid rgba(124, 58, 237, 0.18);
+  }
+  .options-panel {
+    min-height: clamp(60px, 16vw, 80px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .options-tabs {
+    display: flex;
+    align-items: stretch;
+    justify-content: center;
+    gap: 4px;
+    padding: 4px 8px 8px;
+    border-top: 1px solid rgba(124, 58, 237, 0.12);
+  }
+  .options-tab {
+    flex: 1;
+    max-width: 140px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    padding: 6px 8px;
+    background: transparent;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    color: rgba(60, 30, 90, 0.65);
+    transition: background 0.18s ease, color 0.18s ease, transform 0.15s ease;
+    outline: none;
+  }
+  .options-tab:active { transform: scale(0.95); }
+  .options-tab:hover  { background: rgba(124, 58, 237, 0.08); }
+  .options-tab.is-active {
+    background: rgba(124, 58, 237, 0.18);
+    color: rgba(60, 30, 90, 1);
+  }
+  .options-tab-emoji {
+    font-size: clamp(20px, 5vw, 24px);
+    line-height: 1;
+  }
+  .options-tab-label {
+    font-size: clamp(10px, 2.5vw, 12px);
+    font-weight: 500;
+  }
+
+  /* esconde paddings/bordas duplicados nos painéis filhos */
+  .options-panel :global(.color-palette) {
+    padding-bottom: 0.5rem;
+    padding-top: 0.75rem;
+  }
+  .options-panel :global(.mood-buttons),
+  .options-panel :global(.activity-buttons) {
+    padding-bottom: 0.5rem;
+    padding-top: 0.75rem;
+  }
+</style>

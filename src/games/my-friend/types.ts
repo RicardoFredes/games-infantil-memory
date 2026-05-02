@@ -1,4 +1,5 @@
 import type { CharacterPaletteName } from '@/lib/character-palettes';
+import type { ActivityName } from './activities/types';
 
 export interface GameConfigMeta {
   id: string;
@@ -37,6 +38,7 @@ export interface MyFriendConfig {
 
 export interface MyFriendState {
   palette: CharacterPaletteName;
+  currentActivity?: ActivityName | null;
 }
 
 export interface ZoneTapEvent {

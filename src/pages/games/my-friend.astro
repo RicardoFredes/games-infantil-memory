@@ -1,8 +1,7 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import GameCharacter from '@/components/games/GameCharacter.astro';
-import ColorPalette from '@/games/my-friend/components/ColorPalette.astro';
-import MoodButtons from '@/games/my-friend/components/MoodButtons.astro';
+import OptionsBar from '@/games/my-friend/components/OptionsBar.astro';
 import HitZones from '@/games/my-friend/components/HitZones.astro';
 import config from '@/games/my-friend/config.json';
 import type { MyFriendConfig } from '@/games/my-friend/types';
@@ -39,8 +38,7 @@ const cfg = config as MyFriendConfig;
       <div class="touch-fx" aria-hidden="true"></div>
     </div>
 
-    <MoodButtons />
-    <ColorPalette />
+    <OptionsBar />
 
     <!-- Pause menu -->
     <div
