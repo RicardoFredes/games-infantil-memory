@@ -11,6 +11,18 @@
       "difficulty": "progressivo",
       "color": "#7C3AED",
       "enabled": true
+    },
+    {
+      "id": "memory-cards",
+      "name": "Jogo da Memória",
+      "description": "Encontre os pares de cartas iguais!",
+      "icon": "🃏",
+      "route": "/jogos/memoria",
+      "ageRange": [2, 7],
+      "category": "Memória",
+      "difficulty": "progressivo",
+      "color": "#EC4899",
+      "enabled": true
     }
   ]
 }

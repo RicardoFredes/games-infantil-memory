@@ -1,0 +1,55 @@
+{
+  "meta": {
+    "id": "memory-cards",
+    "name": "Jogo da Memória",
+    "description": "Encontre os pares de cartas iguais!",
+    "version": "1.0.0",
+    "ageRange": [2, 7]
+  },
+  "decks": {
+    "disney": [
+      { "src": "/cards/jose-01.jpg",       "label": "José" },
+      { "src": "/cards/cuquin.jpg",        "label": "Cuquin" },
+      { "src": "/cards/mickey.jpg",        "label": "Mickey" },
+      { "src": "/cards/minnie.webp",       "label": "Minnie" },
+      { "src": "/cards/jose-comilao.webp", "label": "José Comilão" },
+      { "src": "/cards/pluto.jpg",         "label": "Pluto" },
+      { "src": "/cards/donald.webp",       "label": "Donald" },
+      { "src": "/cards/margarida.jpg",     "label": "Margarida" },
+      { "src": "/cards/pateta.jpg",        "label": "Pateta" }
+    ]
+  },
+  "defaultDeck": "disney",
+  "difficulty": [
+    { "rounds": [1, 2],  "pairs": 4, "columns": 2 },
+    { "rounds": [3, 5],  "pairs": 6, "columns": 3 },
+    { "rounds": [6, 99], "pairs": 9, "columns": 3 }
+  ],
+  "scoring": {
+    "matchPoints": 10,
+    "streakThreshold": 3,
+    "streakBonus": 15,
+    "maxScore": 999
+  },
+  "stars": [
+    { "threshold": 0,   "count": 1 },
+    { "threshold": 30,  "count": 2 },
+    { "threshold": 80,  "count": 3 },
+    { "threshold": 150, "count": 4 },
+    { "threshold": 250, "count": 5 }
+  ],
+  "audio": {
+    "volume": -8,
+    "backgroundMusic": "/audio/Coloured_Candles.mp3",
+    "backgroundVolume": -18
+  },
+  "behavior": {
+    "flipBackDelay": 1000,
+    "vibrateOnTouch": true,
+    "showLabels": false
+  },
+  "theme": {
+    "backgroundGradient": "from-purple-200 via-pink-200 to-yellow-200",
+    "cardBack": "/cards/card-back.svg"
+  }
+}

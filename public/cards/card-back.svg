@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#7C3AED"/>
+      <stop offset="100%" stop-color="#4C1D95"/>
+    </linearGradient>
+    <pattern id="diamonds" x="0" y="0" width="22" height="22" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <rect width="22" height="22" fill="none"/>
+      <path d="M0 11 L11 0 L22 11 L11 22 Z" fill="none" stroke="#FCD34D" stroke-width="0.9" opacity="0.55"/>
+      <circle cx="11" cy="11" r="1.4" fill="#FBBF24" opacity="0.75"/>
+    </pattern>
+    <radialGradient id="medallion" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#7C3AED"/>
+      <stop offset="100%" stop-color="#3B0764"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="200" height="200" fill="url(#bg)"/>
+  <rect width="200" height="200" fill="url(#diamonds)"/>
+
+  <rect x="6" y="6" width="188" height="188" fill="none" stroke="#FCD34D" stroke-width="2.2" rx="8" ry="8"/>
+  <rect x="11" y="11" width="178" height="178" fill="none" stroke="#FCD34D" stroke-width="0.6" opacity="0.6" rx="6" ry="6"/>
+
+  <circle cx="100" cy="100" r="38" fill="url(#medallion)" stroke="#FCD34D" stroke-width="2.2"/>
+  <circle cx="100" cy="100" r="30" fill="none" stroke="#FCD34D" stroke-width="0.6" opacity="0.7"/>
+  <path d="M 100 76 L 107.4 93.6 L 126 95 L 112 107.2 L 116.6 124.8 L 100 115 L 83.4 124.8 L 88 107.2 L 74 95 L 92.6 93.6 Z" fill="#FCD34D"/>
+
+  <circle cx="22" cy="22" r="3.5" fill="#FCD34D" opacity="0.85"/>
+  <circle cx="178" cy="22" r="3.5" fill="#FCD34D" opacity="0.85"/>
+  <circle cx="22" cy="178" r="3.5" fill="#FCD34D" opacity="0.85"/>
+  <circle cx="178" cy="178" r="3.5" fill="#FCD34D" opacity="0.85"/>
+
+  <path d="M 22 22 L 36 22 M 22 22 L 22 36" stroke="#FCD34D" stroke-width="1.2" opacity="0.7"/>
+  <path d="M 178 22 L 164 22 M 178 22 L 178 36" stroke="#FCD34D" stroke-width="1.2" opacity="0.7"/>
+  <path d="M 22 178 L 36 178 M 22 178 L 22 164" stroke="#FCD34D" stroke-width="1.2" opacity="0.7"/>
+  <path d="M 178 178 L 164 178 M 178 178 L 178 164" stroke="#FCD34D" stroke-width="1.2" opacity="0.7"/>
+</svg>
