@@ -42,7 +42,10 @@ const colors = characterPalettes[palette];
       </radialGradient>
     </defs>
 
-    <!-- ===== LEGS (behind body) ===== -->
+    <!-- ===== JUMP WRAPPER (translate + squash/stretch ancorado no chão) ===== -->
+    <g :transform="jumpWrapperTransform">
+
+    <!-- ===== LEGS ===== -->
 
     <g transform="translate(0, -3)">
       <g :transform="legLeftBindings.transformAttr" style="transform-origin: 95px 210px;">
@@ -68,7 +71,7 @@ const colors = characterPalettes[palette];
         fill={colors.limbs}/>
     </g>
 
-    <!-- Body wrapper (breathing + jump deslocam translateY) -->
+    <!-- Breathing wrapper (interno, só upper body) -->
     <g :transform="bodyBindings.transformAttr">
 
     <!-- ===== ARMS (atrás da cabeça) ===== -->
@@ -154,7 +157,10 @@ const colors = characterPalettes[palette];
     </g>
 
     </g>
-    <!-- end body wrapper -->
+    <!-- end breathing wrapper -->
+
+    </g>
+    <!-- end jump wrapper -->
   </svg>
 </div>
 

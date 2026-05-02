@@ -24,6 +24,7 @@ export interface AnimState {
   // ─── Offsets (loops cíclicos + jump) ───────────────────────
   bodyBreatheY:   number
   bodyJumpY:      number
+  bodyScaleY:     number   // squash & stretch (1 = neutro)
   eyeLeftBlinkY:  number
   eyeRightBlinkY: number
   armLeftSwayR:   number
@@ -36,6 +37,10 @@ export interface AnimState {
   legRightJumpR:  number
   legLeftJumpY:   number
   legRightJumpY:  number
+  footLeftJumpR:  number
+  footRightJumpR: number
+  footLeftJumpY:  number
+  footRightJumpY: number
 }
 
 export interface TransitionHandles {
@@ -95,6 +100,7 @@ export function createAnimState(mode: ModeConfig): AnimState {
     ...base,
     bodyBreatheY:   0,
     bodyJumpY:      0,
+    bodyScaleY:     1,
     eyeLeftBlinkY:  1,
     eyeRightBlinkY: 1,
     armLeftSwayR:   0,
@@ -107,6 +113,10 @@ export function createAnimState(mode: ModeConfig): AnimState {
     legRightJumpR:  0,
     legLeftJumpY:   0,
     legRightJumpY:  0,
+    footLeftJumpR:  0,
+    footRightJumpR: 0,
+    footLeftJumpY:  0,
+    footRightJumpY: 0,
   }
 }
 

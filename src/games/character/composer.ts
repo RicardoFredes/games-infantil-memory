@@ -69,6 +69,7 @@ export interface CharacterStore {
   readonly tearOpacity:  number
   readonly pupilOpacity: number
   readonly armsOverHead: boolean
+  readonly jumpWrapperTransform: string
 }
 
 const TRANSITION_MS = 400
@@ -86,9 +87,19 @@ function combineLegTransform(
   base: Required<Transform2D>,
   jumpR: number,
   jumpY: number,
-  bodyJumpY: number,
 ): Transform2D {
-  return mergeTransform(base, { rotate: jumpR, translateY: jumpY + bodyJumpY })
+  return mergeTransform(base, { rotate: jumpR, translateY: jumpY })
+}
+
+// Y do "chão" no viewBox (-90 -30 440 320) — pés estão por volta de y=260.
+const GROUND_Y = 260
+
+/** Transform attr do wrapper de jump: translate + scale ancorado no chão. */
+function jumpWrapperAttr(jumpY: number, scaleY: number): string {
+  // Scale around (anyX, GROUND_Y): translate(0, GROUND_Y*(1-sy)) scale(1, sy)
+  // Layered com jumpY: translate(0, GROUND_Y*(1-sy) + jumpY) scale(1, sy)
+  const ty = GROUND_Y * (1 - scaleY) + jumpY
+  return `translate(0, ${ty}) scale(1, ${scaleY})`
 }
 
 export function createCharacterStore(): CharacterStore {
@@ -218,20 +229,24 @@ export function createCharacterStore(): CharacterStore {
     get eyebrowLeftBindings()  { return resolveEyebrowLeft(modes[this.mode].eyebrowLeft, this.animState.eyebrowLeft) },
     get eyebrowRightBindings() { return resolveEyebrowRight(modes[this.mode].eyebrowRight, this.animState.eyebrowRight) },
     get mouthBindings()        { return resolveMouth(modes[this.mode].mouth, this.animState.mouthGrinScale) },
+    get jumpWrapperTransform() {
+      return jumpWrapperAttr(this.animState.bodyJumpY, this.animState.bodyScaleY)
+    },
     get bodyBindings() {
-      return resolveBody(this.animState.bodyBreatheY + this.animState.bodyJumpY)
+      // Breathing wrapper (interno, só upper body).
+      return resolveBody(this.animState.bodyBreatheY)
     },
     get legLeftBindings() {
-      return resolveLeg(combineLegTransform(this.animState.legLeft, this.animState.legLeftJumpR, this.animState.legLeftJumpY, this.animState.bodyJumpY))
+      return resolveLeg(combineLegTransform(this.animState.legLeft, this.animState.legLeftJumpR, this.animState.legLeftJumpY))
     },
     get legRightBindings() {
-      return resolveLeg(combineLegTransform(this.animState.legRight, this.animState.legRightJumpR, this.animState.legRightJumpY, this.animState.bodyJumpY))
+      return resolveLeg(combineLegTransform(this.animState.legRight, this.animState.legRightJumpR, this.animState.legRightJumpY))
     },
     get footLeftBindings() {
-      return resolveLeg(combineLegTransform(this.animState.legLeft, this.animState.legLeftJumpR, this.animState.legLeftJumpY, this.animState.bodyJumpY))
+      return resolveLeg(combineLegTransform(this.animState.legLeft, this.animState.footLeftJumpR, this.animState.footLeftJumpY))
     },
     get footRightBindings() {
-      return resolveLeg(combineLegTransform(this.animState.legRight, this.animState.legRightJumpR, this.animState.legRightJumpY, this.animState.bodyJumpY))
+      return resolveLeg(combineLegTransform(this.animState.legRight, this.animState.footRightJumpR, this.animState.footRightJumpY))
     },
     get noseBindings()      { return resolveNose(this.animState.nose) },
     get blushOpacity()      { return this.animState.blush },
