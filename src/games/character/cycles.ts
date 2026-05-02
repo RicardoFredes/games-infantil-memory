@@ -123,12 +123,12 @@ export function applyModeCycles(state: AnimState, h: CycleHandles, cfg: CycleCon
       onComplete: () => {
         h.thinking = animate(state, {
           keyframes: [
-            // 5 frames percorrendo uma elipse: Y/X em fase ortogonal.
-            { armRightBobX:  0, armRightBobY: -2, armRightSwayR:  0 },
-            { armRightBobX:  3, armRightBobY:  0, armRightSwayR: -3 },
-            { armRightBobX:  0, armRightBobY:  2, armRightSwayR: -1 },
-            { armRightBobX: -3, armRightBobY:  0, armRightSwayR: -3 },
-            { armRightBobX:  0, armRightBobY: -2, armRightSwayR:  0 },
+            // Dedo traça uma elipse pequena (X 90° defasado de Y), só translação.
+            { armRightBobX:  0, armRightBobY: -2 },
+            { armRightBobX:  3, armRightBobY:  0 },
+            { armRightBobX:  0, armRightBobY:  2 },
+            { armRightBobX: -3, armRightBobY:  0 },
+            { armRightBobX:  0, armRightBobY: -2 },
           ],
           duration: cfg.thinking!.durationMs,
           loop: true,
