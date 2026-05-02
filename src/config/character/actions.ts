@@ -16,11 +16,4 @@ export const actions: ActionsConfig = {
   eyesClosed: {
     durationMs: 700,
   },
-  spin: {
-    durationMs: 800,
-    vibrateMs: 15,
-    moodOverride: 'excited',
-    moodDurationMs: 900,
-    bodyAnim: 'spin-once',
-  },
 }

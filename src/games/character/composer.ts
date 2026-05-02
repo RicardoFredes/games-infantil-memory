@@ -25,7 +25,6 @@ export interface CharacterStore {
   mode: ModeName
   overlay: OverlayState
   _moodTimer: Timer
-  _spinTimer: Timer
   _jumpTimer: Timer
   _leftEyeTimer: Timer
   _rightEyeTimer: Timer
@@ -35,7 +34,6 @@ export interface CharacterStore {
   jump(durationMs?: number): void
   wink(side?: Side, durationMs?: number): void
   closeEyes(durationMs?: number): void
-  spin(): void
 
   // bindings (getters)
   readonly armLeftBindings:    ReturnType<typeof resolveArmLeft>
@@ -61,7 +59,6 @@ export function createCharacterStore(): CharacterStore {
     mode: defaultMode,
     overlay: createOverlayState(),
     _moodTimer: null,
-    _spinTimer: null,
     _jumpTimer: null,
     _leftEyeTimer: null,
     _rightEyeTimer: null,
@@ -125,17 +122,6 @@ export function createCharacterStore(): CharacterStore {
       }
     },
 
-    spin() {
-      if (this.overlay.spinning) return
-      const cfg = actions.spin
-      this.overlay.spinning = true
-      this.setMood(cfg.moodOverride, cfg.moodDurationMs)
-      vibrate(cfg.vibrateMs)
-      window.dispatchEvent(new CustomEvent('character:spin'))
-      if (this._spinTimer) clearTimeout(this._spinTimer)
-      this._spinTimer = setTimeout(() => { this.overlay.spinning = false }, cfg.durationMs)
-    },
-
     // ─── Bindings ─────────────────────────────────────────────
 
     get armLeftBindings() {
@@ -164,10 +150,7 @@ export function createCharacterStore(): CharacterStore {
     get eyebrowRightBindings() { return resolveEyebrowRight(modes[this.mode].eyebrowRight) },
     get mouthBindings()        { return resolveMouth(modes[this.mode].mouth) },
     get bodyBindings() {
-      const overlayAnim =
-        this.overlay.jumping  ? actions.jump.bodyAnim :
-        this.overlay.spinning ? actions.spin.bodyAnim :
-        undefined
+      const overlayAnim = this.overlay.jumping ? actions.jump.bodyAnim : undefined
       return resolveBody(modes[this.mode].body, { anim: overlayAnim })
     },
     get legLeftBindings()   { return resolveLeg(modes[this.mode].legLeft) },

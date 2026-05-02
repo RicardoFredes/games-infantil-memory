@@ -29,7 +29,6 @@ export const bodyAnims = {
   breathe:    'animate-breathe',
   'jump-loop':'animate-jump-loop',
   'jump-once':'is-jumping',
-  'spin-once':'animate-spin-once',
 } as const
 
 export type ArmLeftAnimName  = keyof typeof armLeftAnims

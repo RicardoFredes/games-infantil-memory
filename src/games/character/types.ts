@@ -84,19 +84,10 @@ export interface JumpAction {
 export interface WinkAction { durationMs: number }
 export interface EyesClosedAction { durationMs: number }
 
-export interface SpinAction {
-  durationMs: number
-  vibrateMs: number
-  moodOverride: ModeName
-  moodDurationMs: number
-  bodyAnim: string
-}
-
 export interface ActionsConfig {
   jump: JumpAction
   wink: WinkAction
   eyesClosed: EyesClosedAction
-  spin: SpinAction
 }
 
 // ─── Bindings (saída dos resolvers) ───────────────────────────
