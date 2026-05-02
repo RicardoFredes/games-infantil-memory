@@ -86,8 +86,9 @@ function combineLegTransform(
   base: Required<Transform2D>,
   jumpR: number,
   jumpY: number,
+  bodyJumpY: number,
 ): Transform2D {
-  return mergeTransform(base, { rotate: jumpR, translateY: jumpY })
+  return mergeTransform(base, { rotate: jumpR, translateY: jumpY + bodyJumpY })
 }
 
 export function createCharacterStore(): CharacterStore {
@@ -221,16 +222,16 @@ export function createCharacterStore(): CharacterStore {
       return resolveBody(this.animState.bodyBreatheY + this.animState.bodyJumpY)
     },
     get legLeftBindings() {
-      return resolveLeg(combineLegTransform(this.animState.legLeft, this.animState.legLeftJumpR, this.animState.legLeftJumpY))
+      return resolveLeg(combineLegTransform(this.animState.legLeft, this.animState.legLeftJumpR, this.animState.legLeftJumpY, this.animState.bodyJumpY))
     },
     get legRightBindings() {
-      return resolveLeg(combineLegTransform(this.animState.legRight, this.animState.legRightJumpR, this.animState.legRightJumpY))
+      return resolveLeg(combineLegTransform(this.animState.legRight, this.animState.legRightJumpR, this.animState.legRightJumpY, this.animState.bodyJumpY))
     },
     get footLeftBindings() {
-      return resolveLeg(combineLegTransform(this.animState.legLeft, this.animState.legLeftJumpR, this.animState.legLeftJumpY))
+      return resolveLeg(combineLegTransform(this.animState.legLeft, this.animState.legLeftJumpR, this.animState.legLeftJumpY, this.animState.bodyJumpY))
     },
     get footRightBindings() {
-      return resolveLeg(combineLegTransform(this.animState.legRight, this.animState.legRightJumpR, this.animState.legRightJumpY))
+      return resolveLeg(combineLegTransform(this.animState.legRight, this.animState.legRightJumpR, this.animState.legRightJumpY, this.animState.bodyJumpY))
     },
     get noseBindings()      { return resolveNose(this.animState.nose) },
     get blushOpacity()      { return this.animState.blush },
