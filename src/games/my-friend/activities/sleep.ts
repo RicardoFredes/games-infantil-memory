@@ -14,8 +14,10 @@ function buildSideCharacterSvg(): string {
   const skinBottom = palette.skinBottom;
   const limbs      = palette.limbs;
 
-  // Layout adaptado de public/person/person (7).svg — personagem deitado
-  // com touca de dormir, braço dobrado em frente ao rosto e perna esticada.
+  // Layout adaptado de public/person/person (7).svg — personagem deitado de
+  // lado. Os elementos pretos finos sobre a cabeça são SOBRANCELHA + OLHO
+  // FECHADO. As formas saindo da boca são uma BABA dormindo (azul).
+  const drool = '#5EB7E8';
   return `
 <svg viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
   <defs>
@@ -23,19 +25,25 @@ function buildSideCharacterSvg(): string {
       <stop offset="0%"  stop-color="${skinTop}"/>
       <stop offset="100%" stop-color="${skinBottom}"/>
     </linearGradient>
+    <linearGradient id="mfSideDrool" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"  stop-color="#A8DCF0"/>
+      <stop offset="100%" stop-color="${drool}"/>
+    </linearGradient>
   </defs>
 
   <!-- CABEÇA -->
   <circle cx="150" cy="143" r="100" fill="url(#mfSideSkin)"/>
 
-  <!-- TOUCA DE DORMIR -->
-  <line x1="168.955" y1="109.419" x2="181.955" y2="86.9019" stroke="black" stroke-width="2"/>
-  <line x1="152.268" y1="96.3205" x2="162.268" y2="79"      stroke="black" stroke-width="4"/>
-  <ellipse cx="207.999" cy="148" rx="21" ry="7" fill="${skinBottom}"/>
-  <rect    x="196.999" y="116" width="14" height="28"      fill="${skinBottom}"/>
-  <path d="M192.001 116.497C192.001 116.497 202.947 109.538 211.63 95.4987C220.313 81.4593 220.001 80 220.001 80C220.001 80 226.221 84.5738 228.893 88.5981C231.565 92.6223 233.75 96.2583 226.25 109.249C218.75 122.239 208.714 120.201 203.893 119.899C199.072 119.597 192.001 116.497 192.001 116.497Z" fill="black"/>
+  <!-- SOBRANCELHA (line fina) -->
+  <line x1="168.955" y1="109.419" x2="181.955" y2="86.9019" stroke="black" stroke-width="2" stroke-linecap="round"/>
+  <!-- OLHO FECHADO (line mais grossa) -->
+  <line x1="152.268" y1="96.3205" x2="162.268" y2="79"      stroke="black" stroke-width="4" stroke-linecap="round"/>
 
-  <!-- (sem rosto: personagem está deitado com a face contra o travesseiro) -->
+  <!-- BABA dormindo (sai da boca, escorre e forma poça) -->
+  <path d="M192.001 116.497C192.001 116.497 202.947 109.538 211.63 95.4987C220.313 81.4593 220.001 80 220.001 80C220.001 80 226.221 84.5738 228.893 88.5981C231.565 92.6223 233.75 96.2583 226.25 109.249C218.75 122.239 208.714 120.201 203.893 119.899C199.072 119.597 192.001 116.497 192.001 116.497Z"
+        fill="url(#mfSideDrool)" stroke="#3D8FBA" stroke-width="1.5"/>
+  <rect    x="196.999" y="116" width="14" height="28" fill="url(#mfSideDrool)"/>
+  <ellipse cx="207.999" cy="148" rx="21" ry="7"     fill="${drool}" stroke="#3D8FBA" stroke-width="1.2"/>
 
   <!-- BRAÇO DA FRENTE (curva descendo até a mão) -->
   <path d="M107 148C110.344 157.242 122.382 176.736 143.783 180.769C165.184 184.802 180.845 177.968 186 174.047"
@@ -120,11 +128,11 @@ function spawnZ(layer: HTMLElement, originX: number, originY: number) {
 function findSideHeadCenter(stage: HTMLElement, sideEl: HTMLElement): { x: number; y: number } {
   const stageRect = stage.getBoundingClientRect();
   const r = sideEl.getBoundingClientRect();
-  // No SVG side (viewBox 300x300), a cabeça está em (150, 143) e a touca
-  // sobe pra direita; emitimos os Z's a partir da ponta da touca.
+  // No SVG side (viewBox 300x300), a cabeça está em (150, 143). Z's saem
+  // levemente acima do topo da cabeça.
   return {
-    x: r.left - stageRect.left + r.width * 0.74,
-    y: r.top  - stageRect.top  + r.height * 0.27,
+    x: r.left - stageRect.left + r.width * 0.55,
+    y: r.top  - stageRect.top  + r.height * 0.18,
   };
 }
 
