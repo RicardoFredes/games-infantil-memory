@@ -1,5 +1,7 @@
 ---
 import { characterPalettes, defaultPalette, type CharacterPaletteName } from '@/lib/character-palettes';
+import { armLeftPoses, armRightPoses } from '@/config/character/poses';
+import { mouthPosesRendered } from '@/games/character/precomputed';
 
 export interface Props {
   palette?: CharacterPaletteName;
@@ -7,6 +9,18 @@ export interface Props {
 
 const { palette = defaultPalette } = Astro.props;
 const colors = characterPalettes[palette];
+
+const armLeftEntries  = Object.entries(armLeftPoses)  as Array<[string, { stroke: string; hand: string }]>;
+const armRightEntries = Object.entries(armRightPoses) as Array<[string, { stroke: string; hand: string }]>;
+
+// Poses cuja camada visual fica atrás da cabeça vs. à frente.
+const FRONT_POSES = new Set(['head-grab']);
+const isFront = (pose: string) => FRONT_POSES.has(pose);
+
+const armLeftBack    = armLeftEntries.filter(([n])  => !isFront(n));
+const armLeftFront   = armLeftEntries.filter(([n])  =>  isFront(n));
+const armRightBack   = armRightEntries.filter(([n]) => !isFront(n));
+const armRightFront  = armRightEntries.filter(([n]) =>  isFront(n));
 ---
 
 <div
@@ -72,20 +86,26 @@ const colors = characterPalettes[palette];
     <!-- Breathing wrapper (idle) -->
     <g :class="bodyBindings.breathClass">
 
-    <!-- ===== ARMS (behind head — when arms are NOT over head) ===== -->
-    <g x-show="!armsOverHead">
-      <g :class="armLeftBindings.animClass">
-        <g :transform="armLeftBindings.transformAttr" style="transform-origin: 40px 115px;">
-          <path :d="armLeftBindings.strokePath" stroke={colors.limbs} stroke-width="21" stroke-linecap="round"/>
-          <path :d="armLeftBindings.handPath" fill={colors.limbs}/>
-        </g>
+    <!-- ===== ARMS BACK (behind head) ===== -->
+    <g :class="armLeftBindings.animClass">
+      <g :transform="armLeftBindings.transformAttr" style="transform-origin: 40px 115px;">
+        {armLeftBack.map(([name, pose]) => (
+          <g :style={`opacity: armLeftPoseOpacities['${name}'] ?? 0`}>
+            <path d={pose.stroke} stroke={colors.limbs} stroke-width="21" stroke-linecap="round"/>
+            <path d={pose.hand}   fill={colors.limbs}/>
+          </g>
+        ))}
       </g>
+    </g>
 
-      <g :class="armRightBindings.animClass">
-        <g :transform="armRightBindings.transformAttr" style="transform-origin: 220px 115px;">
-          <path :d="armRightBindings.strokePath" stroke={colors.limbs} stroke-width="21" stroke-linecap="round"/>
-          <path :d="armRightBindings.handPath" fill={colors.limbs}/>
-        </g>
+    <g :class="armRightBindings.animClass">
+      <g :transform="armRightBindings.transformAttr" style="transform-origin: 220px 115px;">
+        {armRightBack.map(([name, pose]) => (
+          <g :style={`opacity: armRightPoseOpacities['${name}'] ?? 0`}>
+            <path d={pose.stroke} stroke={colors.limbs} stroke-width="21" stroke-linecap="round"/>
+            <path d={pose.hand}   fill={colors.limbs}/>
+          </g>
+        ))}
       </g>
     </g>
 
@@ -104,7 +124,6 @@ const colors = characterPalettes[palette];
         </g>
       </g>
     </g>
-    <!-- Right eye closed (curved) -->
     <g :style="`transform: scaleY(${eyeRightBindings.closedOpacity}); transform-origin: 161.474px 97px; transition: transform 0.18s cubic-bezier(0.4, 0, 0.6, 1), opacity 0.15s ease;`"
        :opacity="eyeRightBindings.closedOpacity">
       <path d="M148.474 97 Q161.474 104 174.474 97" stroke="black" stroke-width="3" stroke-linecap="round" fill="none"/>
@@ -120,7 +139,6 @@ const colors = characterPalettes[palette];
         </g>
       </g>
     </g>
-    <!-- Left eye closed (curved) -->
     <g :style="`transform: scaleY(${eyeLeftBindings.closedOpacity}); transform-origin: 99.4745px 97px; transition: transform 0.18s cubic-bezier(0.4, 0, 0.6, 1), opacity 0.15s ease;`"
        :opacity="eyeLeftBindings.closedOpacity">
       <path d="M86.4745 97 Q99.4745 104 112.4745 97" stroke="black" stroke-width="3" stroke-linecap="round" fill="none"/>
@@ -130,9 +148,12 @@ const colors = characterPalettes[palette];
     <path d="M129.974 107L134.738 115.25H125.211L129.974 107Z" fill="black"
       :transform="noseBindings.transformAttr" style="transform-origin: 130px 111px; display: none;"/>
 
-    <!-- Mouth -->
-    <path :d="mouthBindings.pathD" fill="black" stroke="black" stroke-width="1"
-      :class="mouthBindings.animClass"/>
+    <!-- Mouth — todas as poses como camadas com opacidade dinâmica -->
+    {mouthPosesRendered.map(({ name, pathD }) => (
+      <path d={pathD} fill="black" stroke="black" stroke-width="1"
+        :class="mouthBindings.animClass"
+        :style={`opacity: mouthPoseOpacities['${name}'] ?? 0`}/>
+    ))}
 
     <!-- Left eyebrow -->
     <path :d="eyebrowLeftBindings.pathD" stroke="black" stroke-width="3" stroke-linecap="round" fill="none"
@@ -152,20 +173,26 @@ const colors = characterPalettes[palette];
     <path d="M55 102 Q58 112 55 118 Q52 112 55 102Z" fill="#88CCFF" :opacity="tearOpacity"/>
     <path d="M206 102 Q209 112 206 118 Q203 112 206 102Z" fill="#88CCFF" :opacity="tearOpacity"/>
 
-    <!-- ===== ARMS (in front of head — when arms ARE over head) ===== -->
-    <g x-show="armsOverHead">
-      <g :class="armLeftBindings.animClass">
-        <g :transform="armLeftBindings.transformAttr" style="transform-origin: 40px 115px;">
-          <path :d="armLeftBindings.strokePath" stroke={colors.limbs} stroke-width="21" stroke-linecap="round"/>
-          <path :d="armLeftBindings.handPath" fill={colors.limbs}/>
-        </g>
+    <!-- ===== ARMS FRONT (in front of head) ===== -->
+    <g :class="armLeftBindings.animClass">
+      <g :transform="armLeftBindings.transformAttr" style="transform-origin: 40px 115px;">
+        {armLeftFront.map(([name, pose]) => (
+          <g :style={`opacity: armLeftPoseOpacities['${name}'] ?? 0`}>
+            <path d={pose.stroke} stroke={colors.limbs} stroke-width="21" stroke-linecap="round"/>
+            <path d={pose.hand}   fill={colors.limbs}/>
+          </g>
+        ))}
       </g>
+    </g>
 
-      <g :class="armRightBindings.animClass">
-        <g :transform="armRightBindings.transformAttr" style="transform-origin: 220px 115px;">
-          <path :d="armRightBindings.strokePath" stroke={colors.limbs} stroke-width="21" stroke-linecap="round"/>
-          <path :d="armRightBindings.handPath" fill={colors.limbs}/>
-        </g>
+    <g :class="armRightBindings.animClass">
+      <g :transform="armRightBindings.transformAttr" style="transform-origin: 220px 115px;">
+        {armRightFront.map(([name, pose]) => (
+          <g :style={`opacity: armRightPoseOpacities['${name}'] ?? 0`}>
+            <path d={pose.stroke} stroke={colors.limbs} stroke-width="21" stroke-linecap="round"/>
+            <path d={pose.hand}   fill={colors.limbs}/>
+          </g>
+        ))}
       </g>
     </g>
 

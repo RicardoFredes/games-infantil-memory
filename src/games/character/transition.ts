@@ -1,10 +1,21 @@
 // Sistema de transição suave entre modos.
-// Cada parte do corpo expõe um conjunto de valores numéricos que podem
-// ser interpolados pelo anime.js. Path strings e classes CSS continuam
-// trocando direto (são discretos por natureza).
+// Cada parte expõe valores numéricos interpoláveis via anime.js.
+// Paths SVG (que mudam abruptamente) são suavizados por cross-fade
+// de opacidade entre camadas pré-renderizadas.
 
 import { animate, utils } from 'animejs'
 import type { ModeConfig, Transform2D } from './types'
+import { armLeftPoses, armRightPoses } from '@/config/character/poses'
+
+const ARM_LEFT_POSE_NAMES  = Object.keys(armLeftPoses)  as Array<keyof typeof armLeftPoses>
+const ARM_RIGHT_POSE_NAMES = Object.keys(armRightPoses) as Array<keyof typeof armRightPoses>
+const MOUTH_POSE_NAMES = [
+  'idle', 'sad', 'tired', 'excited', 'thinking', 'happy', 'surprised',
+] as const
+
+type ArmLeftPoseOpacities  = Record<keyof typeof armLeftPoses,  number>
+type ArmRightPoseOpacities = Record<keyof typeof armRightPoses, number>
+type MouthPoseOpacities    = Record<typeof MOUTH_POSE_NAMES[number], number>
 
 export interface AnimState {
   armLeft:      Required<Transform2D>
@@ -18,6 +29,11 @@ export interface AnimState {
   nose:         { scaleX: number; scaleY: number }
   blush:  number
   tears:  number
+  /** Opacidade por pose: cross-fade entre paths de braço esquerdo. */
+  armLeftPoseOpacities:  ArmLeftPoseOpacities
+  armRightPoseOpacities: ArmRightPoseOpacities
+  /** Opacidade por pose: cross-fade entre paths de boca. */
+  mouthPoseOpacities: MouthPoseOpacities
 }
 
 const fullTransform = (t: Transform2D): Required<Transform2D> => ({
@@ -28,7 +44,12 @@ const fullTransform = (t: Transform2D): Required<Transform2D> => ({
   scaleY:     t.scaleY     ?? 1,
 })
 
-/** Snapshot dos valores interpoláveis para o estado-alvo. */
+const onlyOne = <K extends string>(keys: readonly K[], active: K): Record<K, number> => {
+  const out = {} as Record<K, number>
+  for (const k of keys) out[k] = k === active ? 1 : 0
+  return out
+}
+
 export function targetFromMode(mode: ModeConfig): AnimState {
   return {
     armLeft:      fullTransform(mode.armLeft.transform),
@@ -42,6 +63,9 @@ export function targetFromMode(mode: ModeConfig): AnimState {
     nose:         { scaleX: mode.nose.transform.scaleX ?? 1, scaleY: mode.nose.transform.scaleY ?? 1 },
     blush:  mode.blush,
     tears:  mode.tears,
+    armLeftPoseOpacities:  onlyOne(ARM_LEFT_POSE_NAMES,  mode.armLeft.pose  as keyof typeof armLeftPoses),
+    armRightPoseOpacities: onlyOne(ARM_RIGHT_POSE_NAMES, mode.armRight.pose as keyof typeof armRightPoses),
+    mouthPoseOpacities:    onlyOne(MOUTH_POSE_NAMES,     mode.mouth.pose    as typeof MOUTH_POSE_NAMES[number]),
   }
 }
 
@@ -54,10 +78,6 @@ export interface TransitionOptions {
   ease?: string
 }
 
-/**
- * Anima `state` (objeto reativo Alpine) em direção aos valores de `target`.
- * Cancela tween anterior antes de disparar o novo.
- */
 export function transitionTo(
   state: AnimState,
   target: AnimState,
@@ -66,8 +86,6 @@ export function transitionTo(
   const duration = opts.durationMs ?? 400
   const ease = opts.ease ?? 'outQuad'
 
-  // Anima cada sub-objeto separadamente (anime.js anima propriedades
-  // de primeiro nível; aninhar exige um target por sub-grupo).
   const groups: Array<[Record<string, number>, Record<string, number>]> = [
     [state.armLeft,      target.armLeft],
     [state.armRight,     target.armRight],
@@ -78,6 +96,9 @@ export function transitionTo(
     [state.legLeft,      target.legLeft],
     [state.legRight,     target.legRight],
     [state.nose,         target.nose],
+    [state.armLeftPoseOpacities,  target.armLeftPoseOpacities],
+    [state.armRightPoseOpacities, target.armRightPoseOpacities],
+    [state.mouthPoseOpacities,    target.mouthPoseOpacities],
   ]
 
   for (const [obj, goal] of groups) {
@@ -85,7 +106,6 @@ export function transitionTo(
     animate(obj, { ...goal, duration, ease })
   }
 
-  // Top-level scalars (blush, tears) animam o próprio AnimState.
   utils.remove(state)
   animate(state, {
     blush: target.blush,
