@@ -501,6 +501,27 @@ const cfg = config as MyFriendConfig;
   }
 
   /* ===== Sleep ===== */
+  #my-friend-stage.mf-sleep-active .character-stage > .character-container,
+  #my-friend-stage.mf-sleep-active svg.hit-zones { display: none; }
+
+  #my-friend-stage .mf-side-char {
+    position: absolute;
+    left: 50%;
+    bottom: calc(18% + 10px);
+    width: clamp(360px, 78vw, 580px);
+    transform: translate(-50%, -8%);
+    z-index: 4;
+    pointer-events: none;
+    opacity: 0;
+    animation: mf-side-char-in 600ms 200ms ease-out forwards;
+    filter: drop-shadow(0 6px 8px rgba(0, 0, 0, 0.18));
+  }
+  #my-friend-stage .mf-side-char svg { width: 100%; height: auto; display: block; }
+  @keyframes mf-side-char-in {
+    0%   { opacity: 0; transform: translate(-50%, 6%); }
+    100% { opacity: 1; transform: translate(-50%, -8%); }
+  }
+
   #my-friend-stage .mf-bed {
     position: absolute;
     left: 50%;

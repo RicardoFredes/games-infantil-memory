@@ -1,10 +1,68 @@
-// Dormir (toggle): mood sleeping + cama embaixo do personagem +
-// Z's flutuantes saindo da cabeça + vinheta dim sobre o palco.
+// Dormir (toggle): mood sleeping + cama + personagem em "vista de lado"
+// (estático, esconde o personagem ao vivo) + Z's flutuantes + dim.
 // Encerra ao tocar o botão de novo.
 
 import { registerActivity } from './registry';
+import { characterPalettes } from '@/lib/character-palettes';
+import { getPalette } from '@/lib/character-preferences';
 
 const Z_INTERVAL_MS = 900;
+
+function buildSideCharacterSvg(): string {
+  const palette = characterPalettes[getPalette()];
+  const skinTop    = palette.skinTop;
+  const skinBottom = palette.skinBottom;
+  const limbs      = palette.limbs;
+  const limbStroke = '#3F2208';
+
+  return `
+<svg viewBox="0 0 380 220" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <defs>
+    <linearGradient id="mfSideSkin" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"  stop-color="${skinTop}"/>
+      <stop offset="100%" stop-color="${skinBottom}"/>
+    </linearGradient>
+    <radialGradient id="mfSideBlush" cx="50%" cy="50%" r="50%">
+      <stop offset="0%"  stop-color="#FF9999" stop-opacity="0.85"/>
+      <stop offset="100%" stop-color="#FF6666" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- BRACO/PERNA TRASEIROS (parcialmente escondidos atrás do corpo) -->
+  <ellipse cx="318" cy="170" rx="14" ry="10" fill="${limbs}" opacity="0.55"/>
+
+  <!-- CORPO horizontal -->
+  <ellipse cx="220" cy="148" rx="118" ry="40" fill="url(#mfSideSkin)"/>
+
+  <!-- PERNA da frente, levemente dobrada -->
+  <path d="M312 152 Q336 158 348 148" stroke="${limbs}" stroke-width="22" stroke-linecap="round" fill="none"/>
+  <ellipse cx="354" cy="148" rx="14" ry="10" fill="${limbs}"/>
+
+  <!-- BRACO da frente, descansando em cima do corpo -->
+  <path d="M196 130 Q230 124 268 138" stroke="${limbs}" stroke-width="20" stroke-linecap="round" fill="none"/>
+  <circle cx="272" cy="140" r="11" fill="${limbs}"/>
+
+  <!-- CABECA -->
+  <circle cx="98" cy="120" r="62" fill="url(#mfSideSkin)"/>
+
+  <!-- Topete/mecha frontal -->
+  <path d="M64 84 Q88 70 122 78 Q108 92 86 92 Q72 92 64 84Z" fill="${skinBottom}" opacity="0.55"/>
+
+  <!-- Bochecha (blush) -->
+  <ellipse cx="78" cy="138" rx="14" ry="8" fill="url(#mfSideBlush)"/>
+
+  <!-- OLHO fechado (curva pra cima) -->
+  <path d="M70 116 Q84 124 100 116" stroke="black" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+
+  <!-- BOCA pequena (relaxada, ligeiramente aberta) -->
+  <path d="M64 144 Q72 150 80 144" stroke="black" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+  <ellipse cx="72" cy="148" rx="3.5" ry="2" fill="#5A2A2A" opacity="0.55"/>
+
+  <!-- Sobrancelha relaxada -->
+  <path d="M68 102 Q82 100 96 104" stroke="black" stroke-width="2.5" stroke-linecap="round" fill="none" opacity="0.7"/>
+</svg>
+`.trim();
+}
 
 const BED_SVG = `
 <svg viewBox="0 0 360 160" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -67,17 +125,14 @@ function spawnZ(layer: HTMLElement, originX: number, originY: number) {
   el.addEventListener('animationend', () => el.remove(), { once: true });
 }
 
-function findHeadCenter(stage: HTMLElement): { x: number; y: number } {
+function findSideHeadCenter(stage: HTMLElement, sideEl: HTMLElement): { x: number; y: number } {
   const stageRect = stage.getBoundingClientRect();
-  const head = stage.querySelector('[data-zone="head"]');
-  if (head) {
-    const r = (head as Element).getBoundingClientRect();
-    return {
-      x: r.left - stageRect.left + r.width / 2 + 30,
-      y: r.top - stageRect.top + r.height * 0.35,
-    };
-  }
-  return { x: stageRect.width / 2 + 60, y: stageRect.height * 0.35 };
+  const r = sideEl.getBoundingClientRect();
+  // No SVG side, a cabeça fica em ~25% da largura, ~55% da altura.
+  return {
+    x: r.left - stageRect.left + r.width * 0.27,
+    y: r.top  - stageRect.top  + r.height * 0.40,
+  };
 }
 
 registerActivity({
@@ -99,12 +154,21 @@ registerActivity({
     bed.innerHTML = BED_SVG;
     layer.appendChild(bed);
 
-    const { x, y } = findHeadCenter(stage);
+    const sideChar = document.createElement('div');
+    sideChar.className = 'mf-side-char';
+    sideChar.innerHTML = buildSideCharacterSvg();
+    layer.appendChild(sideChar);
+
+    // Esconde o personagem ao vivo enquanto a cena de dormir está montada.
+    stage.classList.add('mf-sleep-active');
+
+    const { x, y } = findSideHeadCenter(stage, sideChar);
     spawnZ(layer, x, y);
     const zTimer = window.setInterval(() => spawnZ(layer, x, y), Z_INTERVAL_MS);
 
     return () => {
       window.clearInterval(zTimer);
+      stage.classList.remove('mf-sleep-active');
       layer.remove();
     };
   },
