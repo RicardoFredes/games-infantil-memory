@@ -25,7 +25,7 @@ const colors = characterPalettes[palette];
     viewBox="-90 -30 440 320"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
-    class="character-svg transition-all duration-300"
+    class="character-svg"
     :class="bodyBindings.bodyAnimClass"
   >
     <defs>
@@ -46,25 +46,25 @@ const colors = characterPalettes[palette];
     <!-- ===== LEGS (behind body — fixed, no breathing) ===== -->
 
     <g transform="translate(0, -3)">
-      <g :transform="legLeftBindings.transformAttr" class="char-leg-left" style="transform-origin: 95px 210px; transition: transform 0.3s ease;">
+      <g :transform="legLeftBindings.transformAttr" class="char-leg-left" style="transform-origin: 95px 210px;">
         <path d="M95.4745 203.5C94.4745 211.833 92.5745 230.4 92.9745 238C93.3745 245.6 93.1411 250.833 92.9745 252.5"
           stroke={colors.limbs} stroke-width="21" stroke-linecap="round"/>
       </g>
     </g>
 
-    <g :transform="footLeftBindings.transformAttr" class="char-foot-left" style="transform-origin: 95px 255px; transition: transform 0.3s ease;">
+    <g :transform="footLeftBindings.transformAttr" class="char-foot-left" style="transform-origin: 95px 255px;">
       <path d="M83.4745 245C97.8339 245 109.474 251.132 109.474 258.696C109.474 259.454 108.798 260 108.033 260H58.9162C58.1505 260 57.4745 259.454 57.4745 258.696C57.4745 251.132 69.1151 245 83.4745 245Z"
         fill={colors.limbs}/>
     </g>
 
     <g transform="translate(0, -3)">
-      <g :transform="legRightBindings.transformAttr" class="char-leg-right" style="transform-origin: 165px 210px; transition: transform 0.3s ease;">
+      <g :transform="legRightBindings.transformAttr" class="char-leg-right" style="transform-origin: 165px 210px;">
         <path d="M165.474 203.5C166.474 211.833 168.374 230.4 167.974 238C167.574 245.6 167.808 250.833 167.974 252.5"
           stroke={colors.limbs} stroke-width="21" stroke-linecap="round"/>
       </g>
     </g>
 
-    <g :transform="footRightBindings.transformAttr" class="char-foot-right" style="transform-origin: 165px 255px; transition: transform 0.3s ease;">
+    <g :transform="footRightBindings.transformAttr" class="char-foot-right" style="transform-origin: 165px 255px;">
       <path d="M177.474 245C163.115 245 151.474 251.132 151.474 258.696C151.474 259.454 152.151 260 152.916 260H202.033C202.798 260 203.474 259.454 203.474 258.696C203.474 251.132 191.834 245 177.474 245Z"
         fill={colors.limbs}/>
     </g>
@@ -75,14 +75,14 @@ const colors = characterPalettes[palette];
     <!-- ===== ARMS (behind head — when arms are NOT over head) ===== -->
     <g x-show="!armsOverHead">
       <g :class="armLeftBindings.animClass">
-        <g :transform="armLeftBindings.transformAttr" style="transform-origin: 40px 115px; transition: transform 0.3s ease;">
+        <g :transform="armLeftBindings.transformAttr" style="transform-origin: 40px 115px;">
           <path :d="armLeftBindings.strokePath" stroke={colors.limbs} stroke-width="21" stroke-linecap="round"/>
           <path :d="armLeftBindings.handPath" fill={colors.limbs}/>
         </g>
       </g>
 
       <g :class="armRightBindings.animClass">
-        <g :transform="armRightBindings.transformAttr" style="transform-origin: 220px 115px; transition: transform 0.3s ease;">
+        <g :transform="armRightBindings.transformAttr" style="transform-origin: 220px 115px;">
           <path :d="armRightBindings.strokePath" stroke={colors.limbs} stroke-width="21" stroke-linecap="round"/>
           <path :d="armRightBindings.handPath" fill={colors.limbs}/>
         </g>
@@ -90,7 +90,7 @@ const colors = characterPalettes[palette];
     </g>
 
     <!-- ===== HEAD ===== -->
-    <circle cx="130.474" cy="123" r="100" fill={`url(#skinGrad-${palette})`} class="transition-all duration-300"/>
+    <circle cx="130.474" cy="123" r="100" fill={`url(#skinGrad-${palette})`}/>
 
     <!-- ===== FACE ===== -->
 
@@ -98,9 +98,9 @@ const colors = characterPalettes[palette];
     <g :style="`transform: scaleY(${eyeRightBindings.openOpacity}); transform-origin: 161.474px 97px; transition: transform 0.18s cubic-bezier(0.4, 0, 0.6, 1), opacity 0.15s ease;`"
        :opacity="eyeRightBindings.openOpacity">
       <g :class="eyeRightBindings.blinkClass" style="transform-origin: 161.474px 97px">
-        <g :transform="eyeRightBindings.shapeTransform" style="transform-origin: 161.474px 97px; transition: transform 0.3s ease;">
-          <circle cx="161.474" cy="97" r="10" fill="black" class="transition-all duration-300"/>
-          <circle cx="161.474" cy="97" r="2" fill={`url(#eyeHighlight-${palette})`} class="transition-all duration-300" :class="eyeRightBindings.pupilClass"/>
+        <g :transform="eyeRightBindings.shapeTransform" style="transform-origin: 161.474px 97px;">
+          <circle cx="161.474" cy="97" r="10" fill="black"/>
+          <circle cx="161.474" cy="97" r="2" fill={`url(#eyeHighlight-${palette})`} :class="eyeRightBindings.pupilClass"/>
         </g>
       </g>
     </g>
@@ -114,9 +114,9 @@ const colors = characterPalettes[palette];
     <g :style="`transform: scaleY(${eyeLeftBindings.openOpacity}); transform-origin: 99.4745px 97px; transition: transform 0.18s cubic-bezier(0.4, 0, 0.6, 1), opacity 0.15s ease;`"
        :opacity="eyeLeftBindings.openOpacity">
       <g :class="eyeLeftBindings.blinkClass" style="transform-origin: 99.4745px 97px">
-        <g :transform="eyeLeftBindings.shapeTransform" style="transform-origin: 99.4745px 97px; transition: transform 0.3s ease;">
-          <circle cx="99.4745" cy="97" r="10" fill="black" class="transition-all duration-300"/>
-          <circle cx="99.4745" cy="97" r="2" fill={`url(#eyeHighlight-${palette})`} class="transition-all duration-300" :class="eyeLeftBindings.pupilClass"/>
+        <g :transform="eyeLeftBindings.shapeTransform" style="transform-origin: 99.4745px 97px;">
+          <circle cx="99.4745" cy="97" r="10" fill="black"/>
+          <circle cx="99.4745" cy="97" r="2" fill={`url(#eyeHighlight-${palette})`} :class="eyeLeftBindings.pupilClass"/>
         </g>
       </g>
     </g>
@@ -128,46 +128,41 @@ const colors = characterPalettes[palette];
 
     <!-- Nose -->
     <path d="M129.974 107L134.738 115.25H125.211L129.974 107Z" fill="black"
-      :transform="noseBindings.transformAttr" style="transform-origin: 130px 111px; transition: transform 0.3s ease; display: none;"/>
+      :transform="noseBindings.transformAttr" style="transform-origin: 130px 111px; display: none;"/>
 
     <!-- Mouth -->
     <path :d="mouthBindings.pathD" fill="black" stroke="black" stroke-width="1"
-      :class="mouthBindings.animClass"
-      class="transition-all duration-300" style="transition: d 0.3s ease"/>
+      :class="mouthBindings.animClass"/>
 
     <!-- Left eyebrow -->
     <path :d="eyebrowLeftBindings.pathD" stroke="black" stroke-width="3" stroke-linecap="round" fill="none"
       :transform="eyebrowLeftBindings.transformAttr"
-      style="transform-origin: 99.4745px 75.5px; transition: transform 0.3s ease, d 0.3s ease;"/>
+      style="transform-origin: 99.4745px 75.5px;"/>
 
     <!-- Right eyebrow -->
     <path :d="eyebrowRightBindings.pathD" stroke="black" stroke-width="3" stroke-linecap="round" fill="none"
       :transform="eyebrowRightBindings.transformAttr"
-      style="transform-origin: 161.474px 75.5px; transition: transform 0.3s ease, d 0.3s ease;"/>
+      style="transform-origin: 161.474px 75.5px;"/>
 
     <!-- Blush cheeks -->
-    <circle cx="75" cy="120" r="18" fill="url(#blushGrad)" :opacity="blushOpacity"
-      class="transition-opacity duration-300"/>
-    <circle cx="186" cy="120" r="18" fill="url(#blushGrad)" :opacity="blushOpacity"
-      class="transition-opacity duration-300"/>
+    <circle cx="75" cy="120" r="18" fill="url(#blushGrad)" :opacity="blushOpacity"/>
+    <circle cx="186" cy="120" r="18" fill="url(#blushGrad)" :opacity="blushOpacity"/>
 
     <!-- Tears -->
-    <path d="M55 102 Q58 112 55 118 Q52 112 55 102Z" fill="#88CCFF"
-      :opacity="tearOpacity" class="transition-opacity duration-300"/>
-    <path d="M206 102 Q209 112 206 118 Q203 112 206 102Z" fill="#88CCFF"
-      :opacity="tearOpacity" class="transition-opacity duration-300"/>
+    <path d="M55 102 Q58 112 55 118 Q52 112 55 102Z" fill="#88CCFF" :opacity="tearOpacity"/>
+    <path d="M206 102 Q209 112 206 118 Q203 112 206 102Z" fill="#88CCFF" :opacity="tearOpacity"/>
 
     <!-- ===== ARMS (in front of head — when arms ARE over head) ===== -->
     <g x-show="armsOverHead">
       <g :class="armLeftBindings.animClass">
-        <g :transform="armLeftBindings.transformAttr" style="transform-origin: 40px 115px; transition: transform 0.3s ease;">
+        <g :transform="armLeftBindings.transformAttr" style="transform-origin: 40px 115px;">
           <path :d="armLeftBindings.strokePath" stroke={colors.limbs} stroke-width="21" stroke-linecap="round"/>
           <path :d="armLeftBindings.handPath" fill={colors.limbs}/>
         </g>
       </g>
 
       <g :class="armRightBindings.animClass">
-        <g :transform="armRightBindings.transformAttr" style="transform-origin: 220px 115px; transition: transform 0.3s ease;">
+        <g :transform="armRightBindings.transformAttr" style="transform-origin: 220px 115px;">
           <path :d="armRightBindings.strokePath" stroke={colors.limbs} stroke-width="21" stroke-linecap="round"/>
           <path :d="armRightBindings.handPath" fill={colors.limbs}/>
         </g>

@@ -7,24 +7,24 @@ export interface ArmOverlay {
   transform?: Transform2D
 }
 
-export function resolveArmLeft(spec: ArmSpec, overlay?: ArmOverlay): ArmBindings {
+export function resolveArmLeft(spec: ArmSpec, animatedTransform: Transform2D, overlay?: ArmOverlay): ArmBindings {
   const pose = armLeftPoses[spec.pose as ArmLeftPoseName] ?? armLeftPoses.down
   const animClass = spec.anim ? (armLeftAnims[spec.anim as ArmLeftAnimName] ?? '') : ''
   return {
     strokePath: pose.stroke,
     handPath:   pose.hand,
-    transformAttr: toTransformAttr(mergeTransform(spec.transform, overlay?.transform)),
+    transformAttr: toTransformAttr(mergeTransform(animatedTransform, overlay?.transform)),
     animClass,
   }
 }
 
-export function resolveArmRight(spec: ArmSpec, overlay?: ArmOverlay): ArmBindings {
+export function resolveArmRight(spec: ArmSpec, animatedTransform: Transform2D, overlay?: ArmOverlay): ArmBindings {
   const pose = armRightPoses[spec.pose as ArmRightPoseName] ?? armRightPoses.down
   const animClass = spec.anim ? (armRightAnims[spec.anim as ArmRightAnimName] ?? '') : ''
   return {
     strokePath: pose.stroke,
     handPath:   pose.hand,
-    transformAttr: toTransformAttr(mergeTransform(spec.transform, overlay?.transform)),
+    transformAttr: toTransformAttr(mergeTransform(animatedTransform, overlay?.transform)),
     animClass,
   }
 }

@@ -1,6 +1,7 @@
 // Composer: monta o objeto Alpine para `gameCharacter`.
-// Une mode atual + overlays one-shot e expõe getters de bindings prontos
-// para serem usados em :class, :transform, :d, :opacity etc.
+// Estrutura: `mode` é o destino lógico; `animState` guarda valores numéricos
+// interpolados (alimentados por anime.js). Bindings usam animState pra
+// transforms e leem o mode pra paths/classes (que são discretos).
 
 import type { ModeName, Side } from './types'
 import { modes, defaultMode } from '@/config/character/modes'
@@ -18,12 +19,14 @@ import { resolveMouth } from './parts/mouth'
 import { resolveBody } from './parts/body'
 import { resolveLeg } from './parts/leg'
 import { resolveNose } from './parts/nose'
+import { createAnimState, targetFromMode, transitionTo, type AnimState } from './transition'
 
 type Timer = ReturnType<typeof setTimeout> | null
 
 export interface CharacterStore {
   mode: ModeName
   overlay: OverlayState
+  animState: AnimState
   _moodTimer: Timer
   _jumpTimer: Timer
   _leftEyeTimer: Timer
@@ -35,7 +38,6 @@ export interface CharacterStore {
   wink(side?: Side, durationMs?: number): void
   closeEyes(durationMs?: number): void
 
-  // bindings (getters)
   readonly armLeftBindings:    ReturnType<typeof resolveArmLeft>
   readonly armRightBindings:   ReturnType<typeof resolveArmRight>
   readonly eyeLeftBindings:    ReturnType<typeof resolveEye>
@@ -54,10 +56,14 @@ export interface CharacterStore {
   readonly armsOverHead: boolean
 }
 
+const TRANSITION_MS = 400
+const TRANSITION_EASE = 'outQuad'
+
 export function createCharacterStore(): CharacterStore {
   return {
     mode: defaultMode,
     overlay: createOverlayState(),
+    animState: createAnimState(modes[defaultMode]),
     _moodTimer: null,
     _jumpTimer: null,
     _leftEyeTimer: null,
@@ -80,9 +86,19 @@ export function createCharacterStore(): CharacterStore {
 
     setMood(m, durationMs = 0) {
       this.mode = m
+      transitionTo(this.animState, targetFromMode(modes[m]), {
+        durationMs: TRANSITION_MS,
+        ease: TRANSITION_EASE,
+      })
       if (this._moodTimer) clearTimeout(this._moodTimer)
       if (durationMs > 0) {
-        this._moodTimer = setTimeout(() => { this.mode = defaultMode }, durationMs)
+        this._moodTimer = setTimeout(() => {
+          this.mode = defaultMode
+          transitionTo(this.animState, targetFromMode(modes[defaultMode]), {
+            durationMs: TRANSITION_MS,
+            ease: TRANSITION_EASE,
+          })
+        }, durationMs)
       }
     },
 
@@ -117,8 +133,7 @@ export function createCharacterStore(): CharacterStore {
         this._leftEyeTimer  = setTimeout(() => { this.overlay.leftEyeClosed = false  }, ms)
         this._rightEyeTimer = setTimeout(() => { this.overlay.rightEyeClosed = false }, ms)
       } else {
-        // 0 = manter fechado indefinidamente
-        releaseEyesClosed // no-op marker
+        releaseEyesClosed
       }
     },
 
@@ -128,38 +143,38 @@ export function createCharacterStore(): CharacterStore {
       const overlay = this.overlay.jumping
         ? { transform: actions.jump.armTransform.left }
         : undefined
-      return resolveArmLeft(modes[this.mode].armLeft, overlay)
+      return resolveArmLeft(modes[this.mode].armLeft, this.animState.armLeft, overlay)
     },
     get armRightBindings() {
       const overlay = this.overlay.jumping
         ? { transform: actions.jump.armTransform.right }
         : undefined
-      return resolveArmRight(modes[this.mode].armRight, overlay)
+      return resolveArmRight(modes[this.mode].armRight, this.animState.armRight, overlay)
     },
     get eyeLeftBindings() {
-      return resolveEye(modes[this.mode].eyeLeft, {
+      return resolveEye(modes[this.mode].eyeLeft, this.animState.eyeLeft, {
         forceClosed: this.overlay.leftEyeClosed || this.mode === 'sleeping',
       })
     },
     get eyeRightBindings() {
-      return resolveEye(modes[this.mode].eyeRight, {
+      return resolveEye(modes[this.mode].eyeRight, this.animState.eyeRight, {
         forceClosed: this.overlay.rightEyeClosed || this.mode === 'sleeping',
       })
     },
-    get eyebrowLeftBindings()  { return resolveEyebrowLeft(modes[this.mode].eyebrowLeft) },
-    get eyebrowRightBindings() { return resolveEyebrowRight(modes[this.mode].eyebrowRight) },
+    get eyebrowLeftBindings()  { return resolveEyebrowLeft(modes[this.mode].eyebrowLeft, this.animState.eyebrowLeft) },
+    get eyebrowRightBindings() { return resolveEyebrowRight(modes[this.mode].eyebrowRight, this.animState.eyebrowRight) },
     get mouthBindings()        { return resolveMouth(modes[this.mode].mouth) },
     get bodyBindings() {
       const overlayAnim = this.overlay.jumping ? actions.jump.bodyAnim : undefined
       return resolveBody(modes[this.mode].body, { anim: overlayAnim })
     },
-    get legLeftBindings()   { return resolveLeg(modes[this.mode].legLeft) },
-    get legRightBindings()  { return resolveLeg(modes[this.mode].legRight) },
-    get footLeftBindings()  { return resolveLeg(modes[this.mode].legLeft) },
-    get footRightBindings() { return resolveLeg(modes[this.mode].legRight) },
-    get noseBindings()      { return resolveNose(modes[this.mode].nose) },
-    get blushOpacity()      { return modes[this.mode].blush },
-    get tearOpacity()       { return modes[this.mode].tears },
+    get legLeftBindings()   { return resolveLeg(this.animState.legLeft) },
+    get legRightBindings()  { return resolveLeg(this.animState.legRight) },
+    get footLeftBindings()  { return resolveLeg(this.animState.legLeft) },
+    get footRightBindings() { return resolveLeg(this.animState.legRight) },
+    get noseBindings()      { return resolveNose(this.animState.nose) },
+    get blushOpacity()      { return this.animState.blush },
+    get tearOpacity()       { return this.animState.tears },
     get armsOverHead()      { return modes[this.mode].body.armsOverHead },
   }
 }

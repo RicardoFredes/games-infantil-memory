@@ -1,6 +1,6 @@
-import type { LegBindings, LegSpec } from '../types'
+import type { LegBindings, Transform2D } from '../types'
 import { toTransformAttr } from './transform'
 
-export function resolveLeg(spec: LegSpec): LegBindings {
-  return { transformAttr: toTransformAttr(spec.transform) }
+export function resolveLeg(animatedTransform: Transform2D): LegBindings {
+  return { transformAttr: toTransformAttr(animatedTransform) }
 }

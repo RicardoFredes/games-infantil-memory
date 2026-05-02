@@ -2,10 +2,6 @@
  * Cada keyframe é referenciado por classe registrada em
  * src/config/character/animations.ts. */
 
-.character-svg * {
-  transition: transform 0.3s ease, opacity 0.3s ease;
-}
-
 /* ─── Body bounce (translate-only — no scale on body/face/arms) ─ */
 @keyframes bounce-soft {
   0%, 100% { transform: translateY(0); }

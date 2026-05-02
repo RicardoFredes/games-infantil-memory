@@ -6,11 +6,15 @@ export interface EyeOverlay {
   forceClosed?: boolean
 }
 
-export function resolveEye(spec: EyeSpec, overlay?: EyeOverlay): EyeBindings {
+export function resolveEye(
+  spec: EyeSpec,
+  animatedShape: { scaleX: number; scaleY: number },
+  overlay?: EyeOverlay,
+): EyeBindings {
   const closed = !!overlay?.forceClosed
   const closedOpacity = closed ? 1 : 0
   const openOpacity   = 1 - closedOpacity
-  const shapeTransform = `scale(${spec.shape.x}, ${spec.shape.y})`
+  const shapeTransform = `scale(${animatedShape.scaleX}, ${animatedShape.scaleY})`
   const blinkClass = spec.blinkAnim ? eyeAnims.blink : ''
   const pupilClass = spec.pupilAnim ? (eyeAnims[spec.pupilAnim as EyeAnimName] ?? '') : ''
   return { closedOpacity, openOpacity, shapeTransform, blinkClass, pupilClass }
