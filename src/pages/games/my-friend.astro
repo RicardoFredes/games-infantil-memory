@@ -155,6 +155,11 @@ const cfg = config as MyFriendConfig;
   #my-friend-stage .mf-eat-layer {
     pointer-events: none;
   }
+  /* Durante o arrastar, desabilita as zonas de toque do personagem
+     pra a criança não disparar reações sem querer. */
+  #my-friend-stage.mf-eat-dragging svg.hit-zones {
+    pointer-events: none;
+  }
   #my-friend-stage .mf-eat-table {
     position: absolute;
     left: 0;

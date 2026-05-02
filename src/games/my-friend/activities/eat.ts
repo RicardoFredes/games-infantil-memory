@@ -89,6 +89,7 @@ registerActivity({
         dragging = true;
         pointerId = e.pointerId;
         layerRect = layer.getBoundingClientRect();
+        stage.classList.add('mf-eat-dragging');
 
         // clona o emoji para arrastar; o original some até resetar.
         dragEl = document.createElement('span');
@@ -116,6 +117,7 @@ registerActivity({
       const onUp = (e: PointerEvent) => {
         if (!dragging || e.pointerId !== pointerId) return;
         dragging = false;
+        stage.classList.remove('mf-eat-dragging');
         plate.removeEventListener('pointermove', onMove);
         plate.removeEventListener('pointerup', onUp);
         plate.removeEventListener('pointercancel', onUp);
@@ -195,6 +197,7 @@ registerActivity({
 
     return () => {
       cleanups.forEach((fn) => fn());
+      stage.classList.remove('mf-eat-dragging');
       layer.remove();
     };
   },
