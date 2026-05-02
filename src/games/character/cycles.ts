@@ -81,6 +81,8 @@ export function applyModeCycles(state: AnimState, h: CycleHandles, cfg: CycleCon
   } else {
     state.armLeftBobY = 0
     state.armRightBobY = 0
+    state.armLeftBobX = 0
+    state.armRightBobX = 0
   }
 
   if (cfg.pupilSparkle) {
@@ -106,18 +108,28 @@ export function applyModeCycles(state: AnimState, h: CycleHandles, cfg: CycleCon
   }
 
   // Thinking: braço/mão direita "voam" pra junto da cabeça (entrada 700ms)
-  // e depois ficam coçando suavemente (-4° ↔ 0° em loop).
+  // e depois ficam coçando — dedo traça uma pequena elipse no couro cabeludo
+  // (X 90° defasado de Y) + leve variação de rotação (pressão).
   if (cfg.thinking) {
     state.armRightSwayR = 40
     state.armRightBobY  = 20
+    state.armRightBobX  = 0
     h.thinking = animate(state, {
       armRightSwayR: 0,
       armRightBobY:  0,
+      armRightBobX:  0,
       duration: 700,
       ease: 'inOutSine',
       onComplete: () => {
         h.thinking = animate(state, {
-          armRightSwayR: [{ to: 0 }, { to: -4 }, { to: 0 }],
+          keyframes: [
+            // 5 frames percorrendo uma elipse: Y/X em fase ortogonal.
+            { armRightBobX:  0, armRightBobY: -2, armRightSwayR:  0 },
+            { armRightBobX:  3, armRightBobY:  0, armRightSwayR: -3 },
+            { armRightBobX:  0, armRightBobY:  2, armRightSwayR: -1 },
+            { armRightBobX: -3, armRightBobY:  0, armRightSwayR: -3 },
+            { armRightBobX:  0, armRightBobY: -2, armRightSwayR:  0 },
+          ],
           duration: cfg.thinking!.durationMs,
           loop: true,
           ease: 'inOutSine',

@@ -79,8 +79,9 @@ function combineArmTransform(
   base: Required<Transform2D>,
   swayR: number,
   bobY: number,
+  bobX: number,
 ): Transform2D {
-  return mergeTransform(base, { rotate: swayR, translateY: bobY })
+  return mergeTransform(base, { rotate: swayR, translateX: bobX, translateY: bobY })
 }
 
 function combineLegTransform(
@@ -207,13 +208,13 @@ export function createCharacterStore(): CharacterStore {
     get armLeftBindings() {
       return resolveArmLeft(
         modes[this.mode].armLeft,
-        combineArmTransform(this.animState.armLeft, this.animState.armLeftSwayR, this.animState.armLeftBobY),
+        combineArmTransform(this.animState.armLeft, this.animState.armLeftSwayR, this.animState.armLeftBobY, this.animState.armLeftBobX),
       )
     },
     get armRightBindings() {
       return resolveArmRight(
         modes[this.mode].armRight,
-        combineArmTransform(this.animState.armRight, this.animState.armRightSwayR, this.animState.armRightBobY),
+        combineArmTransform(this.animState.armRight, this.animState.armRightSwayR, this.animState.armRightBobY, this.animState.armRightBobX),
       )
     },
     get eyeLeftBindings() {

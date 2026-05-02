@@ -31,6 +31,8 @@ export interface AnimState {
   armRightSwayR:  number
   armLeftBobY:    number
   armRightBobY:   number
+  armLeftBobX:    number
+  armRightBobX:   number
   pupilSparkle:   number
   mouthGrinScale: number
   legLeftJumpR:   number
@@ -107,6 +109,8 @@ export function createAnimState(mode: ModeConfig): AnimState {
     armRightSwayR:  0,
     armLeftBobY:    0,
     armRightBobY:   0,
+    armLeftBobX:    0,
+    armRightBobX:   0,
     pupilSparkle:   1,
     mouthGrinScale: 1,
     legLeftJumpR:   0,
