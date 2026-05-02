@@ -13,10 +13,11 @@ function buildSideCharacterSvg(): string {
   const skinTop    = palette.skinTop;
   const skinBottom = palette.skinBottom;
   const limbs      = palette.limbs;
-  const limbStroke = '#3F2208';
 
+  // Layout adaptado de public/person/person (7).svg — personagem deitado
+  // com touca de dormir, braço dobrado em frente ao rosto e perna esticada.
   return `
-<svg viewBox="0 0 380 220" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+<svg viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
   <defs>
     <linearGradient id="mfSideSkin" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0%"  stop-color="${skinTop}"/>
@@ -28,38 +29,36 @@ function buildSideCharacterSvg(): string {
     </radialGradient>
   </defs>
 
-  <!-- BRACO/PERNA TRASEIROS (parcialmente escondidos atrás do corpo) -->
-  <ellipse cx="318" cy="170" rx="14" ry="10" fill="${limbs}" opacity="0.55"/>
+  <!-- CABEÇA -->
+  <circle cx="150" cy="143" r="100" fill="url(#mfSideSkin)"/>
 
-  <!-- CORPO horizontal -->
-  <ellipse cx="220" cy="148" rx="118" ry="40" fill="url(#mfSideSkin)"/>
+  <!-- TOUCA DE DORMIR -->
+  <line x1="168.955" y1="109.419" x2="181.955" y2="86.9019" stroke="black" stroke-width="2"/>
+  <line x1="152.268" y1="96.3205" x2="162.268" y2="79"      stroke="black" stroke-width="4"/>
+  <ellipse cx="207.999" cy="148" rx="21" ry="7" fill="${skinBottom}"/>
+  <rect    x="196.999" y="116" width="14" height="28"      fill="${skinBottom}"/>
+  <path d="M192.001 116.497C192.001 116.497 202.947 109.538 211.63 95.4987C220.313 81.4593 220.001 80 220.001 80C220.001 80 226.221 84.5738 228.893 88.5981C231.565 92.6223 233.75 96.2583 226.25 109.249C218.75 122.239 208.714 120.201 203.893 119.899C199.072 119.597 192.001 116.497 192.001 116.497Z" fill="black"/>
 
-  <!-- PERNA da frente, levemente dobrada -->
-  <path d="M312 152 Q336 158 348 148" stroke="${limbs}" stroke-width="22" stroke-linecap="round" fill="none"/>
-  <ellipse cx="354" cy="148" rx="14" ry="10" fill="${limbs}"/>
+  <!-- ROSTO: olho fechado + boca relaxada + bochecha -->
+  <ellipse cx="118" cy="170" rx="16" ry="9" fill="url(#mfSideBlush)"/>
+  <path d="M96 152 Q118 162 140 152" stroke="black" stroke-width="4" stroke-linecap="round" fill="none"/>
+  <path d="M104 184 Q116 192 128 184" stroke="black" stroke-width="3" stroke-linecap="round" fill="none"/>
 
-  <!-- BRACO da frente, descansando em cima do corpo -->
-  <path d="M196 130 Q230 124 268 138" stroke="${limbs}" stroke-width="20" stroke-linecap="round" fill="none"/>
-  <circle cx="272" cy="140" r="11" fill="${limbs}"/>
+  <!-- BRAÇO DA FRENTE (curva descendo até a mão) -->
+  <path d="M107 148C110.344 157.242 122.382 176.736 143.783 180.769C165.184 184.802 180.845 177.968 186 174.047"
+        stroke="${limbs}" stroke-width="21" fill="none" stroke-linecap="round"/>
 
-  <!-- CABECA -->
-  <circle cx="98" cy="120" r="62" fill="url(#mfSideSkin)"/>
+  <!-- MÃO (polegar/dedinhos enrolados) -->
+  <path d="M178.087 175.136C175.453 173.85 175.676 167.979 178.584 162.024C181.493 156.069 185.986 152.283 188.619 153.57C190.697 154.585 190.995 158.454 189.6 162.967C196.24 160.613 203.595 162.387 207.663 167.881C212.757 174.761 210.77 184.867 203.225 190.454C195.679 196.041 185.433 194.993 180.339 188.114C177.542 184.335 176.879 179.584 178.101 175.143C178.096 175.141 178.092 175.138 178.087 175.136Z"
+        fill="${limbs}"/>
 
-  <!-- Topete/mecha frontal -->
-  <path d="M64 84 Q88 70 122 78 Q108 92 86 92 Q72 92 64 84Z" fill="${skinBottom}" opacity="0.55"/>
+  <!-- PERNA DA FRENTE (esticada para a direita) -->
+  <path d="M220 197C228.333 196 246.9 194.1 254.5 194.5C262.1 194.9 267.333 194.667 269 194.5"
+        stroke="${limbs}" stroke-width="21" fill="none" stroke-linecap="round"/>
 
-  <!-- Bochecha (blush) -->
-  <ellipse cx="78" cy="138" rx="14" ry="8" fill="url(#mfSideBlush)"/>
-
-  <!-- OLHO fechado (curva pra cima) -->
-  <path d="M70 116 Q84 124 100 116" stroke="black" stroke-width="3.5" stroke-linecap="round" fill="none"/>
-
-  <!-- BOCA pequena (relaxada, ligeiramente aberta) -->
-  <path d="M64 144 Q72 150 80 144" stroke="black" stroke-width="2.5" stroke-linecap="round" fill="none"/>
-  <ellipse cx="72" cy="148" rx="3.5" ry="2" fill="#5A2A2A" opacity="0.55"/>
-
-  <!-- Sobrancelha relaxada -->
-  <path d="M68 102 Q82 100 96 104" stroke="black" stroke-width="2.5" stroke-linecap="round" fill="none" opacity="0.7"/>
+  <!-- PÉ -->
+  <path d="M261.5 185C261.5 199.359 267.632 211 275.196 211C275.954 211 276.5 210.324 276.5 209.558L276.5 160.442C276.5 159.676 275.954 159 275.196 159C267.632 159 261.5 170.641 261.5 185Z"
+        fill="${limbs}"/>
 </svg>
 `.trim();
 }
@@ -128,10 +127,11 @@ function spawnZ(layer: HTMLElement, originX: number, originY: number) {
 function findSideHeadCenter(stage: HTMLElement, sideEl: HTMLElement): { x: number; y: number } {
   const stageRect = stage.getBoundingClientRect();
   const r = sideEl.getBoundingClientRect();
-  // No SVG side, a cabeça fica em ~25% da largura, ~55% da altura.
+  // No SVG side (viewBox 300x300), a cabeça está em (150, 143) e a touca
+  // sobe pra direita; emitimos os Z's a partir da ponta da touca.
   return {
-    x: r.left - stageRect.left + r.width * 0.27,
-    y: r.top  - stageRect.top  + r.height * 0.40,
+    x: r.left - stageRect.left + r.width * 0.74,
+    y: r.top  - stageRect.top  + r.height * 0.27,
   };
 }
 
