@@ -2,6 +2,7 @@
 import { characterPalettes, defaultPalette, type CharacterPaletteName } from '@/lib/character-palettes';
 import { armLeftPoses, armRightPoses } from '@/config/character/poses';
 import { mouthPosesRendered } from '@/games/character/precomputed';
+import { modes, defaultMode } from '@/config/character/modes';
 
 export interface Props {
   palette?: CharacterPaletteName;
@@ -21,6 +22,11 @@ const armLeftBack    = armLeftEntries.filter(([n])  => !isFront(n));
 const armLeftFront   = armLeftEntries.filter(([n])  =>  isFront(n));
 const armRightBack   = armRightEntries.filter(([n]) => !isFront(n));
 const armRightFront  = armRightEntries.filter(([n]) =>  isFront(n));
+
+// Pose ativa no modo inicial — usada como fallback antes do Alpine bootar.
+const initialArmLeftPose  = modes[defaultMode].armLeft.pose;
+const initialArmRightPose = modes[defaultMode].armRight.pose;
+const initialMouthPose    = modes[defaultMode].mouth.pose;
 ---
 
 <div
@@ -90,7 +96,10 @@ const armRightFront  = armRightEntries.filter(([n]) =>  isFront(n));
     <g :class="armLeftBindings.animClass">
       <g :transform="armLeftBindings.transformAttr" style="transform-origin: 40px 115px;">
         {armLeftBack.map(([name, pose]) => (
-          <g :style={`opacity: armLeftPoseOpacities['${name}'] ?? 0`}>
+          <g
+            style={`opacity: ${name === initialArmLeftPose ? 1 : 0}`}
+            :style={`{ opacity: armLeftPoseOpacities['${name}'] ?? 0 }`}
+          >
             <path d={pose.stroke} stroke={colors.limbs} stroke-width="21" stroke-linecap="round"/>
             <path d={pose.hand}   fill={colors.limbs}/>
           </g>
@@ -101,7 +110,10 @@ const armRightFront  = armRightEntries.filter(([n]) =>  isFront(n));
     <g :class="armRightBindings.animClass">
       <g :transform="armRightBindings.transformAttr" style="transform-origin: 220px 115px;">
         {armRightBack.map(([name, pose]) => (
-          <g :style={`opacity: armRightPoseOpacities['${name}'] ?? 0`}>
+          <g
+            style={`opacity: ${name === initialArmRightPose ? 1 : 0}`}
+            :style={`{ opacity: armRightPoseOpacities['${name}'] ?? 0 }`}
+          >
             <path d={pose.stroke} stroke={colors.limbs} stroke-width="21" stroke-linecap="round"/>
             <path d={pose.hand}   fill={colors.limbs}/>
           </g>
@@ -152,7 +164,8 @@ const armRightFront  = armRightEntries.filter(([n]) =>  isFront(n));
     {mouthPosesRendered.map(({ name, pathD }) => (
       <path d={pathD} fill="black" stroke="black" stroke-width="1"
         :class="mouthBindings.animClass"
-        :style={`opacity: mouthPoseOpacities['${name}'] ?? 0`}/>
+        style={`opacity: ${name === initialMouthPose ? 1 : 0}`}
+        :style={`{ opacity: mouthPoseOpacities['${name}'] ?? 0 }`}/>
     ))}
 
     <!-- Left eyebrow -->
@@ -177,7 +190,10 @@ const armRightFront  = armRightEntries.filter(([n]) =>  isFront(n));
     <g :class="armLeftBindings.animClass">
       <g :transform="armLeftBindings.transformAttr" style="transform-origin: 40px 115px;">
         {armLeftFront.map(([name, pose]) => (
-          <g :style={`opacity: armLeftPoseOpacities['${name}'] ?? 0`}>
+          <g
+            style={`opacity: ${name === initialArmLeftPose ? 1 : 0}`}
+            :style={`{ opacity: armLeftPoseOpacities['${name}'] ?? 0 }`}
+          >
             <path d={pose.stroke} stroke={colors.limbs} stroke-width="21" stroke-linecap="round"/>
             <path d={pose.hand}   fill={colors.limbs}/>
           </g>
@@ -188,7 +204,10 @@ const armRightFront  = armRightEntries.filter(([n]) =>  isFront(n));
     <g :class="armRightBindings.animClass">
       <g :transform="armRightBindings.transformAttr" style="transform-origin: 220px 115px;">
         {armRightFront.map(([name, pose]) => (
-          <g :style={`opacity: armRightPoseOpacities['${name}'] ?? 0`}>
+          <g
+            style={`opacity: ${name === initialArmRightPose ? 1 : 0}`}
+            :style={`{ opacity: armRightPoseOpacities['${name}'] ?? 0 }`}
+          >
             <path d={pose.stroke} stroke={colors.limbs} stroke-width="21" stroke-linecap="round"/>
             <path d={pose.hand}   fill={colors.limbs}/>
           </g>
