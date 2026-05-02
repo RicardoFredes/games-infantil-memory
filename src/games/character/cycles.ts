@@ -125,7 +125,7 @@ export function applyModeCycles(state: AnimState, h: CycleHandles, cfg: CycleCon
           armRightSwayR: [{ to: 0 }, { to: -4 }, { to: 0 }],
           duration: cfg.thinking!.durationMs,
           loop: true,
-          ease: 'inOutSine',
+          ease: 'linear',
         })
       },
     })
