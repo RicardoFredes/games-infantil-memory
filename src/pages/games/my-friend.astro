@@ -501,14 +501,15 @@ const cfg = config as MyFriendConfig;
   }
 
   /* ===== Sleep ===== */
-  /* Esconde por completo o personagem ao vivo + hit-zones durante a cena
-     de dormir, pra evitar resquícios de olhos/boca sobre o personagem
-     deitado de lado. */
-  #my-friend-stage.mf-sleep-active .character-stage,
-  #my-friend-stage.mf-sleep-active .character-stage *,
+  /* Remove o personagem ao vivo (e tudo dentro dele) + hit-zones do layout
+     durante a cena de dormir, pra evitar resquícios de blush/olho/boca
+     sobre o personagem deitado de lado. */
+  #my-friend-stage.mf-sleep-active .character-stage {
+    display: none !important;
+  }
   #my-friend-stage.mf-sleep-active .hit-zones,
   #my-friend-stage.mf-sleep-active svg.hit-zones {
-    visibility: hidden !important;
+    display: none !important;
     pointer-events: none !important;
   }
 
