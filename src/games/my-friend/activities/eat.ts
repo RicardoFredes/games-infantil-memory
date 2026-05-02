@@ -3,7 +3,7 @@
 // + mood eating/happy). Solta fora → o item volta pro prato.
 
 import { registerActivity } from './registry';
-import { playGestureSfx } from '@/lib/audio';
+import { playGestureSfx, playInflateSfx } from '@/lib/audio';
 import { attachDrag, createDragLock } from './_drag';
 
 interface Food {
@@ -184,7 +184,7 @@ registerActivity({
       }));
       if (bellyScale > prevBelly + 0.0001) {
         spawnGrowSparks(stage, layer);
-        playGestureSfx('inflate');
+        playInflateSfx(bites - 1);
       }
 
       const savorMood = bites >= SAD_THRESHOLD ? 'sad' : 'happy';

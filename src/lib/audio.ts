@@ -253,32 +253,47 @@ export function playGestureSfx(kind: string): void {
       break;
     }
     case 'inflate': {
-      // "Balão enchendo": ruído rosa filtrado com cutoff subindo +
-      // pitch glide pra cima de um oscilador triangle.
-      const now = Tone.now();
-      const dur = 0.55;
-      const filter = new Tone.Filter({ type: 'lowpass', frequency: 400, Q: 1 }).toDestination();
-      filter.frequency.cancelScheduledValues(now);
-      filter.frequency.setValueAtTime(400, now);
-      filter.frequency.exponentialRampToValueAtTime(2400, now + dur);
-      const noise = new Tone.NoiseSynth({
-        noise: { type: 'pink' },
-        envelope: { attack: 0.05, decay: 0.5, sustain: 0.0, release: 0.05 },
-      }).connect(filter);
-      noise.volume.value = -18;
-      noise.triggerAttackRelease(dur, now);
-
-      const osc = new Tone.Synth({
-        oscillator: { type: 'triangle' },
-        envelope: { attack: 0.04, decay: 0.5, sustain: 0.0, release: 0.05 },
-      }).toDestination();
-      osc.volume.value = -22;
-      osc.frequency.setValueAtTime(noteToFreq('A3'), now);
-      osc.frequency.exponentialRampToValueAtTime(noteToFreq('E5'), now + dur * 0.95);
-      osc.triggerAttackRelease(noteToFreq('A3'), dur, now);
+      playInflateSfx(0);
       break;
     }
   }
+}
+
+/**
+ * SFX de balão enchendo. `step` desloca o tom em ~0.7 semitons por incremento,
+ * fazendo o som ficar progressivamente mais agudo a cada chamada (até ~1
+ * oitava acima após ~15 passos).
+ */
+export function playInflateSfx(step: number = 0): void {
+  if (!initialized) return;
+  const now = Tone.now();
+  const dur = 0.55;
+  const semitonesPerStep = 0.7;
+  const ratio = Math.pow(2, (step * semitonesPerStep) / 12);
+  const startFreq = noteToFreq('A3') * ratio;
+  const endFreq   = noteToFreq('E5') * ratio;
+  const filterStart = 400 * ratio;
+  const filterEnd   = Math.min(8000, 2400 * ratio);
+
+  const filter = new Tone.Filter({ type: 'lowpass', frequency: filterStart, Q: 1 }).toDestination();
+  filter.frequency.cancelScheduledValues(now);
+  filter.frequency.setValueAtTime(filterStart, now);
+  filter.frequency.exponentialRampToValueAtTime(filterEnd, now + dur);
+  const noise = new Tone.NoiseSynth({
+    noise: { type: 'pink' },
+    envelope: { attack: 0.05, decay: 0.5, sustain: 0.0, release: 0.05 },
+  }).connect(filter);
+  noise.volume.value = -18;
+  noise.triggerAttackRelease(dur, now);
+
+  const osc = new Tone.Synth({
+    oscillator: { type: 'triangle' },
+    envelope: { attack: 0.04, decay: 0.5, sustain: 0.0, release: 0.05 },
+  }).toDestination();
+  osc.volume.value = -22;
+  osc.frequency.setValueAtTime(startFreq, now);
+  osc.frequency.exponentialRampToValueAtTime(endFreq, now + dur * 0.95);
+  osc.triggerAttackRelease(startFreq, dur, now);
 }
 
 const moodMotifs: Record<string, NoteStep[]> = {
