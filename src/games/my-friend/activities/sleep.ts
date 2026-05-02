@@ -23,10 +23,6 @@ function buildSideCharacterSvg(): string {
       <stop offset="0%"  stop-color="${skinTop}"/>
       <stop offset="100%" stop-color="${skinBottom}"/>
     </linearGradient>
-    <radialGradient id="mfSideBlush" cx="50%" cy="50%" r="50%">
-      <stop offset="0%"  stop-color="#FF9999" stop-opacity="0.85"/>
-      <stop offset="100%" stop-color="#FF6666" stop-opacity="0"/>
-    </radialGradient>
   </defs>
 
   <!-- CABEÇA -->
@@ -39,10 +35,7 @@ function buildSideCharacterSvg(): string {
   <rect    x="196.999" y="116" width="14" height="28"      fill="${skinBottom}"/>
   <path d="M192.001 116.497C192.001 116.497 202.947 109.538 211.63 95.4987C220.313 81.4593 220.001 80 220.001 80C220.001 80 226.221 84.5738 228.893 88.5981C231.565 92.6223 233.75 96.2583 226.25 109.249C218.75 122.239 208.714 120.201 203.893 119.899C199.072 119.597 192.001 116.497 192.001 116.497Z" fill="black"/>
 
-  <!-- ROSTO: olho fechado + boca relaxada + bochecha -->
-  <ellipse cx="118" cy="170" rx="16" ry="9" fill="url(#mfSideBlush)"/>
-  <path d="M96 152 Q118 162 140 152" stroke="black" stroke-width="4" stroke-linecap="round" fill="none"/>
-  <path d="M104 184 Q116 192 128 184" stroke="black" stroke-width="3" stroke-linecap="round" fill="none"/>
+  <!-- (sem rosto: personagem está deitado com a face contra o travesseiro) -->
 
   <!-- BRAÇO DA FRENTE (curva descendo até a mão) -->
   <path d="M107 148C110.344 157.242 122.382 176.736 143.783 180.769C165.184 184.802 180.845 177.968 186 174.047"
