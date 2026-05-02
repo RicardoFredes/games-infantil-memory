@@ -231,6 +231,56 @@ const cfg = config as MyFriendConfig;
     100% { transform: translate(var(--dx, 0), -240px)        scale(1.05); opacity: 0; }
   }
 
+  /* ===== Gift ===== */
+  #my-friend-stage .mf-gift-box {
+    position: absolute;
+    left: 50%;
+    bottom: 22%;
+    width: clamp(110px, 18vw, 150px);
+    transform: translate(-50%, -200%);
+    animation: mf-gift-drop 600ms cubic-bezier(0.5, 0, 0.75, 1) forwards,
+               mf-gift-shake 200ms 700ms ease-in-out 3 alternate;
+    z-index: 5;
+    will-change: transform;
+  }
+  #my-friend-stage .mf-gift-box svg { width: 100%; height: auto; display: block; }
+  @keyframes mf-gift-drop {
+    0%   { transform: translate(-50%, -260%); }
+    80%  { transform: translate(-50%, 6%); }
+    100% { transform: translate(-50%, 0); }
+  }
+  @keyframes mf-gift-shake {
+    0%   { transform: translate(-50%, 0)  rotate(-4deg); }
+    100% { transform: translate(-50%, 0)  rotate(4deg); }
+  }
+
+  #my-friend-stage .mf-gift-lid {
+    position: absolute;
+    left: 50%;
+    bottom: calc(22% + clamp(110px, 18vw, 150px) * 0.62);
+    width: clamp(120px, 20vw, 165px);
+    transform: translate(-50%, 0) scale(1);
+    opacity: 0;
+    animation: mf-gift-lid-fly 1200ms 1600ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    z-index: 6;
+    will-change: transform, opacity;
+  }
+  #my-friend-stage .mf-gift-lid svg { width: 100%; height: auto; display: block; }
+  @keyframes mf-gift-lid-fly {
+    0%   { transform: translate(-50%, 0)     rotate(0)    scale(1);   opacity: 1; }
+    25%  { transform: translate(-50%, -120px) rotate(-12deg) scale(1.05); opacity: 1; }
+    100% { transform: translate(-50%, -260px) rotate(35deg)  scale(0.9);  opacity: 0; }
+  }
+
+  .mf-gift-confetti {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 9999;
+  }
+
   /* ===== Sleep ===== */
   #my-friend-stage .mf-sleep-dim {
     position: absolute;
