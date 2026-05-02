@@ -10,13 +10,14 @@ export interface Props {
 const { fullscreen = false } = Astro.props;
 const safeArea = 'pt-[env(safe-area-inset-top)] pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)]';
 const bodyClass = fullscreen
-  ? `bg-gradient-to-br ${appConfig.theme.backgroundGradient} h-dvh overflow-hidden overscroll-none antialiased ${safeArea}`
-  : `bg-gradient-to-br ${appConfig.theme.backgroundGradient} min-h-dvh overscroll-none antialiased ${safeArea}`;
+  ? `bg-gradient-to-br ${appConfig.theme.backgroundGradient} h-full overflow-hidden overscroll-none antialiased ${safeArea}`
+  : `bg-gradient-to-br ${appConfig.theme.backgroundGradient} min-h-full overscroll-none antialiased ${safeArea}`;
 const mainClass = fullscreen ? 'h-full overflow-hidden' : 'min-h-full';
+const htmlClass = fullscreen ? 'h-full overflow-hidden' : 'h-full';
 ---
 
 <!doctype html>
-<html lang="pt-BR" data-theme={appConfig.app.theme} class={fullscreen ? 'h-dvh overflow-hidden' : ''}>
+<html lang="pt-BR" data-theme={appConfig.app.theme} class={htmlClass}>
   <head>
     <BaseHead />
   </head>
