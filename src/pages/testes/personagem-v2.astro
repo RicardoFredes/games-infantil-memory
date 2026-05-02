@@ -1,0 +1,264 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+---
+
+<BaseLayout>
+  <div x-data="characterTester" class="min-h-dvh flex flex-col items-center justify-center gap-6 p-4">
+    <div class="text-center">
+      <h1 class="text-2xl font-black text-purple-700">Testes de Animação</h1>
+      <p class="text-sm text-purple-500">Personagem — Imite a Sequência</p>
+    </div>
+
+    <!-- Character -->
+    <div class="relative w-[260px] h-[260px] flex items-center justify-center">
+      <svg
+        width="260" height="260" viewBox="0 0 260 260" fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        :class="animClass"
+        class="transition-all duration-300"
+      >
+        <!-- Body groups -->
+        <g id="body-group" class="origin-center" style="transform-origin:130px 130px">
+
+          <!-- Head -->
+          <g id="head-group" style="transform-origin:130px 123px">
+            <circle cx="130.474" cy="123" r="100" fill="#D9D9D9" class="transition-colors duration-500" :class="headColor"/>
+
+            <!-- Left eye -->
+            <g id="left-eye" style="transform-origin:99px 97px" class="transition-transform duration-100">
+              <circle cx="99.4745" cy="97" r="10" fill="black"/>
+              <circle cx="99.4745" cy="97" r="2" fill="#D9D9D9"/>
+              <rect x="89.4745" y="74" width="20" height="3" fill="black"/>
+            </g>
+
+            <!-- Right eye -->
+            <g id="right-eye" style="transform-origin:161px 97px" class="transition-transform duration-100">
+              <circle cx="161.474" cy="97" r="10" fill="black"/>
+              <circle cx="161.474" cy="97" r="2" fill="#D9D9D9"/>
+              <rect x="151.474" y="74" width="20" height="3" fill="black"/>
+            </g>
+
+            <!-- Nose -->
+            <path d="M129.974 107L134.738 115.25H125.211L129.974 107Z" fill="black"/>
+
+            <!-- Mouth -->
+            <g id="mouth-group" style="transform-origin:130px 131px" class="transition-transform duration-200">
+              <path id="mouth-path" d="M156.474 131.5H100.974C100.974 131.5 109.749 151.951 128.974 151.5C148.2 151.049 156.474 131.5 156.474 131.5Z" fill="black" stroke="black"/>
+            </g>
+          </g>
+
+          <!-- Arms -->
+          <g id="left-arm" style="transform-origin:90px 130px" class="transition-transform duration-300">
+            <path d="M47.4745 107C38.232 110.344 18.7389 122.382 14.7058 143.783C10.6727 165.184 17.5065 180.845 21.4276 186" stroke="#D9D9D9" stroke-width="21"/>
+            <path d="M19.9091 177.972C21.1953 175.338 27.0662 175.561 33.0214 178.469C38.9765 181.378 42.7617 185.871 41.4755 188.504C40.4603 190.582 36.5911 190.88 32.078 189.485C34.4323 196.125 32.6584 203.48 27.164 207.548C20.2843 212.642 10.1779 210.655 4.59072 203.11C-0.996328 195.564 0.0518956 185.318 6.93154 180.224C10.7097 177.427 15.4607 176.764 19.9022 177.986C19.9045 177.981 19.9068 177.977 19.9091 177.972Z" fill="#D9D9D9"/>
+          </g>
+          <g id="right-arm" style="transform-origin:170px 130px" class="transition-transform duration-300">
+            <path d="M213.475 107C222.717 110.344 242.21 122.382 246.243 143.783C250.276 165.184 243.442 180.845 239.521 186" stroke="#D9D9D9" stroke-width="21"/>
+            <path d="M241.04 177.972C239.754 175.338 233.883 175.561 227.928 178.469C221.972 181.378 218.187 185.871 219.473 188.504C220.489 190.582 224.358 190.88 228.871 189.485C226.517 196.125 228.291 203.48 233.785 207.548C240.665 212.642 250.771 210.655 256.358 203.11C261.945 195.564 260.897 185.318 254.017 180.224C250.239 177.427 245.488 176.764 241.047 177.986C241.045 177.981 241.042 177.977 241.04 177.972Z" fill="#D9D9D9"/>
+          </g>
+
+          <!-- Legs -->
+          <g id="left-leg" style="transform-origin:100px 210px" class="transition-transform duration-300">
+            <path d="M95.4745 203.5C94.4745 211.833 92.5745 230.4 92.9745 238C93.3745 245.6 93.1411 250.833 92.9745 252.5" stroke="#D9D9D9" stroke-width="21"/>
+            <path d="M83.4745 245C97.8339 245 109.474 251.132 109.474 258.696C109.474 259.454 108.798 260 108.033 260H58.9162C58.1505 260 57.4745 259.454 57.4745 258.696C57.4745 251.132 69.1151 245 83.4745 245Z" fill="#D9D9D9"/>
+          </g>
+          <g id="right-leg" style="transform-origin:160px 210px" class="transition-transform duration-300">
+            <path d="M165.474 203.5C166.474 211.833 168.374 230.4 167.974 238C167.574 245.6 167.808 250.833 167.974 252.5" stroke="#D9D9D9" stroke-width="21"/>
+            <path d="M177.474 245C163.115 245 151.474 251.132 151.474 258.696C151.474 259.454 152.151 260 152.916 260H202.033C202.798 260 203.474 259.454 203.474 258.696C203.474 251.132 191.834 245 177.474 245Z" fill="#D9D9D9"/>
+          </g>
+
+        </g>
+      </svg>
+    </div>
+
+    <!-- Controls -->
+    <div class="grid grid-cols-2 gap-2 w-full max-w-xs">
+      <button @click="setAnim('idle')"     class="btn btn-sm btn-ghost" :class="activeAnim === 'idle' ? 'btn-active' : ''">🫁 Ocioso</button>
+      <button @click="setAnim('happy')"    class="btn btn-sm btn-success">🎉 Feliz</button>
+      <button @click="setAnim('sad')"      class="btn btn-sm btn-error">😢 Triste</button>
+      <button @click="setAnim('countdown')" class="btn btn-sm btn-accent">🔢 Contagem</button>
+      <button @click="setAnim('timeout')"  class="btn btn-sm btn-warning">⏰ Timeout</button>
+      <button @click="setAnim('thinking')" class="btn btn-sm btn-info">🤔 Pensando</button>
+      <button @click="setAnim('dance')"    class="btn btn-sm btn-secondary">💃 Dançar</button>
+      <button @click="triggerBlink()"      class="btn btn-sm btn-ghost">😉 Piscar</button>
+    </div>
+  </div>
+</BaseLayout>
+
+<script>
+  import Alpine from 'alpinejs';
+
+  Alpine.data('characterTester', () => ({
+    activeAnim: 'idle',
+    animClass: 'anim-idle',
+    headColor: '',
+    blinkTimer: null as ReturnType<typeof setInterval> | null,
+
+    init() {
+      this.startIdleBlink();
+    },
+
+    setAnim(state: string) {
+      this.activeAnim = state;
+      this.animClass = 'anim-' + state;
+      this.headColor = '';
+      if (state === 'timeout') this.headColor = 'fill-red-300';
+      if (state === 'happy') this.headColor = 'fill-green-300';
+    },
+
+    startIdleBlink() {
+      this.blinkTimer = setInterval(() => {
+        this.triggerBlink();
+      }, 3000 + Math.random() * 4000);
+    },
+
+    triggerBlink() {
+      const left = document.getElementById('left-eye');
+      const right = document.getElementById('right-eye');
+      if (!left || !right) return;
+      left.style.transform = 'scaleY(0.1)';
+      right.style.transform = 'scaleY(0.1)';
+      setTimeout(() => {
+        left.style.transform = 'scaleY(1)';
+        right.style.transform = 'scaleY(1)';
+      }, 100);
+    },
+  }));
+
+  Alpine.start();
+</script>
+
+<style is:global>
+  /* IDLE: breathing + gentle sway */
+  .anim-idle { animation: idleBreath 3s ease-in-out infinite; }
+  .anim-idle #body-group { animation: idleSway 4s ease-in-out infinite; }
+  .anim-idle #left-arm { animation: idleArmL 3s ease-in-out infinite; }
+  .anim-idle #right-arm { animation: idleArmR 3.5s ease-in-out infinite; }
+
+  @keyframes idleBreath {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.02); }
+  }
+  @keyframes idleSway {
+    0%, 100% { transform: rotate(0deg); }
+    25% { transform: rotate(1deg); }
+    75% { transform: rotate(-1deg); }
+  }
+  @keyframes idleArmL {
+    0%, 100% { transform: rotate(0deg); }
+    50% { transform: rotate(-3deg); }
+  }
+  @keyframes idleArmR {
+    0%, 100% { transform: rotate(0deg); }
+    50% { transform: rotate(3deg); }
+  }
+
+  /* HAPPY: jump + arms up */
+  .anim-happy { animation: happyJump 0.4s ease-out 2; }
+  .anim-happy #left-arm { animation: happyArmL 0.4s ease-out 2; }
+  .anim-happy #right-arm { animation: happyArmR 0.4s ease-out 2; }
+  .anim-happy #mouth-group { animation: happyMouth 0.4s ease-out 2; }
+
+  @keyframes happyJump {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+  }
+  @keyframes happyArmL {
+    0%, 100% { transform: rotate(0deg); }
+    50% { transform: rotate(-60deg); }
+  }
+  @keyframes happyArmR {
+    0%, 100% { transform: rotate(0deg); }
+    50% { transform: rotate(60deg); }
+  }
+  @keyframes happyMouth {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.3); }
+  }
+
+  /* SAD: shake + droop */
+  .anim-sad { animation: sadShake 0.5s ease-in-out; }
+  .anim-sad #left-arm { animation: sadArmL 0.8s ease-in-out forwards; }
+  .anim-sad #right-arm { animation: sadArmR 0.8s ease-in-out forwards; }
+  .anim-sad #mouth-group { animation: sadMouth 0.5s ease-in-out forwards; }
+
+  @keyframes sadShake {
+    0%, 100% { transform: translateX(0); }
+    15% { transform: translateX(-6px); }
+    30% { transform: translateX(6px); }
+    45% { transform: translateX(-4px); }
+    60% { transform: translateX(4px); }
+    75% { transform: translateX(-2px); }
+  }
+  @keyframes sadArmL {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(-15deg); }
+  }
+  @keyframes sadArmR {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(15deg); }
+  }
+  @keyframes sadMouth {
+    0% { transform: scaleY(1); }
+    100% { transform: scaleY(-0.3) translateY(10px); }
+  }
+
+  /* COUNTDOWN: bob with numbers */
+  .anim-countdown { animation: countdownBob 0.6s ease-in-out 4; }
+
+  @keyframes countdownBob {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50% { transform: translateY(-8px) scale(1.05); }
+  }
+
+  /* TIMEOUT: arms down, head red */
+  .anim-timeout { animation: timeoutSlump 0.6s ease-in-out forwards; }
+  .anim-timeout #left-arm { animation: sadArmL 0.6s ease-in-out forwards; }
+  .anim-timeout #right-arm { animation: sadArmR 0.6s ease-in-out forwards; }
+
+  @keyframes timeoutSlump {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(10px) scale(0.95); }
+  }
+
+  /* THINKING: head tilt, hand on chin */
+  .anim-thinking { animation: thinkingTilt 2s ease-in-out infinite; }
+  .anim-thinking #left-arm { animation: thinkingArm 2s ease-in-out infinite; }
+
+  @keyframes thinkingTilt {
+    0%, 100% { transform: rotate(0deg); }
+    50% { transform: rotate(3deg); }
+  }
+  @keyframes thinkingArm {
+    0%, 100% { transform: rotate(0deg); }
+    50% { transform: rotate(-30deg) translateX(-10px); }
+  }
+
+  /* DANCE: rhythmic bounce */
+  .anim-dance { animation: danceBody 0.5s ease-in-out infinite; }
+  .anim-dance #left-arm { animation: danceArmL 0.5s ease-in-out infinite; }
+  .anim-dance #right-arm { animation: danceArmR 0.5s ease-in-out infinite; }
+  .anim-dance #left-leg { animation: danceLegL 0.5s ease-in-out infinite; }
+  .anim-dance #right-leg { animation: danceLegR 0.5s ease-in-out infinite; }
+
+  @keyframes danceBody {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-15px); }
+  }
+  @keyframes danceArmL {
+    0%, 100% { transform: rotate(-30deg); }
+    50% { transform: rotate(30deg); }
+  }
+  @keyframes danceArmR {
+    0%, 100% { transform: rotate(30deg); }
+    50% { transform: rotate(-30deg); }
+  }
+  @keyframes danceLegL {
+    0%, 100% { transform: rotate(0deg); }
+    50% { transform: rotate(10deg); }
+  }
+  @keyframes danceLegR {
+    0%, 100% { transform: rotate(0deg); }
+    50% { transform: rotate(-10deg); }
+  }
+</style>

@@ -1,0 +1,109 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import GameCharacter from '@/components/games/GameCharacter.astro';
+---
+
+<BaseLayout>
+  <div
+    x-data="characterTester"
+    class="min-h-dvh flex flex-col items-center justify-center gap-6 px-4 py-8"
+  >
+    <h1 class="text-3xl font-black text-purple-600 mb-2">Teste de Personagem</h1>
+
+    <!-- Character -->
+    <div class="relative flex items-center justify-center">
+      <GameCharacter />
+    </div>
+
+    <!-- Mood label -->
+    <div class="text-center">
+      <span class="text-sm text-base-content/50 uppercase tracking-widest">Expressao atual</span>
+      <p class="text-2xl font-extrabold" x-text="moodLabel" :class="moodColor"></p>
+    </div>
+
+    <!-- Mood buttons -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-lg w-full">
+      <button @click="setMood('idle')"        class="btn btn-outline btn-sm">😐 Idle</button>
+      <button @click="setMood('happy')"       class="btn btn-outline btn-sm">😊 Feliz</button>
+      <button @click="setMood('happy2')"      class="btn btn-outline btn-sm">😄 Feliz 2</button>
+      <button @click="setMood('sad')"         class="btn btn-outline btn-sm">😢 Triste</button>
+      <button @click="setMood('surprised')"   class="btn btn-outline btn-sm">😮 Surpreso</button>
+      <button @click="setMood('tired')"       class="btn btn-outline btn-sm">😴 Cansado</button>
+      <button @click="setMood('excited')"     class="btn btn-outline btn-sm">🤩 Animado</button>
+      <button @click="setMood('thinking')"    class="btn btn-outline btn-sm">🤔 Pensando</button>
+      <button @click="setMood('happy'); setTimeout(() => setMood('idle'), 2000)"
+        class="btn btn-outline btn-sm">⏱ Feliz 2s</button>
+    </div>
+
+    <!-- Mapeamento SVG -->
+    <details class="bg-base-200 rounded-xl p-4 max-w-lg w-full mt-6 text-sm">
+      <summary class="font-bold cursor-pointer">📐 Mapeamento das partes do SVG</summary>
+      <div class="mt-3 space-y-1 text-base-content/70">
+        <p><code>&lt;circle cx="130" cy="123" r="100"&gt;</code> → <b>Cabeça</b></p>
+        <p><code>&lt;circle cx="161" cy="97" r="10"&gt;</code> → <b>Olho direito</b></p>
+        <p><code>&lt;circle cx="99" cy="97" r="10"&gt;</code> → <b>Olho esquerdo</b></p>
+        <p><code>&lt;path d="M129...107Z"&gt;</code> → <b>Nariz</b> (triângulo)</p>
+        <p><code>&lt;path d="M156...131.5Z"&gt;</code> → <b>Boca</b></p>
+        <p><code>&lt;rect x="89" y="74" w="20" h="3"&gt;</code> → <b>Sobrancelha esq.</b></p>
+        <p><code>&lt;rect x="151" y="74" w="20" h="3"&gt;</code> → <b>Sobrancelha dir.</b></p>
+        <p><code>&lt;path stroke="url(#purpleGrad)" d="M47...186"&gt;</code> → <b>Braço esquerdo</b></p>
+        <p><code>&lt;path fill="#D9D9D9" d="M19...Z"&gt;</code> → <b>Mão esquerda</b></p>
+        <p><code>&lt;path stroke="url(#purpleGrad)" d="M213...186"&gt;</code> → <b>Braço direito</b></p>
+        <p><code>&lt;path fill="#D9D9D9" d="M241...Z"&gt;</code> → <b>Mão direita</b></p>
+        <p><code>&lt;path stroke="url(#purpleGrad)" d="M95...252"&gt;</code> → <b>Perna esquerda</b></p>
+        <p><code>&lt;path fill="#D9D9D9" d="M83...Z"&gt;</code> → <b>Pé esquerdo</b></p>
+        <p><code>&lt;path stroke="url(#purpleGrad)" d="M165...252"&gt;</code> → <b>Perna direita</b></p>
+        <p><code>&lt;path fill="#D9D9D9" d="M177...Z"&gt;</code> → <b>Pé direito</b></p>
+      </div>
+    </details>
+  </div>
+</BaseLayout>
+
+<script>
+  import Alpine from 'alpinejs'
+
+  Alpine.data('characterTester', () => ({
+    currentMood: 'idle',
+
+    get moodLabel() {
+      const map: Record<string, string> = {
+        idle: 'Oscioso',
+        happy: 'Feliz',
+        happy2: 'Feliz 2',
+        sad: 'Triste',
+        surprised: 'Surpreso',
+        tired: 'Cansado',
+        excited: 'Animado',
+        thinking: 'Pensando',
+      }
+      return map[this.currentMood] || this.currentMood
+    },
+
+    get moodColor() {
+      const map: Record<string, string> = {
+        idle: 'text-base-content',
+        happy: 'text-green-500',
+        happy2: 'text-pink-500',
+        sad: 'text-blue-500',
+        surprised: 'text-yellow-500',
+        tired: 'text-purple-500',
+        excited: 'text-orange-500',
+        thinking: 'text-teal-500',
+      }
+      return map[this.currentMood] || 'text-base-content'
+    },
+
+    setMood(mood: string) {
+      this.currentMood = mood
+      window.dispatchEvent(new CustomEvent('character:set-mood', {
+        detail: { mood }
+      }))
+    },
+  }))
+
+  Alpine.start()
+</script>
+
+<style is:global>
+  [x-cloak] { display: none !important; }
+</style>
