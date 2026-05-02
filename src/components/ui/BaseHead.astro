@@ -15,3 +15,10 @@ import appConfig from '@/config/app.json';
 <link rel="apple-touch-icon" href="/favicon.svg" />
 <link rel="manifest" href="/manifest.webmanifest" />
 <title>{appConfig.app.name}</title>
+<script is:inline>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js').catch(() => {});
+    });
+  }
+</script>
