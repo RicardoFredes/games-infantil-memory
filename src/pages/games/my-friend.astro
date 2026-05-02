@@ -142,6 +142,40 @@ const cfg = config as MyFriendConfig;
     100% { transform: scale(2.4); opacity: 0; }
   }
 
+  /* ===== Activity layer ===== */
+  #my-friend-stage .mf-activity-layer {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 7;
+  }
+
+  #my-friend-stage .mf-apple {
+    position: absolute;
+    width: clamp(54px, 9vw, 78px);
+    height: clamp(54px, 9vw, 78px);
+    transform: translate(-50%, 100%);
+    will-change: transform, opacity;
+    filter: drop-shadow(0 6px 8px rgba(0, 0, 0, 0.18));
+  }
+  #my-friend-stage .mf-apple svg { width: 100%; height: 100%; display: block; }
+
+  #my-friend-stage .mf-crumb {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    margin-left: -4px;
+    margin-top: -4px;
+    border-radius: 50%;
+    background: #C36B2D;
+    animation: mf-crumb-fall 700ms ease-in forwards;
+  }
+  @keyframes mf-crumb-fall {
+    0%   { transform: translate(0, 0) scale(1);   opacity: 1; }
+    100% { transform: translate(var(--dx, 0), 80px) scale(0.6); opacity: 0; }
+  }
+
   #my-friend-stage .character-shadow {
     position: absolute;
     left: 50%;
