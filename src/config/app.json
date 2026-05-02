@@ -14,8 +14,8 @@
     "accentColor": "#FBBF24"
   },
   "pwa": {
-    "backgroundColor": "#FCE7F3",
-    "themeColor": "#7C3AED",
+    "backgroundColor": "#FDE68A",
+    "themeColor": "#FDE68A",
     "display": "standalone",
     "orientation": "portrait"
   }

@@ -5,7 +5,7 @@ import appConfig from '@/config/app.json';
 
 const safeArea = 'pt-[env(safe-area-inset-top)] pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)]';
 const gradient = `bg-gradient-to-br ${appConfig.theme.backgroundGradient}`;
-const mainClass = `h-full min-h-dvh w-full ${safeArea}`;
+const mainClass = `fixed inset-0 w-full overflow-hidden ${safeArea}`;
 ---
 
 <!doctype html>

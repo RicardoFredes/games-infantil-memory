@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import GameCharacter from '@/components/games/GameCharacter.astro';
+import KidsPauseMenu from '@/components/ui/KidsPauseMenu.astro';
 import OptionsBar from '@/games/my-friend/components/OptionsBar.astro';
 import HitZones from '@/games/my-friend/components/HitZones.astro';
 import config from '@/games/my-friend/config.json';
@@ -18,9 +19,14 @@ const cfg = config as MyFriendConfig;
     <div class="relative z-20 flex items-center justify-between px-4 py-3 w-full">
       <button
         @click="togglePause()"
-        class="btn btn-ghost btn-sm btn-circle text-2xl"
-        aria-label="Menu"
-      >☰</button>
+        class="btn btn-ghost btn-sm btn-circle"
+        aria-label="Voltar"
+      >
+        <svg viewBox="0 0 24 24" class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M19 12H5" />
+          <path d="m12 19-7-7 7-7" />
+        </svg>
+      </button>
       <h1 class="text-lg text-purple-700">Meu Amigo</h1>
       <span class="w-8"></span>
     </div>
@@ -40,34 +46,7 @@ const cfg = config as MyFriendConfig;
 
     <OptionsBar />
 
-    <!-- Pause menu -->
-    <div
-      x-show="isPaused"
-      x-transition
-      class="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-md"
-    >
-      <button
-        @click="resumeGame()"
-        class="absolute top-6 right-6 w-12 h-12 rounded-full bg-white/90 shadow-lg border-2 border-purple-200 flex items-center justify-center text-2xl text-purple-600"
-        aria-label="Fechar"
-      >✕</button>
-      <div class="flex flex-col items-center gap-6">
-        <button
-          @click="resumeGame()"
-          class="flex items-center gap-4 bg-white/90 rounded-3xl px-8 py-5 shadow-xl border-2 border-green-300 w-64"
-        >
-          <span class="text-4xl">▶️</span>
-          <span class="text-xl text-green-600">Continuar</span>
-        </button>
-        <a
-          href="/"
-          class="flex items-center gap-4 bg-white/90 rounded-3xl px-8 py-5 shadow-xl border-2 border-red-300 w-64"
-        >
-          <span class="text-4xl">🚪</span>
-          <span class="text-xl text-red-500">Sair do jogo</span>
-        </a>
-      </div>
-    </div>
+    <KidsPauseMenu />
   </div>
 </BaseLayout>
 

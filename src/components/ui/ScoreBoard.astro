@@ -2,12 +2,15 @@
   <div class="flex items-center gap-2">
     <button
       @click="$dispatch('memory-sequence:pause-toggle')"
-      class="btn btn-ghost btn-sm btn-circle text-2xl"
-      aria-label="Menu"
+      class="btn btn-ghost btn-sm btn-circle"
+      aria-label="Voltar"
       x-show="!showStartButton"
       x-cloak
     >
-      ☰
+      <svg viewBox="0 0 24 24" class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M19 12H5" />
+        <path d="m12 19-7-7 7-7" />
+      </svg>
     </button>
   </div>
   <div class="flex items-center gap-3">
