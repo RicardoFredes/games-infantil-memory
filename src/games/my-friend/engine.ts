@@ -1,8 +1,9 @@
 import type { GameEngine } from '@/lib/game-engine';
-import type { MyFriendConfig, MyFriendState, GestureEvent, Reaction } from './types';
+import type { MyFriendConfig, MyFriendState, ZoneTapEvent, Reaction } from './types';
 import type { CharacterPaletteName } from '@/lib/character-palettes';
 import { loadGameState, saveGameState, clearGameState } from '@/lib/storage';
 import { getPalette as getGlobalPalette, setPalette as setGlobalPalette } from '@/lib/character-preferences';
+import { playGestureSfx } from '@/lib/audio';
 
 function emit(name: string, detail?: unknown) {
   const kebab = name.replace(/[A-Z]/g, (m) => '-' + m.toLowerCase());
@@ -28,8 +29,6 @@ export class MyFriendEngine implements GameEngine<MyFriendConfig, MyFriendState>
     this.config = config;
     this.id = config.meta.id;
     const persisted = loadGameState<MyFriendState>(config.meta.id);
-    // Paleta global tem precedência: my-friend reflete a escolha que vale
-    // pra todos os jogos.
     this.state = persisted
       ? { ...persisted, palette: getGlobalPalette() }
       : { palette: getGlobalPalette() };
@@ -70,28 +69,23 @@ export class MyFriendEngine implements GameEngine<MyFriendConfig, MyFriendState>
     emit('paletteChange', { palette, previous });
   }
 
-  handleGesture(evt: GestureEvent): void {
+  handleZoneTap(evt: ZoneTapEvent): void {
     if (this.paused) return;
-    const reaction = this.resolveReaction(evt);
+    const zone = evt.zone;
+    if (!zone) return;
+    const reaction = this.config.reactions[zone];
     if (!reaction) return;
 
-    const cooldownKey = `${evt.zone ?? '*'}:${evt.kind}`;
-    const cdMs = this.config.gestures[evt.kind]?.cooldownMs ?? 500;
-    const last = this.cooldowns.get(cooldownKey) ?? 0;
+    const cdMs = this.config.zones?.cooldownMs ?? 350;
+    const last = this.cooldowns.get(zone) ?? 0;
     const now = performance.now();
     if (now - last < cdMs) return;
-    this.cooldowns.set(cooldownKey, now);
+    this.cooldowns.set(zone, now);
 
+    playGestureSfx('tap');
     setMood(reaction.mood, reaction.moodDuration);
     if (reaction.action) fireAction(reaction.action);
-    emit('reaction', { kind: evt.kind, zone: evt.zone, reaction });
-  }
-
-  private resolveReaction(evt: GestureEvent): Reaction | null {
-    const zone = evt.zone ?? '*';
-    const exact = this.config.reactions[`${zone}:${evt.kind}`];
-    if (exact) return exact;
-    return this.config.reactions[`*:${evt.kind}`] ?? null;
+    emit('reaction', { zone, reaction });
   }
 
   getState(): Readonly<MyFriendState> {

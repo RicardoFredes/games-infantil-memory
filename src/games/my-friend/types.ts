@@ -8,8 +8,6 @@ export interface GameConfigMeta {
   ageRange: [number, number];
 }
 
-export type GestureKind = 'tap' | 'slap' | 'stroke' | 'tickle' | 'longPress' | 'doubleTap';
-
 export type Zone =
   | 'head'
   | 'eye-l' | 'eye-r'
@@ -19,16 +17,7 @@ export type Zone =
   | 'leg-l' | 'leg-r'
   | 'foot-l' | 'foot-r';
 
-export interface GestureConfig {
-  maxDurationMs?: number;
-  minDurationMs?: number;
-  maxDistance?: number;
-  minDistance?: number;
-  minVelocity?: number;
-  maxVelocity?: number;
-  minDirChanges?: number;
-  windowMs?: number;
-  maxIntervalMs?: number;
+export interface ZoneConfig {
   cooldownMs: number;
 }
 
@@ -42,7 +31,7 @@ export interface MyFriendConfig {
   meta: GameConfigMeta;
   palettes: CharacterPaletteName[];
   defaultPalette: CharacterPaletteName;
-  gestures: Record<GestureKind, GestureConfig>;
+  zones: ZoneConfig;
   reactions: Record<string, Reaction>;
 }
 
@@ -50,10 +39,6 @@ export interface MyFriendState {
   palette: CharacterPaletteName;
 }
 
-export interface GestureEvent {
-  kind: GestureKind;
+export interface ZoneTapEvent {
   zone: Zone | null;
-  velocity?: number;
-  distance?: number;
-  durationMs?: number;
 }

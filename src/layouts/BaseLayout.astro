@@ -3,16 +3,9 @@ import '@/styles/global.css';
 import BaseHead from '@/components/ui/BaseHead.astro';
 import appConfig from '@/config/app.json';
 
-export interface Props {
-  fullscreen?: boolean;
-}
-
-const { fullscreen = false } = Astro.props;
 const safeArea = 'pt-[env(safe-area-inset-top)] pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)]';
 const gradient = `bg-gradient-to-br ${appConfig.theme.backgroundGradient}`;
-const mainClass = fullscreen
-  ? `h-full w-full ${safeArea}`
-  : `h-full w-full overflow-y-auto ${safeArea}`;
+const mainClass = `h-full w-full ${safeArea}`;
 ---
 
 <!doctype html>

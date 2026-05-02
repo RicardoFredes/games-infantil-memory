@@ -1,0 +1,56 @@
+---
+const moods = [
+  { id: 'happy',     emoji: '😊', label: 'Feliz',     color: '#FFD86B' },
+  { id: 'excited',   emoji: '🤩', label: 'Animado',   color: '#FF8FB1' },
+  { id: 'sad',       emoji: '😢', label: 'Triste',    color: '#7FB8E8' },
+  { id: 'surprised', emoji: '😮', label: 'Surpreso',  color: '#B7E48A' },
+  { id: 'tired',     emoji: '😴', label: 'Cansado',   color: '#C7B8E5' },
+  { id: 'sleeping',  emoji: '💤', label: 'Dormindo',  color: '#A8D8E8' },
+];
+---
+
+<div class="mood-buttons flex items-center justify-center gap-2 px-3 pt-2 pb-1 flex-wrap">
+  {
+    moods.map((m) => (
+      <button
+        type="button"
+        class="mood-btn"
+        :class={`activeMood === '${m.id}' ? 'is-active' : ''`}
+        @click={`pickMood('${m.id}')`}
+        aria-label={m.label}
+        style={`--mood-color: ${m.color};`}
+      >
+        <span class="mood-emoji" aria-hidden="true">{m.emoji}</span>
+      </button>
+    ))
+  }
+</div>
+
+<style>
+  .mood-btn {
+    width: clamp(44px, 12vw, 60px);
+    height: clamp(44px, 12vw, 60px);
+    border-radius: 9999px;
+    background: var(--mood-color, #fff);
+    border: 4px solid white;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.18);
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.2s ease;
+    outline: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+  }
+  .mood-btn:active { transform: scale(0.92); }
+  .mood-btn:hover  { transform: scale(1.05); }
+  .mood-btn.is-active {
+    transform: scale(1.15);
+    box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.45), 0 6px 14px rgba(0, 0, 0, 0.22);
+  }
+  .mood-emoji {
+    font-size: clamp(22px, 6vw, 30px);
+    line-height: 1;
+    pointer-events: none;
+  }
+</style>

@@ -2,6 +2,7 @@
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import GameCharacter from '@/components/games/GameCharacter.astro';
 import ColorPalette from '@/games/my-friend/components/ColorPalette.astro';
+import MoodButtons from '@/games/my-friend/components/MoodButtons.astro';
 import HitZones from '@/games/my-friend/components/HitZones.astro';
 import config from '@/games/my-friend/config.json';
 import type { MyFriendConfig } from '@/games/my-friend/types';
@@ -9,7 +10,7 @@ import type { MyFriendConfig } from '@/games/my-friend/types';
 const cfg = config as MyFriendConfig;
 ---
 
-<BaseLayout fullscreen={true}>
+<BaseLayout>
   <div
     x-data="myFriend"
     x-init="init()"
@@ -35,8 +36,10 @@ const cfg = config as MyFriendConfig;
         <GameCharacter palette={cfg.defaultPalette} />
         <HitZones />
       </div>
+      <div class="touch-fx" aria-hidden="true"></div>
     </div>
 
+    <MoodButtons />
     <ColorPalette />
 
     <!-- Pause menu -->
@@ -110,6 +113,36 @@ const cfg = config as MyFriendConfig;
   }
   #my-friend-stage .character-stage > .character-container { display: block; width: 100%; }
   #my-friend-stage .character-stage svg.character-svg { width: 100%; height: auto; display: block; }
+
+  #my-friend-stage .touch-fx {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 6;
+  }
+  #my-friend-stage .touch-ripple {
+    position: absolute;
+    width: 90px;
+    height: 90px;
+    margin-left: -45px;
+    margin-top: -45px;
+    border-radius: 50%;
+    background: radial-gradient(
+      circle,
+      rgba(255, 255, 255, 0.9) 0%,
+      rgba(255, 220, 255, 0.55) 45%,
+      rgba(180, 140, 255, 0.0) 80%
+    );
+    pointer-events: none;
+    animation: my-friend-ripple 600ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    will-change: transform, opacity;
+  }
+  @keyframes my-friend-ripple {
+    0%   { transform: scale(0.2); opacity: 0.95; }
+    60%  { opacity: 0.6; }
+    100% { transform: scale(2.4); opacity: 0; }
+  }
 
   #my-friend-stage .character-shadow {
     position: absolute;

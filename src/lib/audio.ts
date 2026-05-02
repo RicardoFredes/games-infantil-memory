@@ -177,6 +177,113 @@ export function playCardWin(volume = -8): void {
   noise.triggerAttackRelease('8n', Tone.now() + 0.02);
 }
 
+export function playGestureSfx(kind: string): void {
+  if (!initialized) return;
+  switch (kind) {
+    case 'tap': {
+      const s = createBell();
+      s.volume.value = -18;
+      s.triggerAttackRelease(noteToFreq('G5'), '32n');
+      break;
+    }
+    case 'doubleTap': {
+      const now = Tone.now();
+      const s = createBell();
+      s.volume.value = -16;
+      s.triggerAttackRelease(noteToFreq('A5'), '32n', now);
+      s.triggerAttackRelease(noteToFreq('C6'), '32n', now + 0.09);
+      break;
+    }
+    case 'slap': {
+      const drum = new Tone.MembraneSynth({
+        pitchDecay: 0.08,
+        octaves: 4,
+        envelope: { attack: 0.001, decay: 0.25, sustain: 0, release: 0.15 },
+      }).toDestination();
+      drum.volume.value = -10;
+      drum.triggerAttackRelease('C2', '8n');
+      break;
+    }
+    case 'stroke': {
+      const noise = new Tone.NoiseSynth({
+        noise: { type: 'pink' },
+        envelope: { attack: 0.08, decay: 0.3, sustain: 0 },
+      }).toDestination();
+      noise.volume.value = -22;
+      noise.triggerAttackRelease('8n');
+      break;
+    }
+    case 'tickle': {
+      const now = Tone.now();
+      const s = createBell();
+      s.volume.value = -18;
+      ['E5', 'G5', 'B5', 'G5', 'E5'].forEach((n, i) => {
+        s.triggerAttackRelease(noteToFreq(n), '32n', now + i * 0.06);
+      });
+      break;
+    }
+    case 'longPress': {
+      const s = new Tone.Synth({
+        oscillator: { type: 'triangle' },
+        envelope: { attack: 0.15, decay: 0.2, sustain: 0.6, release: 0.5 },
+      }).toDestination();
+      s.volume.value = -16;
+      s.triggerAttackRelease(noteToFreq('C5'), '4n');
+      break;
+    }
+  }
+}
+
+const moodMotifs: Record<string, NoteStep[]> = {
+  happy: [
+    { note: 'C5', duration: '8n' },
+    { note: 'E5', duration: '8n' },
+    { note: 'G5', duration: '4n' },
+  ],
+  excited: [
+    { note: 'C5', duration: '16n' },
+    { note: 'E5', duration: '16n' },
+    { note: 'G5', duration: '16n' },
+    { note: 'C6', duration: '8n' },
+    { note: 'G5', duration: '16n' },
+    { note: 'C6', duration: '4n' },
+  ],
+  sad: [
+    { note: 'A4', duration: '4n' },
+    { note: 'F4', duration: '4n' },
+    { note: 'D4', duration: '2n' },
+  ],
+  surprised: [
+    { note: 'C5', duration: '16n' },
+    { note: 'C6', duration: '4n' },
+  ],
+  tired: [
+    { note: 'G4', duration: '4n' },
+    { note: 'F4', duration: '4n' },
+    { note: 'E4', duration: '2n' },
+  ],
+  sleeping: [
+    { note: 'D4', duration: '2n' },
+    { note: 'D4', duration: '4n' },
+  ],
+  thinking: [
+    { note: 'E5', duration: '8n' },
+    { note: 'G5', duration: '8n' },
+    { note: 'F5', duration: '4n' },
+  ],
+  calm: [
+    { note: 'C5', duration: '4n' },
+    { note: 'G4', duration: '2n' },
+  ],
+};
+
+export function playMoodMotif(mood: string, volume = -10): void {
+  if (!initialized) return;
+  const motif = moodMotifs[mood];
+  if (!motif) return;
+  playSequence(motif, 130, volume);
+}
+
 export function playTimeoutSfx(): void {
   if (!initialized) return;
   try {

@@ -8,25 +8,20 @@
   },
   "palettes": ["purple", "pink", "green", "blue", "yellow", "orange", "red"],
   "defaultPalette": "purple",
-  "gestures": {
-    "tap":       { "maxDurationMs": 200, "maxDistance": 8, "cooldownMs": 250 },
-    "slap":      { "minVelocity": 1.2, "maxDurationMs": 250, "cooldownMs": 1500 },
-    "stroke":    { "minDistance": 30, "maxVelocity": 0.6, "cooldownMs": 600 },
-    "tickle":    { "minDirChanges": 2, "windowMs": 500, "cooldownMs": 800 },
-    "longPress": { "minDurationMs": 800, "maxDistance": 12, "cooldownMs": 1000 },
-    "doubleTap": { "maxIntervalMs": 350, "cooldownMs": 800 }
+  "zones": {
+    "cooldownMs": 350
   },
   "reactions": {
-    "head:stroke":      { "mood": "happy",     "moodDuration": 1500 },
-    "head:slap":        { "mood": "sad",       "moodDuration": 2000, "action": "shake" },
-    "body:tickle":      { "mood": "excited",   "moodDuration": 2000, "action": "bounce" },
-    "body:longPress":   { "mood": "calm",      "moodDuration": 3000 },
-    "body:slap":        { "mood": "sad",       "moodDuration": 2000, "action": "shake" },
-    "eye-l:tap":        { "mood": "surprised", "moodDuration": 800 },
-    "eye-r:tap":        { "mood": "surprised", "moodDuration": 800 },
-    "mouth:tap":        { "mood": "happy",     "moodDuration": 600 },
-    "foot-l:tap":       { "mood": "excited",   "moodDuration": 1000, "action": "jump" },
-    "foot-r:tap":       { "mood": "excited",   "moodDuration": 1000, "action": "jump" },
-    "*:doubleTap":      { "mood": "happy",     "moodDuration": 1500, "action": "wave" }
+    "head":   { "mood": "happy",     "moodDuration": 1500 },
+    "eye-l":  { "mood": "surprised", "moodDuration": 800 },
+    "eye-r":  { "mood": "surprised", "moodDuration": 800 },
+    "mouth":  { "mood": "happy",     "moodDuration": 600 },
+    "body":   { "mood": "excited",   "moodDuration": 2000, "action": "bounce" },
+    "arm-l":  { "mood": "happy",     "moodDuration": 1500, "action": "wave" },
+    "arm-r":  { "mood": "happy",     "moodDuration": 1500, "action": "wave" },
+    "leg-l":  { "mood": "excited",   "moodDuration": 1000, "action": "jump" },
+    "leg-r":  { "mood": "excited",   "moodDuration": 1000, "action": "jump" },
+    "foot-l": { "mood": "excited",   "moodDuration": 1000, "action": "jump" },
+    "foot-r": { "mood": "excited",   "moodDuration": 1000, "action": "jump" }
   }
 }
