@@ -34,6 +34,13 @@ import {
 import { playWave, stopWave, createWaveHandles, type WaveHandles } from './wave'
 import { playShake, stopShake, createShakeHandles, type ShakeHandles } from './shake'
 import { playBounce, stopBounce, createBounceHandles, type BounceHandles } from './bounce'
+import { animate as animateAnime } from 'animejs'
+
+let bellyHandle: ReturnType<typeof animateAnime> | null = null
+function animateBelly(state: AnimState, to: number, duration: number) {
+  if (bellyHandle) try { bellyHandle.cancel() } catch { /* já cancelada */ }
+  bellyHandle = animateAnime(state, { bellyScale: to, duration, ease: 'outQuad' })
+}
 
 type Timer = ReturnType<typeof setTimeout> | null
 
@@ -80,6 +87,7 @@ export interface CharacterStore {
   readonly blushOpacity: number
   readonly tearOpacity:  number
   readonly pupilOpacity: number
+  readonly cheekPuffOpacity: number
   readonly armsOverHead: boolean
   readonly jumpWrapperTransform: string
 }
@@ -114,11 +122,11 @@ function combineLegTransform(
 const GROUND_Y = 260
 
 /** Transform attr do wrapper de jump: rotate (shake) + translate + scale ancorado no chão. */
-function jumpWrapperAttr(jumpY: number, scaleY: number, shakeR: number): string {
+function jumpWrapperAttr(jumpY: number, scaleY: number, shakeR: number, modeOffsetY: number): string {
   // Scale around (anyX, GROUND_Y): translate(0, GROUND_Y*(1-sy)) scale(1, sy)
   // Layered com jumpY: translate(0, GROUND_Y*(1-sy) + jumpY) scale(1, sy)
   // Shake roda em torno do quadril (~130, 200) sem afetar o pouso.
-  const ty = GROUND_Y * (1 - scaleY) + jumpY
+  const ty = GROUND_Y * (1 - scaleY) + jumpY + modeOffsetY
   const rotate = shakeR ? `rotate(${shakeR}, 130, 200) ` : ''
   return `${rotate}translate(0, ${ty}) scale(1, ${scaleY})`
 }
@@ -163,6 +171,11 @@ export function createCharacterStore(): CharacterStore {
       }) as EventListener)
       window.addEventListener('character:bounce', ((e: CustomEvent) => {
         this.bounce(e.detail?.duration)
+      }) as EventListener)
+      window.addEventListener('character:belly-set', ((e: CustomEvent) => {
+        const target = Number(e.detail?.scale ?? 1)
+        const ms = Number(e.detail?.duration ?? 350)
+        animateBelly(this.animState, target, ms)
       }) as EventListener)
 
       startBreathing(this.animState, this._cycleHandles)
@@ -326,11 +339,10 @@ export function createCharacterStore(): CharacterStore {
     get eyebrowRightBindings() { return resolveEyebrowRight(modes[this.mode].eyebrowRight, this.animState.eyebrowRight) },
     get mouthBindings()        { return resolveMouth(modes[this.mode].mouth, this.animState.mouthGrinScale) },
     get jumpWrapperTransform() {
-      return jumpWrapperAttr(this.animState.bodyJumpY, this.animState.bodyScaleY, this.animState.bodyShakeR)
+      return jumpWrapperAttr(this.animState.bodyJumpY, this.animState.bodyScaleY, this.animState.bodyShakeR, this.animState.modeOffsetY)
     },
     get bodyBindings() {
-      // Breathing wrapper (interno, só upper body).
-      return resolveBody(this.animState.bodyBreatheY)
+      return resolveBody(this.animState.bodyBreatheY, this.animState.bellyScale)
     },
     get legLeftBindings() {
       return resolveLeg(combineLegTransform(this.animState.legLeft, this.animState.legLeftJumpR, this.animState.legLeftJumpY))
@@ -348,6 +360,7 @@ export function createCharacterStore(): CharacterStore {
     get blushOpacity()      { return this.animState.blush },
     get tearOpacity()       { return this.animState.tears },
     get pupilOpacity()      { return this.animState.pupilSparkle },
+    get cheekPuffOpacity()  { return Math.max(0, Math.min(1, this.animState.cheekPuff)) },
     get armsOverHead()      { return modes[this.mode].body.armsOverHead },
   }
 }

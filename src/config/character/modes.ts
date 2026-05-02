@@ -174,6 +174,24 @@ export const modes: Record<ModeName, ModeConfig> = {
     cycles:      { chewLoop: { durationMs: 320 }, pupilSparkle: { durationMs: 1200 } },
   },
 
+  refuse: {
+    armLeft:     { pose: 'head-grab', transform: { rotate: 0 } },
+    armRight:    { pose: 'head-grab', transform: { rotate: 0 } },
+    eyeLeft:     { shape: { x: 1, y: 0.18 } },
+    eyeRight:    { shape: { x: 1, y: 0.18 } },
+    eyebrowLeft: { pose: 'angry', transform: { rotate: 0, translateY: 4 } },
+    eyebrowRight:{ pose: 'angry', transform: { rotate: 0, translateY: 4 } },
+    mouth:       { pose: 'angry' },
+    body:        { armsOverHead: true },
+    legLeft:     { transform: { rotate: 0, translateY: 0 } },
+    legRight:    { transform: { rotate: 0, translateY: 0 } },
+    nose:        { transform: { scaleX: 1, scaleY: 1 } },
+    blush:       0,
+    tears:       0,
+    cheekPuff:   0,
+    cycles:      {},
+  },
+
   sleeping: {
     armLeft:     { pose: 'down', transform: { rotate: 0 } },
     armRight:    { pose: 'down', transform: { rotate: 0 } },
@@ -190,6 +208,7 @@ export const modes: Record<ModeName, ModeConfig> = {
     blush:       0,
     tears:       0,
     cheekPuff:   0,
+    offsetY:     50,
     cycles:      {},
   },
 }

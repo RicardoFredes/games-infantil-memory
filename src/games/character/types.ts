@@ -80,12 +80,15 @@ export interface ModeConfig {
   nose: NoseSpec
   blush: number
   tears: number
+  cheekPuff: number
+  /** Deslocamento vertical do personagem inteiro (px no viewBox). 0 = neutro. */
+  offsetY?: number
   cycles: CycleConfig
 }
 
 export type ModeName =
   | 'idle' | 'happy' | 'excited' | 'sad' | 'angry'
-  | 'surprised' | 'tired' | 'thinking' | 'sleeping' | 'eating'
+  | 'surprised' | 'tired' | 'thinking' | 'sleeping' | 'eating' | 'refuse'
 
 // ─── One-shot actions ─────────────────────────────────────────
 

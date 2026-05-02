@@ -40,6 +40,9 @@ export interface AnimState {
   armRightWaveY:  number
   pupilSparkle:   number
   mouthGrinScale: number
+  cheekPuff:      number
+  bellyScale:     number
+  modeOffsetY:    number
   legLeftJumpR:   number
   legRightJumpR:  number
   legLeftJumpY:   number
@@ -84,7 +87,7 @@ const fullTransform = (t: Transform2D): Required<Transform2D> => ({
 export function targetFromMode(mode: ModeConfig): Pick<AnimState,
   | 'armLeft' | 'armRight' | 'eyeLeft' | 'eyeRight'
   | 'eyebrowLeft' | 'eyebrowRight' | 'legLeft' | 'legRight'
-  | 'nose' | 'blush' | 'tears'
+  | 'nose' | 'blush' | 'tears' | 'cheekPuff' | 'modeOffsetY'
 > {
   return {
     armLeft:      fullTransform(mode.armLeft.transform),
@@ -98,6 +101,8 @@ export function targetFromMode(mode: ModeConfig): Pick<AnimState,
     nose:         { scaleX: mode.nose.transform.scaleX ?? 1, scaleY: mode.nose.transform.scaleY ?? 1 },
     blush:  mode.blush,
     tears:  mode.tears,
+    cheekPuff: mode.cheekPuff,
+    modeOffsetY: mode.offsetY ?? 0,
   }
 }
 
@@ -123,6 +128,9 @@ export function createAnimState(mode: ModeConfig): AnimState {
     armRightWaveY:  0,
     pupilSparkle:   1,
     mouthGrinScale: 1,
+    cheekPuff:      0,
+    bellyScale:     1,
+    modeOffsetY:    0,
     legLeftJumpR:   0,
     legRightJumpR:  0,
     legLeftJumpY:   0,
@@ -168,6 +176,9 @@ export function transitionTo(
     cancel(handles[key])
     handles[key] = animate(obj, { ...goal, duration, ease })
   }
+
+  state.cheekPuff = target.cheekPuff
+  state.modeOffsetY = target.modeOffsetY
 
   cancel(handles.scalars)
   handles.scalars = animate(state, {
